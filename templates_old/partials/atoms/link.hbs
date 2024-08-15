@@ -1,0 +1,34 @@
+{{#*inline "label_content"}}
+    {{#if label}}
+        {{label}}
+    {{else}}
+        {{> @partial-block}}
+    {{/if}}
+{{/inline}}
+
+{{#if is_ajax_action}}
+<a 
+    hx-get="{{href}}"
+    hx-target="{{(xor target '#swap-content')}}"
+    hx-swap="{{(xor swap 'innerHTML transition:true')}}"
+    class="text-sm font-medium transition text-zinc-400 {{#unless disabled}}hover:text-white cursor-pointer{{/unless}} {{(xor className '')}}"
+    xui-el="Navigation"
+    {{#if stop_propagation}}xui-stop-propagation="{{stop_propagation}}"{{/if}}
+    {{#if disabled}}xui-hx-disabled="1"{{/if}}
+    {{#if is_entering_detail_view}}xui-detail-view="1"{{/if}}
+>
+    {{> label_content}}
+</a>
+{{else}}
+<a
+    {{#if method}}hx-{{method}}{{else}}href{{/if}}="{{href}}"
+    hx-target="{{(xor target '#swap-content')}}"
+    hx-swap="{{(xor swap 'innerHTML')}} transition:true"
+    class="text-sm font-medium transition text-zinc-400 {{#unless disabled}}hover:text-white cursor-pointer{{/unless}} {{(xor className '')}}"
+    {{#if stop_propagation}}xui-stop-propagation="{{stop_propagation}}"{{/if}}
+    {{#if disabled}}xui-hx-disabled="1"{{/if}}
+    {{#if is_entering_detail_view}}xui-detail-view="1"{{/if}}40
+>
+    {{> label_content}}
+</a>
+{{/if}}

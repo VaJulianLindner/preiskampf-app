@@ -1,0 +1,30 @@
+{{#* inline "content"}}
+    {{#if is_boosted_action}}
+        <div id="product_list">
+            {{> partials/elements/products/list}}
+        </div>
+    {{else}}
+        <title>Preiskampf | Einkaufstour</title>
+        <h1>Einkaufstour</h1>
+        <div class="max-w-4xl not-prose">
+            {{> partials/elements/products/form_search}}
+            <div id="product_list">
+                {{> partials/elements/products/list}}
+            </div>
+        </div>
+    {{/if}}
+{{/inline}}
+
+{{#if is_navigation_action}}
+    {{> content}}
+{{else}}
+    <!DOCTYPE html>
+    <html lang="de" class="h-full">
+    <head>
+        {{> partials/head_include}}
+    </head>
+    {{#> layouts/default}}
+        {{> content}}
+    {{/layouts/default}}
+    </html>
+{{/if}}

@@ -1,0 +1,11 @@
+{% import "partials/icons.html" as icons %}
+
+<button
+    type="button"
+    class="flex h-6 w-6 items-center justify-center rounded-md transition hover:bg-white/5"
+    xui-el="NavigationToggle"    
+    xui-navigation-toggle="closed"
+>
+    {% call icons::menu_icon() %}
+    {% call icons::x_icon(hidden=true) %}
+</button>

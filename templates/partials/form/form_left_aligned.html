@@ -1,0 +1,50 @@
+{% import "partials/atoms/button.html" as button %}
+
+{% macro start(method, action, swap, target, boost, push_url, headers) %}
+<form
+    xui-element-name="form_left_aligned"
+    hx-{{ method }}="{{ action }}"
+    hx-swap="{{ swap }}"
+    hx-target="{{ target }}"
+    {% if boost %}hx-boost="true"{% endif %}
+    {% if push_url.len() > 0 %}hx-push-url="{{push_url}}"{% endif %}
+    {% if headers.len() > 0 %}hx-headers="{{push_url}}"{% endif %}
+>
+    <div class="space-y-12 sm:space-y-16">
+        <div class="mt-10 space-y-8 border-b border-zinc-400/10 pb-12 sm:space-y-0 sm:divide-y sm:divide-zinc-400/10 sm:border-t sm:pb-0">
+{% endmacro %}
+
+{% macro end(hide_control_buttons, errors, reset_url, target, swap) %}
+        </div>
+    </div>
+
+    {% if !hide_control_buttons %}
+        <div class="mt-6 flex items-center justify-center md:justify-end gap-x-6">
+            {% call button::as_button(
+                label="Verwerfen",
+                button_type="secondary",
+                post=false,
+                get=true,
+                href=reset_url,
+                target=target,
+                swap=swap,
+                is_ajax_action=false,
+            ) %}
+            {% call button::as_button(
+                label="Speichern",
+                button_type="primary",
+                post=false,
+                get=false,
+                href="",
+                target="",
+                swap="",
+                is_ajax_action=false,
+            ) %}
+        </div>
+    {% endif %}
+
+    {% for error in errors %}
+        <p class="text-red-400" align="center">{{ error|fmt("{:?}") }}</p>
+    {% endfor %}
+</form>
+{% endmacro %}

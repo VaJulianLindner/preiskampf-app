@@ -1,0 +1,19 @@
+{% macro item(label, href, use_full_page_layout) %}
+<li class="z-10 mt-6">
+    <a
+        href="{{href}}"
+        {% if !use_full_page_layout %}
+        hx-get="{{href}}"
+        hx-target="#swap-content"
+        hx-swap="innerHTML transition:true"
+        xui-el="Navigation"
+        xui-is-nav
+        {% endif %}
+        class="flex cursor-pointer justify-between gap-2 py-1 pr-3 text-sm transition hover:text-white
+            {% if href == context.uri.path() %} text-white font-bold{% else %} text-zinc-400{% endif %}
+        "
+    >
+        <span class="truncate">{{label}}</span>
+    </a>
+</li>
+{% endmacro %}

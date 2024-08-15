@@ -1,0 +1,20 @@
+{{#* inline "content"}}
+    <title>Preiskampf</title>
+    <h1>Heiß ist der Preis</h1>
+    <p class="lead mt-8">Preisupdates?</p>
+    <p class="lead">Schnäppchen in deiner Nähe?</p>
+{{/inline}}
+
+{{#if is_navigation_action}}
+    {{> content}}
+{{else}}
+<!DOCTYPE html>
+<html lang="de" class="h-full">
+    <head>
+        {{> partials/head_include}}
+    </head>
+    {{#> layouts/default}}
+        {{> content}}
+    {{/layouts/default}}
+</html>
+{{/if}}

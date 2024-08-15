@@ -1,0 +1,40 @@
+{% extends "layouts/default.html" %}
+
+{% block content %}
+<title>Preiskampf | {{ product.name }}</title>
+<h1 id="product-heading">
+    <a href="{{ product.url }}" target="_blank">
+        {{ product.name }}
+    </a>
+</h1>
+
+<div class="grid sm:grid-cols-2 mt-10">
+    <div class="sm:col-span-1">
+        {% let main_image = product.images.first() %}
+        {% if main_image.is_some() %}
+            <img
+                id="product-detail"
+                class="h-96 w-96 flex-none rounded-lg bg-gray-800 not-prose"
+                src="{{ main_image.unwrap() }}"
+                alt="{{ product.name }}"
+            >
+        {% endif %}
+    </div>
+    <div class="sm:col-span-1 hidden sm:block">
+        <p class="truncate leading-5 text-gray-400">
+            {{ product.format_price() }}
+        </p>
+        <p class="mt-10 truncate leading-5 text-gray-400">
+            <time datetime="{{ product.created_at }}">{{ product.created_at }}</time>
+        </p>
+    </div>
+</div>
+
+<p class="mt-10 truncate leading-5 text-gray-400 sm:hidden">
+    {{ product.format_price() }}
+</p>
+<p class="mt-10 truncate leading-5 text-gray-400 sm:hidden">
+    <time datetime="{{ product.created_at }}">{{ product.created_at }}</time>
+</p>
+
+{% endblock %}

@@ -1,0 +1,5 @@
+<ul role="list">
+    {{#each navigation.main_navigation}}
+        {{> partials/navigation/group this authenticated_user=../authenticated_user requested_path=../requested_path}}
+    {{/each}}
+</ul>

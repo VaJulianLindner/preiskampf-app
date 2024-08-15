@@ -1,0 +1,112 @@
+{% import "partials/atoms/link.html" as link %}
+{% import "partials/icons.html" as icons %}
+
+{% macro default(shopping_list) %}
+<li 
+    id="shopping-list-{{ shopping_list.id }}"
+    title="Einkaufszettel wählen"
+    hx-put="/user/save_selected_shopping_list/{{ shopping_list.id }}"
+    hx-swap="none"
+    {% if authenticated_user.is_some() %}
+        {% if authenticated_user.as_ref().unwrap().selected_shopping_list_id.unwrap_or(0) == shopping_list.id %}
+            xui-hx-disabled="1"
+            class="selected"
+        {% else %}
+            class="pulsing cursor-pointer"
+        {% endif %}
+    {% endif %}
+>
+    <div class="overflow-hidden rounded-xl border border-white/10 bg-zinc-900/90">
+        
+        <div class="flex items-center gap-x-4 border-b border-white/20 p-6">
+            <div class="relative">             
+                {% match shopping_list.emoji_presentation.as_ref() %}
+                    {% when Some with (val) %}
+                        {% if val.len() > 0 %}
+                            <div style="font-size:1.5rem;line-height:2.5rem;">&#{{ val }};</div>
+                        {% else %}
+                            <div style="font-size:1.5rem;line-height:2.5rem;padding-top:2.5rem;"></div>
+                        {% endif %}
+                    {% when None %}
+                    <div style="font-size:1.5rem;line-height:2.5rem;padding-top:2.5rem;"></div>
+                {% endmatch %}
+            </div>
+
+            <div class="text-sm font-medium leading-6 text-white">
+                {{ shopping_list.name }}
+            </div>
+
+            <div class="relative ml-auto {# grid grid-cols-2 #} flex justify-between">
+                {% call link::start(
+                    format!("/einkaufszettel/{}", shopping_list.id),
+                    "get",
+                    "",
+                    "",
+                    "post",
+                    false,
+                    "block px-3 py-1 leading-6 text-sm",
+                    true,
+                    false
+                ) %}
+                    Bearbeiten
+                {% call link::end() %}
+
+                {% let current_page = context.get_current_page() %}
+                {% if loop.first && loop.last && current_page > 0 %}
+                    {% let query_state = context.preserve_query_state(current_page - 1, false) %}
+                    {% let delete_href = format!("/shopping_list/delete/{}?{}", shopping_list.id, query_state) %}
+
+                    {% call link::start(
+                        delete_href,
+                        "delete",
+                        format!("#shopping-list-{}", shopping_list.id),
+                        "outerHTML",
+                        format!("/user/save_selected_shopping_list/{}", shopping_list.id),
+                        false,
+                        "block px-3 py-1 leading-6 text-sm",
+                        false,
+                        false
+                    ) %}
+                        Löschen
+                    {% call link::end() %}
+                {% else %}
+                    {% let val = "im else" %}
+                    {% let query_state = context.preserve_query_state(current_page, false) %}
+                    {% let delete_href = format!("/shopping_list/delete/{}?{}", shopping_list.id, query_state) %}
+
+                    {% call link::start(
+                        delete_href,
+                        "delete",
+                        format!("#shopping-list-{}", shopping_list.id),
+                        "outerHTML",
+                        format!("/user/save_selected_shopping_list/{}", shopping_list.id),
+                        false,
+                        "block px-3 py-1 leading-6 text-sm",
+                        false,
+                        false
+                    ) %}
+                        Löschen
+                    {% call link::end() %}
+                {% endif %}
+            </div>
+        </div>
+
+        <dl class="divide-y divide-white/10 px-6 py-4 text-sm leading-6">
+            <div class="flex justify-between gap-x-4 py-3">
+                <dt class="text-zinc-400">Neuigkeiten</dt>
+                <dd class="flex items-start gap-x-2">
+                    {% if shopping_list.id % 2 == 0 %}
+                        {# sinking prices #}
+                        <div class="rounded-md py-1 px-2 text-xs font-medium ring-1 ring-inset text-green-400 ring-green-600/30">Gut</div>      
+                        {# rising prices #}
+                        <div class="rounded-md py-1 px-2 text-xs font-medium ring-1 ring-inset text-red-400 ring-red-600/20">Schlecht</div>                        
+                    {% else %}
+                        <div class="rounded-md py-1 px-2 text-xs font-medium ring-1 ring-inset text-amber-400 ring-amber-600/20">Keine</div>
+                    {% endif %}
+                </dd>
+            </div>
+        </dl>
+
+    </div>
+</li>
+{% endmacro %}

@@ -1,0 +1,40 @@
+{{#if label}}
+    <label class="text-white sm:text-sm leading-6 {{#if inline}}inline-block{{/if}}" for="{{name}}">
+        {{label}}
+        {{#if description}}
+            <span class="block text-3xs font-normal">{{description}}</span>
+        {{/if}}
+    </label>
+{{/if}}
+
+<input
+    class="bg-transparent {{#if readonly}}text-zinc-400 cursor-not-allowed{{else}}text-white{{/if}} sm:text-sm {{#if inline}}inline-block pl-2 py-2{{else}}my-2{{/if}} {{#if full_width}}w-full{{/if}} {{#if show_cursor}}cursor-pointer{{/if}}"
+    placeholder="{{placeholder}}"
+    type="text"
+    name="{{name}}"
+    id="{{name}}"
+    value="{{value}}"
+    autocomplete="pls_dont_complete_me"
+    {{#if required}}required="true"{{/if}}
+    {{#if readonly}}readonly="true"{{/if}}
+    xui-el="GeocodingInput"
+/>
+
+<input type="hidden" name="{{name}}_lng" value="{{(xor lng 0)}}" />
+<input type="hidden" name="{{name}}_lat" value="{{(xor lat 0)}}" />
+
+<ul xui-suggestion-list="{{name}}" xui-toggle-target class="
+    absolute not-prose mt-12 w-full rounded-md bg-zinc-900 py-2 shadow-lg border border-white/10 focus:outline-none
+    max-h-36 md:max-h-52 overflow-y-scroll transition ease-out duration-100 transform
+    opacity-0 scale-95
+">
+</ul>
+
+<template id="input_address_suggestion_li">
+    <li class="relative text-sm font-medium transition text-zinc-400 hover:text-white cursor-pointer block px-3 py-1 leading-6 text-sm" xui-block-toggle>
+        <span xui-li-text class="truncate block" style="max-width:90%"></span>
+        <span xui-li-checkmark class="hidden absolute inset-y-0 right-0 flex items-center pr-4 text-emerald-400">
+            {{> icons/checkmark }}
+        </span>
+    </li>
+</template>

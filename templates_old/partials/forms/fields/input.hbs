@@ -1,0 +1,21 @@
+{{#if label}}
+    <label class="text-white sm:text-sm leading-6 {{#if inline}}inline-block{{/if}}" for="{{name}}">
+        {{label}}
+        {{#if description}}
+            <span class="block text-3xs font-normal">{{description}}</span>
+        {{/if}}
+    </label>
+{{/if}}
+
+<input
+    class="bg-transparent {{#if readonly}}text-zinc-400 cursor-not-allowed{{else}}text-white{{/if}} sm:text-sm {{#if inline}}inline-block pl-2 py-2{{else}}my-2{{/if}} {{#if full_width}}w-full{{/if}} {{#if show_cursor}}cursor-pointer{{/if}}"
+    placeholder="{{placeholder}}"
+    type="{{type}}"
+    name="{{name}}"
+    id="{{name}}"
+    value="{{value}}"
+    autocomplete="{{(xor autocomplete name)}}"
+    {{#if required}}required="true"{{/if}}
+    {{#if readonly}}readonly="true"{{/if}}
+    {{#if is_ajax_input}}xui-el="AjaxFormInput"{{/if}}
+/>

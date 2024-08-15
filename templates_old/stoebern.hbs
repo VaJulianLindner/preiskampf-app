@@ -1,0 +1,18 @@
+{{#* inline "content"}}
+    <title>Preiskampf | Stöbern</title>
+    <h1>Stöbern</h1>
+{{/inline}}
+
+{{#if is_navigation_action}}
+    {{> content}}
+{{else}}
+<!DOCTYPE html>
+<html lang="de" class="h-full">
+    <head>
+        {{> partials/head_include}}
+    </head>
+    {{#> layouts/default}}
+        {{> content}}
+    {{/layouts/default}}
+</html>
+{{/if}}

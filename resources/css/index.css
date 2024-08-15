@@ -1,0 +1,226 @@
+@layer base {
+    :root {
+        --shiki-color-text: theme('colors.white');
+        --shiki-token-constant: theme('colors.emerald.300');
+        --shiki-token-string: theme('colors.emerald.300');
+        --shiki-token-comment: theme('colors.zinc.500');
+        --shiki-token-keyword: theme('colors.sky.300');
+        --shiki-token-parameter: theme('colors.pink.300');
+        --shiki-token-function: theme('colors.violet.300');
+        --shiki-token-string-expression: theme('colors.emerald.300');
+        --shiki-token-punctuation: theme('colors.zinc.200');
+        --shiny-emerald-opaque: rgba(110, 231, 183, .5);
+        --pulsing-transitioning-delay: 3s;
+        --pulsing-clip-path-inset: 98%;
+    }
+
+    [inert] ::-webkit-scrollbar {
+        display: none;
+    }
+
+    input:-webkit-autofill,
+    input:-webkit-autofill:hover,
+    input:-webkit-autofill:focus,
+    textarea:-webkit-autofill,
+    textarea:-webkit-autofill:hover,
+    textarea:-webkit-autofill:focus,
+    select:-webkit-autofill,
+    select:-webkit-autofill:hover,
+    select:-webkit-autofill:focus {
+        /* TODO there are some more properties on the inputs */
+        /* border: none !important; */
+        /* background-color: transparent !important; */
+        -webkit-text-fill-color: white; /* 161 161 170 */
+        -webkit-box-shadow: 0 0 0px 1000px rgb(24, 24, 27) inset;
+        transition: background-color 0s ease-in-out 0s;
+    }
+
+    input[readonly='true']:focus, input[readonly='true']:focus-within {
+        outline: none;
+    }
+
+    /* all pulsing animation stuff */
+    .pulsing, .selected {
+        @apply relative;
+    }
+    .with-pulsing-animation {
+        border: 2px solid var(--shiny-emerald-opaque);
+        content: "";
+        opacity: 0;
+        position: absolute;
+        left: -2px;
+        bottom: -2px;
+        right: -2px;
+        top: -2px;
+        transition: all .5s;
+        z-index: -1;
+    }
+    .selected:after, .selected:before {
+        @apply rounded-xl;
+        @apply with-pulsing-animation;
+        opacity: 1;
+    }
+    .pulsing:after, .pulsing:before {
+        @apply rounded-xl;
+        @apply with-pulsing-animation;
+        animation: clippath 3s linear 0s infinite;
+    }
+    .pulsing:after {
+        animation: clippath 3s linear -1.5s infinite;
+    }
+    .pulsing:hover:after, .pulsing:hover:before {
+        opacity: 1;
+    }
+    @keyframes clippath {
+        0%, 100% {
+            clip-path: inset(0 0 var(--pulsing-clip-path-inset) 0);
+        }
+        25% {
+            clip-path: inset(0 var(--pulsing-clip-path-inset) 0 0);
+        }
+        50% {
+            clip-path: inset(var(--pulsing-clip-path-inset) 0 0 0);
+        }
+        75% {
+            clip-path: inset(0 0 0 var(--pulsing-clip-path-inset));
+        }
+    }
+
+    #notification-background {
+        background-color:rgba(23, 23, 23);
+    }
+    @media (min-width: 640px) {
+        #notification-background {
+            background-color:rgba(23, 23, 23, .9);
+        }
+    }
+
+    .text-3xs {
+        font-size: .7rem;
+        line-height: 1rem;
+    }
+
+    /* View-Transition-API start */
+    ::view-transition-group(root) {
+        animation: none;
+    }
+
+    #swap-content {
+        view-transition-name: content-transition;
+    }
+    .xui-entering-detail #swap-content {
+        view-transition-name: content-transition-hidden;
+    }
+    ::view-transition-group(content-transition-hidden) {
+        opacity: 0;
+        animation: none;
+    }
+    @keyframes slide-from-right {
+        0% {
+            transform: translateX(100%)
+        }
+    }
+    @keyframes slide-to-left {
+        to {
+            transform: translateX(-100%)
+        }
+    }
+    @keyframes slide-from-left {
+        0% {
+            transform: translateX(-100%)
+        }
+    }
+    @keyframes slide-to-right {
+        to {
+            transform: translateX(100%)
+        }
+    }
+    @keyframes fade-in {
+        0% {
+            opacity: 0
+        }
+    }
+    @keyframes fade-out {
+        to {
+            opacity: 0
+        }
+    }
+    @keyframes fade-out-a-bit {
+        to {
+            opacity: .5
+        }
+    }
+    @keyframes fade-in-a-bit {
+        0% {
+            opacity: .5
+        }
+    }
+    @keyframes slide-and-fade-from-right {
+        0% {
+            opacity: 0;
+            transform: translateX(60px)
+        }
+    }
+    @keyframes slide-and-fade-to-left {
+        to {
+            opacity: 0;
+            transform: translateX(-60px)
+        }
+    }
+    @keyframes slide-and-fade-from-left {
+        0% {
+            opacity: 0;
+            transform: translate(-60px, 200px);
+        }
+    }
+    @keyframes slide-and-fade-to-right {
+        to {
+            opacity: 0;
+            transform: translateX(60px)
+        }
+    }
+
+    #product-detail {
+        view-transition-name: thumbnail-detail-transition;
+        contain: layout;
+    }
+    #product-heading {
+        view-transition-name: product-heading-transition;
+        contain: layout;
+    }
+    ::view-transition-old(thumbnail-detail-transition) {
+        animation: none;
+        opacity: 0;
+        mix-blend-mode: normal;
+    }
+    ::view-transition-new(thumbnail-detail-transition) {
+        animation-name: zoom-in;
+        mix-blend-mode: normal;
+    }
+    @keyframes zoom-in {
+        0% {
+            transform: scale(.5);
+        }
+        100% {
+            transform: scale(1);
+        }
+    }
+
+    [x-header-main="1"] {
+        view-transition-name: heading-backdrop-transition-1;
+    }
+    ::view-transition-group(heading-backdrop-transition-1) {
+        backdrop-filter: blur(8px);
+    }
+    [x-header-main="2"] {
+        view-transition-name: heading-backdrop-transition-2;
+    }
+    ::view-transition-group(heading-backdrop-transition-2) {
+        backdrop-filter: blur(8px);
+    }
+    /* View-Transition-API end */
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

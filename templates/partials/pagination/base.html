@@ -1,0 +1,48 @@
+{% import "partials/pagination/page_link.html" as page_link %}
+{% import "partials/icons.html" as icons %}
+{% import "partials/atoms/link.html" as link %}
+
+<nav class="flex items-center justify-between border-t border-gray-200 px-4 sm:px-0 mt-8">
+    <div class="-mt-px flex w-0 flex-1">
+        {% let is_first_page = pagination.page == 0 %}
+        {% if !is_first_page %}            
+            {% call link::start(context.preserve_query_state(pagination.page - 1, true), "get", "", "", "", is_first_page, "inline-flex pt-4", true, false) %}                
+                {% call icons::arrow(back=true) %}
+                Vorherige Seite
+            {% call link::end() %}
+        {% else %}        
+            {% call link::start(context.preserve_query_state(pagination.page, true), "get", "", "", "", is_first_page, "inline-flex pt-4", true, false) %}                
+                {% call icons::arrow(back=true) %}
+                Vorherige Seite
+            {% call link::end() %}
+        {% endif %}
+    </div>
+    <div class="hidden md:-mt-px md:flex">
+        {% if pagination.page != 0 %}
+            {% call page_link::link(page=0, active=false) %}
+        {% endif %}
+
+        {% if pagination.page > 1 %}
+            <span class="inline-flex items-center border-t-2 border-transparent px-4 pt-4 text-sm font-medium text-gray-500">...</span>
+        {% endif %}
+
+        {% call page_link::link(page=pagination.page, active=true) %}
+
+        {% if pagination.last_page.unwrap_or(0) > pagination.page %}
+            {% if (pagination.last_page.unwrap_or(0) - pagination.page) > 1 %}
+                <span class="inline-flex items-center border-t-2 border-transparent px-4 pt-4 text-sm font-medium text-gray-500">...</span>
+            {% endif %}
+        {% endif %}
+
+        {% if pagination.page != pagination.last_page.unwrap_or(0) %}
+            {% call page_link::link(page=pagination.last_page.unwrap_or(0), active=false) %}
+        {% endif %}
+    </div>
+    <div class="-mt-px flex w-0 flex-1 justify-end">
+        {% let is_last_page = pagination.page == pagination.last_page.unwrap_or(0) %}
+        {% call link::start(context.preserve_query_state(pagination.page + 1, true), "get", "", "", "", is_last_page, "inline-flex pt-4", true, false) %}                
+            Nächste Seite
+            {% call icons::arrow(back=false) %}
+        {% call link::end() %}
+    </div>
+</nav>

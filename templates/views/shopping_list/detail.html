@@ -1,0 +1,77 @@
+{% extends "layouts/default.html" %}
+{% import "partials/form/form_left_aligned.html" as form %}
+{% import "partials/form/input_wrapper/left_aligned.html" as input_wrapper %}
+{% import "partials/form/input/input.html" as input %}
+{% import "partials/form/input/emoji_picker.html" as emoji_picker %}
+
+{% block content %}
+
+{% let title %}
+{% if context.is_create_operation() %}
+    {% let title = "Neuen Einkaufszettel anlegen".to_string() %}
+{% else %}
+    {% let title = shopping_list.name.to_owned() %}
+{% endif %}
+<title>Preiskampf | {{ title }}</title>
+<h1>{{ title }}</h1>
+
+{% call form::start(
+    method="put", 
+    action="/shopping_list/save",
+    swap="none",
+    target="#swap-content",
+    boost=false,
+    push_url="",
+    headers="",
+) %}
+
+    {% if !context.is_create_operation() %}
+        {% call input::field(
+            input_type="hidden",
+            name="id",
+            value=shopping_list.id,
+            placeholder="",
+            autocomplete=false,
+            required=true,
+            readonly=true,
+            inline=false,
+            is_ajax_input=false,
+            full_width=false,
+        ) %}
+    {% endif %}
+
+    {% call input_wrapper::start(
+        for_input="emoji_presentation", label="Anzeigebild", description="", hide_border=true
+    ) %}
+        {% call emoji_picker::field(
+            name="emoji_presentation",
+            value=shopping_list.emoji_presentation.as_ref(),
+        ) %}
+    {% call input_wrapper::end() %}
+
+    {% call input_wrapper::start(
+        for_input="name", label="Name", description="", hide_border=false
+    ) %}
+        {% call input::field(
+            input_type="text",
+            name="name",
+            value=shopping_list.name.as_str(),
+            placeholder="",
+            autocomplete=false,
+            required=true,
+            readonly=false,
+            inline=true,
+            is_ajax_input=false,
+            full_width=true,
+        ) %}
+    {% call input_wrapper::end() %}
+
+{% call form::end(
+    hide_control_buttons=false,
+    errors=errors,
+    reset_url=Self::get_reset_url(self),
+    swap="innerHTML",
+    target="#swap-content",
+) %}
+
+{% endblock %}

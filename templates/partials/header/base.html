@@ -1,0 +1,40 @@
+{% import "partials/atoms/button.html" as button %}
+{% import "partials/atoms/link.html" as link %}
+
+<div 
+    x-header-main="{% block header_id %}{% endblock %}"
+    class="fixed inset-x-0 top-0 z-50 flex h-14 items-center justify-between gap-12 px-4 sm:px-6 lg:left-72 lg:z-30 lg:px-8 xl:left-80 {% block class_name %}{% endblock %}"
+>
+    <div class="absolute inset-x-0 top-full h-px transition bg-white/7.5"></div>
+
+    <div class="hidden lg:block lg:max-w-md lg:flex-auto"><!-- TODO search maybe? --></div>
+
+    <div class="flex items-center gap-5 lg:hidden w-full">
+        {% if !is_full_width_layout %}
+            {% include "partials/atoms/navigation_toggle.html" %}
+            {% block navigation_mobile %}{% endblock %}
+        {% endif %}
+        {% include "partials/atoms/logo.html" %}
+    </div>
+
+    <div class="flex items-center gap-5">
+        <div class="hidden min-[416px]:contents">
+            {% if authenticated_user.is_some() %}
+                {% call link::start("/mein-profil", "get", "", "", "", false, "", true, false) %}
+                    {{ authenticated_user.as_ref().unwrap().get_email() }}
+                {% call link::end() %}
+                {% call button::as_link(label="Logout", href="/logout", button_type="primary", post=true, get=false, target="", swap="", is_ajax_action=false) %}
+            {% else %}
+                {% call button::as_link(label="Login", href="/login", button_type="primary", post=false, get=false, target="", swap="", is_ajax_action=false) %}
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="min-[416px]:hidden absolute right-2">
+        {% if authenticated_user.is_some() %}
+            {% call button::as_link(label="Logout", href="/logout", button_type="primary", post=true, get=false, target="", swap="", is_ajax_action=false) %}
+        {% else %}
+            {% call button::as_link(label="Login", href="/login", button_type="primary", post=false, get=false, target="", swap="", is_ajax_action=false) %}
+        {% endif %}
+    </div>
+</div>

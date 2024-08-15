@@ -1,0 +1,43 @@
+{% import "item.html" as navigation %}
+
+<ul role="list">
+
+    {% if authenticated_user.is_some() %}
+    <li class="relative mt-6">
+        <h2 class="text-xs font-semibold text-zinc-900 dark:text-white">
+            Einkaufen
+        </h2>
+        <div class="relative mt-3 pl-2">
+            <ul role="list" class="border-l border-transparent">
+                {% call navigation::item("Einkaufstour", "/einkaufstour", false) %}
+                {% call navigation::item("Stöbern", "/stoebern", false) %}
+            </ul>
+        </div>
+    </li>
+    <li class="relative mt-6">
+        <h2 class="text-xs font-semibold text-zinc-900 dark:text-white">
+            Benutzerbereich
+        </h2>
+        <div class="relative mt-3 pl-2">
+            <ul role="list" class="border-l border-transparent">
+                {% call navigation::item("Mein Profil", "/mein-profil", false) %}
+                {% call navigation::item("Meine Einkaufszettel", "/einkaufszettel", false) %}
+            </ul>
+        </div>
+    </li>
+    {% endif %}
+    <li class="relative mt-6">
+        <h2 class="text-xs font-semibold text-zinc-900 dark:text-white">
+            Hinweise
+        </h2>
+        <div class="relative mt-3 pl-2">
+            <ul role="list" class="border-l border-transparent">
+                {% call navigation::item("Über uns", "/about", true) %}
+                {% if authenticated_user.is_none() %}
+                {% call navigation::item("Login", "/login", true) %}
+                {% endif %}
+            </ul>
+        </div>
+    </li>
+
+</ul>

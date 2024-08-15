@@ -1,0 +1,30 @@
+{% extends "layouts/default.html" %}
+{% import "partials/atoms/link.html" as link %}
+{% import "partials/shopping_list/list_entry.html" as list_entry %}
+{% import "partials/atoms/button.html" as button %}
+
+{% block content %}
+<title>Preiskampf | Meine Einkaufszettel</title>
+
+<h1>Meine Einkaufszettel</h1>
+{% call button::as_link(
+    label="Neuen Einkaufszettel anlegen",
+    button_type="primary",
+    post=false,
+    get=true,
+    href="/einkaufszettel/anlegen",
+    target="#swap-content",
+    swap="innerHTML transition:true",
+    is_ajax_action=true
+) %}
+<hr>
+
+<div class="not-prose">
+    <ul role="list" class="not-prose grid grid-cols-1 gap-x-6 gap-y-8 lg:grid-cols-3 xl:gap-x-8">
+        {% for shopping_list in shopping_lists %}
+            {% call list_entry::default(shopping_list) %}
+        {% endfor %}
+    </ul>
+    {{ pagination.render(context).unwrap_or_default()|safe }}
+</div>
+{% endblock %}

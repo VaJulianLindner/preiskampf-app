@@ -1,0 +1,35 @@
+<h1 id="product-heading">
+    <a href="{{product.url}}" target="_blank">
+        {{product.name}}
+    </a>
+</h1>
+
+<div class="grid sm:grid-cols-2 mt-10">
+    <div class="sm:col-span-1">
+        {{#each product.images}}
+            {{#if @first}}
+                <img
+                    id="product-detail"
+                    class="h-96 w-96 flex-none rounded-lg bg-gray-800 not-prose"
+                    src="{{this}}"
+                    alt="{{../name}}"
+                >
+            {{/if}}
+        {{/each}}
+    </div>
+    <div class="sm:col-span-1 hidden sm:block">
+        <p class="truncate leading-5 text-gray-400">
+            {{#if product.price}}{{format_price product.price}}{{else}}--.--{{/if}} {{product.price_currency}}
+        </p>
+        <p class="mt-10 truncate leading-5 text-gray-400">
+            <time datetime="{{product.created_at}}">{{(humanize_utc_time product.created_at true)}}</time>
+        </p>
+    </div>
+</div>
+
+<p class="mt-10 truncate leading-5 text-gray-400 sm:hidden">
+    {{#if product.price}}{{format_price product.price}}{{else}}--.--{{/if}} {{product.price_currency}}
+</p>
+<p class="mt-10 truncate leading-5 text-gray-400 sm:hidden">
+    <time datetime="{{product.created_at}}">{{(humanize_utc_time product.created_at true)}}</time>
+</p>

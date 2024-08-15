@@ -1,0 +1,50 @@
+{
+    "main_navigation": [
+        {
+            "label": "Einkaufen",
+            "requires_auth": true,
+            "use_full_page_layout": false,
+            "items": [
+                {
+                    "label": "Einkaufstour",
+                    "href": "/einkaufstour"
+                },
+                {
+                    "label": "Stöbern",
+                    "href": "/stoebern"
+                }
+            ]
+        },
+        {
+            "label": "Benutzerbereich",
+            "requires_auth": true,
+            "use_full_page_layout": false,
+            "items": [
+                {
+                    "label": "Mein Profil",
+                    "href": "/mein-profil"
+                },
+                {
+                    "label": "Meine Einkaufszettel",
+                    "href": "/einkaufszettel"
+                }
+            ]
+        },
+        {
+            "label": "Hinweise",
+            "requires_auth": false,
+            "use_full_page_layout": true,
+            "items": [
+                {
+                    "label": "Über uns",
+                    "href": "/about"
+                },
+                {
+                    "label": "Login",
+                    "href": "/login",
+                    "hidden_if_authenticated": true
+                }
+            ]
+        }
+    ]
+}

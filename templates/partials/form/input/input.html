@@ -1,0 +1,23 @@
+{% macro label(for_input, label, description, inline) %}
+<label class="text-white sm:text-sm leading-6 {% if inline %}inline-block{% endif %}" for="{{ for_input }}">
+    {{ label }}
+    {% if description.len() > 0 %}
+        <span class="block text-3xs font-normal">{{ description }}</span>
+    {% endif %}
+</label>
+{% endmacro %}
+
+{% macro field(input_type, name, value, placeholder, autocomplete, required, readonly, inline, is_ajax_input, full_width) %}
+<input
+    class="bg-transparent {% if readonly %}text-zinc-400 cursor-not-allowed{% else %}text-white{% endif %} sm:text-sm {% if inline %}inline-block pl-2 py-2{% else %}my-2{% endif %} {% if full_width %}w-full{% endif %}"
+    placeholder="{{ placeholder }}"
+    type="{{ input_type }}"
+    name="{{ name }}"
+    id="{{ name }}"
+    value="{{ value }}"
+    autocomplete="{% if autocomplete %}{{ name }}{% endif %}"
+    {% if required %}required="true"{% endif %}
+    {% if readonly %}readonly="true"{% endif %}
+    {% if is_ajax_input %}xui-el="AjaxFormInput"{% endif %}
+/>
+{% endmacro %}

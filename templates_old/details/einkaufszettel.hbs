@@ -1,0 +1,25 @@
+{{#* inline "content"}}
+    <h1>
+        {{#if is_create_operation}}
+            Neuen Einkaufszettel anlegen
+        {{else}}
+            {{shopping_list.name}}
+        {{/if}}
+    </h1>
+    {{> partials/elements/shopping_lists/form this}}
+{{/inline}}
+
+{{#if is_navigation_action}}
+    {{> content}}
+{{else}}
+<!DOCTYPE html>
+<html lang="de" class="h-full">
+    <head>
+        <title>Preiskampf | Meine Einkaufszettel</title>
+        {{> partials/head_include}}
+    </head>
+    {{#> layouts/default}}
+        {{> content}}
+    {{/layouts/default}}
+</html>
+{{/if}}

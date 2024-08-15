@@ -1,0 +1,55 @@
+{% macro as_link(label, button_type, post, get, href, target, swap, is_ajax_action) %}
+    <a
+        class="{% call class_for_button_type(button_type) %}"
+        {% call attributes_for_button(post, get, href, target, swap, is_ajax_action) %}
+    >
+        {{ label }}
+    </a>
+{% endmacro %}
+
+{% macro as_button(label, button_type, post, get, href, target, swap, is_ajax_action) %}
+    <button
+        class="{% call class_for_button_type(button_type) %}"
+        {% call attributes_for_button(post, get, href, target, swap, is_ajax_action) %}
+    >
+        {{ label }}
+    </button>
+{% endmacro %}
+
+{% macro class_for_button_type(button_type) %}
+    inline-flex gap-0.5 justify-center overflow-hidden text-sm font-medium transition rounded-full py-1 px-3 bg-emerald-500 hover:bg-emerald-400
+    {% if button_type == "primary" %}
+    cursor-pointer rounded-full bg-zinc-900 py-1 px-3 bg-emerald-400/10 text-emerald-400 ring-1 ring-inset ring-emerald-400/20 hover:bg-emerald-400/10 hover:text-emerald-300 hover:ring-emerald-300
+    {% endif %}
+    {% if button_type == "secondary" %}
+    cursor-pointer rounded-full py-1 px-3 bg-zinc-800/40 text-zinc-400 ring-1 ring-inset ring-zinc-800 hover:bg-zinc-800 hover:text-zinc-300
+    {% endif %}
+    {% if button_type == "filled" %}
+    cursor-pointer rounded-full py-1 px-3 bg-emerald-500 text-white hover:bg-emerald-400
+    {% endif %}
+    {% if button_type == "outline" %}
+    cursor-pointer rounded-full py-1 px-3 ring-1 ring-inset text-zinc-400 ring-white/10 hover:bg-white/5 hover:text-white
+    {% endif %}
+    {% if button_type == "text" %}
+    cursor-pointer text-emerald-400 hover:text-emerald-500
+    {% endif %}
+    {% if button_type == "link" %}
+    cursor-pointer text-sm font-medium transition text-zinc-400 hover:text-white
+    {% endif %}
+{% endmacro %}
+
+{% macro attributes_for_button(post, get, href, target, swap, is_ajax_action) %}
+    {% if post %}
+        hx-post="{{ href }}"
+    {% else %} {% if get %}
+        type="button"
+        hx-get="{{ href }}"
+        {% if is_ajax_action %} xui-el="Navigation" {% endif %}
+        {% if target.len() > 0 %} hx-target="{{ target }}" {% endif %}
+        {% if swap.len() > 0 %} hx-swap="{{ swap }}" {% endif %}
+    {% else %} {% if href.len() > 0 %}
+        href="{{ href }}"
+    {% else %}
+        type="submit"
+    {% endif %}{% endif %}{% endif %}
+{% endmacro %}

@@ -1,0 +1,25 @@
+{{#> partials/forms/labels_on_left_form 
+    errors=errors
+    hide_control_buttons=true
+    action="/einkaufstour"
+    method="get"
+    boost=true
+    push_url=true
+    headers="{\"Hx-Boosted\": true}"
+    target="#product_list"
+    swap="outerHTML transition:true"
+}}
+    {{#> partials/forms/wrappers/labels_on_left_form_wrapper label="Suchbegriff"}}
+        {{> partials/forms/fields/input
+            type="text"
+            name="q"
+            value=query_params.q
+            autocomplete="preiskampf_productsearch"
+            required=false
+            inline=true
+            full_width=true
+            is_ajax_input=true
+        }}
+    {{/partials/forms/wrappers/labels_on_left_form_wrapper}}
+
+{{/partials/forms/labels_on_left_form}}

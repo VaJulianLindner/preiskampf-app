@@ -1,0 +1,15 @@
+<div class="fixed inset-0 z-50 lg:hidden" x-navigation-content style="opacity:0;">
+    <div class="fixed inset-0 top-14 backdrop-blur-sm bg-black/40"></div>
+
+    <div>
+        {% include "partials/header/mobile_main.html" %}
+
+        <div
+            class="transition fixed bottom-0 top-14 w-full overflow-y-auto px-4 pb-4 pt-6 shadow-lg shadow-zinc-900/10 ring-1 bg-zinc-900 ring-zinc-800 min-[416px]:max-w-sm sm:px-6 sm:pb-10"
+            style="transform:translateX(-100%);"
+            x-navigation-list
+        >
+            {% include "partials/navigation/main.html" %}
+        </div>
+    </div>
+</div>
