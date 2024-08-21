@@ -1,5 +1,6 @@
 use crate::core::path::DetailOperations;
 
+// TODO context should also hold possible form errors
 pub struct Context<'a> {
     pub uri: &'a axum::http::Uri,
     pub headers: &'a axum::http::HeaderMap,

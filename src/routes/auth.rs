@@ -20,7 +20,7 @@ use crate::AppState;
 
 pub const COOKIE_NAME: &str = "preiskampf_auth_cookie";
 
-pub static KEYS: Lazy<Keys> = Lazy::new(|| {
+pub const KEYS: Lazy<Keys> = Lazy::new(|| {
     let manifest_dir = std::env::var("CARGO_MANIFEST_DIR").unwrap();
     let settings = Config::builder()
         .add_source(File::from(PathBuf::from(format!("{}/config/auth.json", manifest_dir))))

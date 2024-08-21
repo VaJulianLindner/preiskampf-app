@@ -93,6 +93,34 @@ pub fn render_error_notification(message: Option<&str>) -> String {
     )
 }
 
+pub fn create_notification(
+    message: &str,
+    is_success: bool,
+) -> NotificationTemplate {
+    NotificationTemplate {
+        notification: Notification {
+            is_oob_swap: true,
+            is_success: is_success,
+            message: message,
+            hint: None,
+        }
+    }
+}
+
+pub fn create_success_notification(message: Option<&str>) -> NotificationTemplate {
+    create_notification(
+        message.unwrap_or("Erfolgreich gespeichert"), 
+        true,
+    )
+}
+
+pub fn create_error_notification(message: Option<&str>) -> NotificationTemplate {
+    create_notification(
+        message.unwrap_or("Ein unerwarteter Fehler ist aufgetreten"),
+        false,
+    )
+}
+
 pub fn get_value_from_path(path: &Path<HashMap<String, String>>, name: &str) -> String {
     match path.get(name) {
         None => {

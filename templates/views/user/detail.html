@@ -1,0 +1,46 @@
+{% extends "layouts/default.html" %}
+{% import "partials/form/form_left_aligned.html" as form %}
+{% import "partials/form/input_wrapper/left_aligned.html" as input_wrapper %}
+{% import "partials/form/input/input.html" as input %}
+
+{% block content %}
+
+{% let authenticated_user = authenticated_user.as_ref() %}
+
+<title>Preiskampf | Mein Profil</title>
+<h1>Profil</h1>
+
+{% call form::start(
+    method="post", 
+    action="/user/save",
+    swap="outerHTML",
+    target="[xui-element-name=\"form_left_aligned\"]",
+    boost=false,
+    push_url="",
+    headers="",
+) %}
+
+    {% if !context.is_create_operation() %}
+        {% call input::field(
+            input_type="hidden",
+            name="id",
+            value=authenticated_user.unwrap().id.unwrap(),
+            placeholder="",
+            autocomplete=false,
+            required=true,
+            readonly=true,
+            inline=false,
+            is_ajax_input=false,
+            full_width=false,
+        ) %}
+    {% endif %}
+
+{% call form::end(
+    hide_control_buttons=false,
+    errors=errors,
+    reset_url="/mein-profil",
+    swap="innerHTML",
+    target="#swap-content",
+) %}
+
+{% endblock %}

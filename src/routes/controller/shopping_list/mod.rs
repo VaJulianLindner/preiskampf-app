@@ -13,7 +13,7 @@ use axum::{
 };
 
 use crate::{
-    core::{context::{self, Context}, pagination::Pagination, query_params::StateParams, request_extension::HttpExt},
+    core::{context::Context, pagination::Pagination, query_params::StateParams, request_extension::HttpExt},
     model::{
         shopping_list::{ShoppingList, ShoppingListUpdateForm}, user::User
     },

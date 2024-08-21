@@ -1,13 +1,12 @@
-use std::{sync::Arc, collections::HashMap};
+use std::{collections::HashMap, sync::Arc};
 use askama::Template;
 use axum::{
-    extract::{Path, State}, http::{HeaderMap, StatusCode}, response::IntoResponse, routing::{post, put}, Extension, Form, Router
+    extract::{Path, State, Request, FromRequest}, http::{HeaderMap, StatusCode}, response::IntoResponse, routing::{post, put, get}, Extension, Form, Router
 };
-use serde_json::{json, Map};
 
-use crate::AppState;
+use crate::{core::context::Context, AppState};
 use crate::core::client_action::ClientActionResponse;
-use crate::routes::{minify_html_response, render_success_notification, render_error_notification, get_value_from_path};
+use crate::routes::{minify_html_response, create_success_notification, render_success_notification, render_error_notification, get_value_from_path};
 use crate::services::user::{update_user, update_selected_shopping_list};
 use crate::model::user::{User, SessionUser, UserUpdateForm};
 use crate::routes::auth::create_auth_cookie_for_user;
@@ -16,66 +15,65 @@ use crate::view::user::UserDetailTemplate;
 pub async fn save_user(
     state: State<AppState>,
     Extension(authenticated_user): Extension<Arc<Option<User>>>,
-    Form(form_data): Form<UserUpdateForm>,
+    request: Request,
 ) -> impl IntoResponse {
     let mut headers = HeaderMap::new();
 
     if authenticated_user.is_none() {
-        return (StatusCode::FORBIDDEN, headers, minify_html_response(String::from(""))).into_response();
+        return (StatusCode::FORBIDDEN, headers, String::from("")).into_response();
     }
+
+    let uri = request.uri().clone();
+    let req_headers = request.headers().clone();
+    let context = Context::new(&uri, &req_headers);
+    let form_data = Form::<UserUpdateForm>::from_request(request, &state).await.unwrap();
 
     match *authenticated_user {
         Some(ref u) => {
             let user_id = u.get_id().expect("authenticated user must have an id");
             if user_id != form_data.id {
-                return (StatusCode::FORBIDDEN, headers, minify_html_response(String::from(""))).into_response();
+                return (StatusCode::FORBIDDEN, headers, String::from("")).into_response();
             }
         },
         None => {
-            return (StatusCode::FORBIDDEN, headers, minify_html_response(String::from(""))).into_response();
+            return (StatusCode::FORBIDDEN, headers, String::from("")).into_response();
         }
     };
 
-
-
-
-    // let template = UserDetailTemplate {
-    //     authenticated_user: &authenticated_user,
-    //     notification: None,
-    //     // navigation: &state.navigation,
-    //     request: &request,
-    // };
-    // (StatusCode::OK, headers, minify_html_response(template.render().unwrap_or_default())).into_response()
-
-
-
-    let mut template_data = Map::new();
-    template_data.insert("navigation".to_string(), json!(state.navigation));
-
-    match update_user(&state.db_pool, &form_data).await {
-        Ok(updated_user) => {
-            template_data.insert("authenticated_user".to_string(), json!(updated_user));
-            let cookie_val = create_auth_cookie_for_user(&SessionUser::new(updated_user));
-            headers.insert("set-cookie", cookie_val);
-        },
-        Err(e) => {
-            eprintln!("error in save_user: {:?}", e);
-            let notification = render_error_notification(None);
-            headers.insert("hx-reswap", "none".parse().unwrap());
-            return (StatusCode::UNPROCESSABLE_ENTITY, headers, minify_html_response(notification)).into_response();
-        },
+    let user_update_result = update_user(&state.db_pool, &form_data).await;
+    if user_update_result.is_err() {
+        eprintln!("error in save_user: {:?}", user_update_result.unwrap_err());
+        let notification = render_error_notification(None);
+        headers.insert("hx-reswap", "none".parse().unwrap());
+        return (StatusCode::UNPROCESSABLE_ENTITY, headers, minify_html_response(notification)).into_response();
     }
 
-    match state.engine.render("partials/elements/profile", &json!(template_data)) {
-        Ok(mut rendered_content) => {
-            let notification = render_success_notification(None);
-            rendered_content.push_str(notification.as_str());
-            (StatusCode::OK, headers, minify_html_response(rendered_content)).into_response()
-        },
-        Err(_) => {
-            (StatusCode::NOT_FOUND, headers, minify_html_response(String::from(""))).into_response()
-        },
-    }
+    let updated_user = user_update_result.unwrap();
+    let cookie_val = create_auth_cookie_for_user(&SessionUser::new(updated_user.clone()));
+    headers.insert("set-cookie", cookie_val);
+
+    let template = UserDetailTemplate {
+        authenticated_user: &Some(updated_user),
+        notification: Some(create_success_notification(None)),
+        errors: &None,
+        context: context,
+    };
+    (StatusCode::OK, headers, minify_html_response(template.render().unwrap_or_default())).into_response()
+}
+
+
+pub async fn get_user(
+    Extension(authenticated_user): Extension<Arc<Option<User>>>,
+    request: Request,
+) -> impl IntoResponse {
+    let context = Context::new(request.uri(), request.headers());
+    let template = UserDetailTemplate {
+        authenticated_user: &authenticated_user,
+        notification: None,
+        errors: &None,
+        context: context,
+    };
+    (StatusCode::OK, minify_html_response(template.render().unwrap_or_default())).into_response()
 }
 
 pub async fn save_selected_shopping_list(
@@ -145,4 +143,5 @@ pub fn routes() -> Router<AppState> {
     Router::new()
         .route("/user/save", post(save_user))
         .route("/user/save_selected_shopping_list/:shopping_list_id", put(save_selected_shopping_list))
+        .route("/mein-profil", get(get_user))
 }
