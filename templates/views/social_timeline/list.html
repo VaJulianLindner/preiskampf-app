@@ -1,0 +1,30 @@
+{% extends "layouts/default.html" %}
+{% import "partials/atoms/link.html" as link %}
+
+{% block content %}
+<title>Preiskampf | Stöbern</title>
+<h1>Stöbern</h1>
+
+<div>
+    <ul role="list" class="grid gap-y-8">
+        {% for post in posts %}
+            <li>
+                {% call link::start(
+                    href=format!("/posts/{}", post.id),
+                    method="get",
+                    target="",
+                    swap="",
+                    stop_propagation="",
+                    disabled=false,
+                    class_name="",
+                    is_ajax_action=true,
+                    is_entering_detail_view=false,
+                ) %}
+                    {{ post.id }}
+                {% call link::end() %}
+            </li>
+        {% endfor %}
+    </ul>
+    {{ pagination.render(context).unwrap_or_default()|safe }}
+</div>
+{% endblock %}

@@ -2,6 +2,7 @@
 {% import "partials/form/form_left_aligned.html" as form %}
 {% import "partials/form/input_wrapper/left_aligned.html" as input_wrapper %}
 {% import "partials/form/input/input.html" as input %}
+{% import "partials/form/input/input_address.html" as address_input %}
 
 {% block content %}
 
@@ -13,8 +14,8 @@
 {% call form::start(
     method="post", 
     action="/user/save",
-    swap="outerHTML",
-    target="[xui-element-name=\"form_left_aligned\"]",
+    swap="innerHTML",
+    target="#swap-content",
     boost=false,
     push_url="",
     headers="",
@@ -24,7 +25,7 @@
         {% call input::field(
             input_type="hidden",
             name="id",
-            value=authenticated_user.unwrap().id.unwrap(),
+            value=authenticated_user.unwrap().id.unwrap_or_default(),
             placeholder="",
             autocomplete=false,
             required=true,
@@ -34,6 +35,57 @@
             full_width=false,
         ) %}
     {% endif %}
+
+    {% call input_wrapper::start(
+        for_input="email", label="Email", description="", hide_border=false
+    ) %}
+        {% call input::field(
+            input_type="email",
+            name="email",
+            value=authenticated_user.unwrap().email.as_str(),
+            placeholder="",
+            autocomplete=false,
+            required=true,
+            readonly=true,
+            inline=true,
+            is_ajax_input=false,
+            full_width=true,
+        ) %}
+    {% call input_wrapper::end() %}
+
+    {% call input_wrapper::start(
+        for_input="username", label="Benutzername", description="", hide_border=false
+    ) %}
+        {% call input::field(
+            input_type="text",
+            name="username",
+            value=authenticated_user.unwrap().get_username(),
+            placeholder="",
+            autocomplete=false,
+            required=true,
+            readonly=false,
+            inline=true,
+            is_ajax_input=false,
+            full_width=true,
+        ) %}
+    {% call input_wrapper::end() %}
+
+
+    {% call input_wrapper::start(
+        for_input="address", label="Adresse", description="Hier kannst du deine Adresse hinterlegen, um spezifische Sonderangebote zu erhalten", hide_border=false
+    ) %}
+        {% call address_input::field(
+            name="address",
+            value=authenticated_user.unwrap().get_address(),
+            lng=authenticated_user.unwrap().address_lng.clone(),
+            lat=authenticated_user.unwrap().address_lat.clone(),
+            placeholder="Adresse suchen..",
+            required=true,
+            readonly=false,
+            inline=true,
+            full_width=true,
+        ) %}
+    {% call input_wrapper::end() %}
 
 {% call form::end(
     hide_control_buttons=false,

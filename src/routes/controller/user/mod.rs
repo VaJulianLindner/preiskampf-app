@@ -66,7 +66,7 @@ pub async fn get_user(
     Extension(authenticated_user): Extension<Arc<Option<User>>>,
     request: Request,
 ) -> impl IntoResponse {
-    let context = Context::new(request.uri(), request.headers());
+    let context = Context::from_request(&request);
     let template = UserDetailTemplate {
         authenticated_user: &authenticated_user,
         notification: None,

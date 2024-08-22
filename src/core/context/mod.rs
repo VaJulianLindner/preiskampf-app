@@ -1,6 +1,8 @@
+use axum::http::Request;
 use crate::core::path::DetailOperations;
 
 // TODO context should also hold possible form errors
+// TODO context could also hold/create pagination, if it has the uri anyways and with custom extractor would be omega convenient
 pub struct Context<'a> {
     pub uri: &'a axum::http::Uri,
     pub headers: &'a axum::http::HeaderMap,
@@ -11,6 +13,13 @@ impl<'a> Context<'a> {
         Self {
             uri: uri,
             headers: headers,
+        }
+    }
+
+    pub fn from_request<T>(request: &'a Request<T>) -> Self {
+        Self {
+            uri: request.uri(),
+            headers: request.headers(),
         }
     }
 

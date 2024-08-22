@@ -61,8 +61,18 @@ impl User {
         &self.email
     }
 
-    pub(crate) fn get_password(&self) -> &Option<String> {
-        &self.password
+    pub(crate) fn get_username(&self) -> String {
+        match self.username.as_ref() {
+            Some(username) => username.to_owned(),
+            None => "".to_owned()
+        }
+    }
+
+    pub(crate) fn get_address(&self) -> String {
+        match self.address.as_ref() {
+            Some(address) => address.to_owned(),
+            None => "".to_owned()
+        }
     }
 
     pub(crate) fn hash_password(password: String) -> String {

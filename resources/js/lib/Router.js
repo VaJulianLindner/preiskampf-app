@@ -48,7 +48,7 @@ class Router {
             swap: (opts.swap || `innerHTML`).replace("transition:true", ""),
         }];
 
-        const shouldTransition = opts.withTransition || (opts.swap.indexOf("transition:true") > -1);
+        const shouldTransition = opts.withTransition || (opts.swap?.indexOf("transition:true") > -1);
         /** @type {HistoryState} */
         const historyState = { 
             fromUrl: window.location.pathname,

@@ -93,9 +93,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     let app_state = AppState { engine, db_pool, navigation };
     let app = Router::new()
-        .merge(controller::user::routes())
         .merge(controller::product::routes())
         .merge(controller::shopping_list::routes())
+        .merge(controller::social_timeline::routes())
+        .merge(controller::user::routes())
         .route("/:template_name/:resource_id", post(detail_template))
         .route("/:template_name/:resource_id", get(detail_template))
         .route("/:template_name", post(page_template))
