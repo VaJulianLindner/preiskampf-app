@@ -3,8 +3,6 @@ use crate::core::query_params::SortOrder;
 
 use crate::model::product::Product;
 
-// TODO pass reference to &StateParams or sth like pagination::Pagination instead of every param as single 
-// and do the injection checking there
 pub async fn find_products(
     db_pool: &Pool<Postgres>,
     search_query: Option<String>,
@@ -14,21 +12,16 @@ pub async fn find_products(
     offset: usize,
 ) -> (Vec<Product>, u64) {
     // https://www.reddit.com/r/rust/comments/17hoxzl/performance_on_multiple_statements_sqlx_sql/
-    // get page-count without another db round-trip => transaction?
-    // or use begin() and commit() as shown above?
-    // right now its just an additional count() in the statement
-    // because i have a bigger connection pool, joining futures might also be a win? https://docs.rs/futures/latest/futures/macro.join.html
-    // TODO => performance tests!
 
-    // TODO sanitize inputs by putting in .hbs or somethign? => nur "sort_by" ist theoretisch ungecheckt
-    // TODO absolutely have to sanitize the search_query!!
     let query_sort_order = SortOrder::from_str(sort_order.as_str()).to_string();
-    // let statement = if let Some(search_query) = search_query {
+    // TODO sanitize inputs for text search
     let statement = if search_query.as_deref().is_some_and(|q| q != "") {
         format!(
-            include_str!("./find_products_by_text.sql"),
-            "german", // TODO localization is needed, do some proper Enum
-            search_query.expect("make sure \"search_query\" got checked by \"is_some_and\" function call"),
+            // include_str!("./find_products_by_text.sql"),
+            // "german", // TODO localization is needed, do some proper Enum
+            include_str!("./find_products_by_similarity.sql"),
+            search_query.as_ref().unwrap(),
+            search_query.as_ref().unwrap(),
             limit as i64,
             offset as i64,
         )

@@ -20,7 +20,9 @@ LEFT JOIN
 ON
     products_table.id = prices_table.product_id
 WHERE
-    full_text_search @@ to_tsquery('{}', '{}:*')
+    similarity(products_table.name, '{}') > 0.2
+ORDER BY
+    products_table.name <-> '{}'
 LIMIT 
     {} 
 OFFSET
