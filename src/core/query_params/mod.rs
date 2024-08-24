@@ -136,6 +136,7 @@ impl StateParams {
     }
 }
 
+// TODO all handlebars helpers can be removed after migration to askama is complete
 pub fn preserve_query_params(
     h: &Helper,
     _hb: &Handlebars,
