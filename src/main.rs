@@ -1,9 +1,7 @@
 use std::error::Error;
 use std::io::BufReader;
 use std::net::{Ipv4Addr, SocketAddrV4};
-use std::path::PathBuf;
 use std::fs;
-use config::{Config, File};
 use handlebars::Handlebars;
 use axum::{middleware, Router, routing};
 use routing::{get, post};
@@ -55,10 +53,6 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let manifest_dir = std::env::var("CARGO_MANIFEST_DIR")
         .expect("env \'CARGO_MANIFEST_DIR\' must be set to the projects root directory, if not run by the cargo command.");
     println!("manifest_dir: {:?}", manifest_dir);
-
-    let settings = Config::builder()
-        .add_source(File::from(PathBuf::from(format!("{}/config/misc.json", manifest_dir))))
-        .build()?;
 
     let is_release = match std::env::var("RELEASE") {
         Ok(_) => true,
@@ -114,7 +108,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     let port = match std::env::var("PORT") {
         Ok(port) => port.parse::<u16>().unwrap(),
-        Err(_) => settings.get::<u16>("port")?,
+        Err(_) => 4000,
     };
     println!("server using port {:?}", port);
     let addr = SocketAddrV4::new(Ipv4Addr::new(0, 0, 0, 0), port);
