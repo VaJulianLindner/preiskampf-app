@@ -6,47 +6,20 @@ on:
       - master
 
 jobs:
-  # This workflow contains a single job called "greet"
   restart_service:
-    # The type of runner that the job will run on (ubuntu-latest)
+    # ubuntu-latest
     runs-on: ubuntu-20.04
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      - name: create key file from secret
-        env:
-          ssh_private_key: ${{ secrets.AWS_EC2_SSH_PRIVATE_KEY }}
-        run: |
-          echo "$ssh_private_key" > /tmp/aws_ec2_ssh_private_key
-          chmod 600 /tmp/aws_ec2_ssh_private_key
-
-      - name: create known_hosts file for host
-        env:
-          host: ${{ secrets.AWS_EC2_HOST }}
-        run: |
-          ssh-keyscan -H $host >> /tmp/known_hosts
-
-      - name: verify key file has been created
-        run: |
-          cat /tmp/aws_ec2_ssh_private_key
-
-      - name: verify known_hosts file has been created
-        run: |
-          cat /tmp/known_hosts
-
       - name: install ssh key
         uses: shimataro/ssh-key-action@v2
         with:
-          key: ${{ secrets.AWS_EC2_SSH_PRIVATE_KEY }}
-          known_hosts: ${{ secrets.AWS_EC2_KNOWN_HOSTS }}
+          key: ${{ secrets.REMOTE_SSH_PRIVATE_KEY }}
+          known_hosts: ${{ secrets.REMOTE_KNOWN_HOSTS }}
 
       - name: ssh onto machine and execute the restart script
         env:
-          user: ${{ secrets.AWS_EC2_USER }}
-          host: ${{ secrets.AWS_EC2_HOST }}
+          user: ${{ secrets.REMOTE_USER }}
+          host: ${{ secrets.REMOTE_HOST }}
         run: |
-          ssh -i /tmp/aws_ec2_ssh_private_key $user@$host /usr/bin/bash /opt/scripts/restart_preiskampf_ui_service.sh
-
-      - name: remove key file
-        run: |
-          rm /tmp/aws_ec2_ssh_private_key
+          ssh $user@$host /usr/bin/bash /opt/scripts/restart_preiskampf_ui_service.sh
