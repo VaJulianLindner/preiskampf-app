@@ -3,10 +3,10 @@
     "scripts": {
         "dev": "concurrently \"npm run build-css-watch\" \"npm run build-js-watch\"",
         "build": "concurrently \"npm run build-css\" \"npm run build-js\"",
-        "build-js": "npx webpack --config webpack.mix.js",
-        "build-js-watch": "npx webpack --config webpack.mix.js --watch",
-        "build-css": "npx tailwindcss -i ./resources/css/index.css -o ./assets/dist/index.css",
-        "build-css-watch": "npx tailwindcss -i ./resources/css/index.css -o ./assets/dist/index.css --watch"
+        "build-js": "webpack --config webpack.mix.js",
+        "build-js-watch": "webpack --config webpack.mix.js --watch",
+        "build-css": "tailwindcss -i ./resources/css/index.css -o ./assets/dist/index.css",
+        "build-css-watch": "tailwindcss -i ./resources/css/index.css -o ./assets/dist/index.css --watch"
     },
     "dependencies": {
         "@tailwindcss/typography": "^0.5.10",
