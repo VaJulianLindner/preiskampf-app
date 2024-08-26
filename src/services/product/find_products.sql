@@ -15,7 +15,7 @@ LEFT JOIN
         SELECT prices.product_id, prices.price, prices.currency
         FROM prices
         ORDER BY prices.created_at DESC
-        LIMIT 1
+        -- LIMIT 1
     ) AS prices_table
 ON
     products_table.id = prices_table.product_id

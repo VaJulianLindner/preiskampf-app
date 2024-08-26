@@ -84,6 +84,7 @@ pub async fn get_product_list_page(
         authenticated_user: &authenticated_user,
         pagination: &pagination,
         notification: None,
+        errors: &None,
         context: Context::from_request(&request),
     };
 

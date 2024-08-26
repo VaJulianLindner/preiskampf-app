@@ -22,5 +22,6 @@ pub struct ProductListTemplate<'a> {
     pub authenticated_user: &'a Option<User>,
     pub pagination: &'a Pagination,
     pub notification: Option<NotificationTemplate<'a>>,
+    pub errors: &'a Option<Vec<String>>,
     pub context: Context<'a>,
 }
