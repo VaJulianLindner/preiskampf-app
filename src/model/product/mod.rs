@@ -49,7 +49,6 @@ impl<'r> FromRow<'r, PgRow> for Product {
 
 impl<'a> Product {
     pub fn format_price(&self) -> String {
-        println!("format_price {:?}", self.current_price);
         if self.current_price.is_none() {
             "--.--".to_string()
         } else {

@@ -11,14 +11,18 @@ SELECT
 FROM
     products products_table
 LEFT JOIN
+    -- TODO use max aggregation on created_at to only get the first?
     (
-        SELECT prices.product_id, prices.price, prices.currency
+        SELECT prices.product_id, MAX(prices.price) AS price, MAX(prices.currency) AS currency, MAX(prices.created_at) AS created_at
         FROM prices
-        ORDER BY prices.created_at DESC
-        -- LIMIT 1
+        GROUP BY prices.product_id
+        -- ORDER BY created_at DESC
     ) AS prices_table
 ON
     products_table.id = prices_table.product_id
+-- AND prices_table.id = (
+--     SELECT MAX(prices.created_at) AS created_at
+-- )
 ORDER BY 
     products_table.{} {}
 LIMIT 

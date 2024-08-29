@@ -63,7 +63,7 @@ pub struct StateParams {
 
 impl StateParams {
     pub fn from_query(query: Option<&str>) -> Self {
-        let state_params = Self {
+        let mut state_params = Self {
             q: None,
             page: Some(0),
             limit: Some(10),
@@ -78,8 +78,30 @@ impl StateParams {
 
         let parts = query.unwrap().split("&");
         for part in parts {
-            todo!("part {part}");
+            let mut splitted_param = part.splitn(2, |b| b == '=');
+            let name = splitted_param.next().unwrap();
+            let value = match splitted_param.next() {
+                Some(val) => Some(val.to_owned()),
+                None => None,
+            };
+
+            if value.is_none() {
+                continue;
+            }
+
+            println!("value {:?}", value.as_ref().unwrap());
+
+            match name {
+                "q" => state_params.q = value,
+                "page" => state_params.page = value.unwrap().parse().ok(),
+                "limit" => state_params.limit = value.unwrap().parse().ok(),
+                "sort_by" => state_params.sort_by = value,
+                "sort_order" => state_params.sort_order = value,
+                "is" => state_params.is = value,
+                _ => println!("no StateParam for {:?} implemented", name),
+            }
         }
+
         state_params
     }
 

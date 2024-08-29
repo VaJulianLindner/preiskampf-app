@@ -2,8 +2,8 @@ use std::sync::Arc;
 use std::collections::HashMap;
 use askama::Template;
 use axum::{
-    extract::{Path, State, Query, Request, FromRequest},
-    http::{HeaderMap, StatusCode},
+    extract::{Path, State, Query, Request},
+    http::StatusCode,
     response::IntoResponse,
     routing::get,
     Extension,
@@ -12,7 +12,7 @@ use axum::{
 };
 
 use crate::{core::{context::Context, query_params::StateParams, pagination::Pagination}, AppState};
-use crate::routes::{minify_html_response, create_success_notification, render_success_notification, render_error_notification, get_value_from_path};
+use crate::routes::{minify_html_response, get_value_from_path};
 use crate::model::{user::User, social_timeline::Post};
 use crate::view::social_timeline::{PostDetailTemplate, PostListTemplate};
 

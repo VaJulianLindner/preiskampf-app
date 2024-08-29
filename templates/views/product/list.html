@@ -1,25 +1,44 @@
 {% extends "layouts/default.html" %}
-{% import "partials/product/list_entry.html" as list_entry %}
 {% import "partials/form/form_left_aligned.html" as form %}
 {% import "partials/form/input_wrapper/left_aligned.html" as input_wrapper %}
 {% import "partials/form/input/input.html" as input %}
 
 {% block content %}
+
+{% if context.is_boosted_request() %}
+
+{% include "partials/product/boosted_list.html" %}
+
+{% else %}
+
 <title>Preiskampf | Einkaufstour</title>
 <h1>Einkaufstour</h1>
-
 <div class="max-w-4xl not-prose">
-
-    {# TODO maybe i need to pass the url in push_url #}
     {% call form::start(
         method="get", 
-        action="{{ context.uri() }}",
+        action=context.uri.path(),
         swap="outerHTML transition:true",
         target="#product_list",
         boost=true,
-        push_url="",
+        push_url=true,
         headers="{\"Hx-Boosted\": true}",
     ) %}
+        {% call input_wrapper::start(
+            for_input="q", label="Suchbegriff", description="", hide_border=false
+        ) %}
+            {% call input::field(
+                input_type="text",
+                name="q",
+                value=context.query_params.get_q().unwrap_or_default(),
+                placeholder="",
+                autocomplete=true,
+                required=false,
+                readonly=false,
+                inline=true,
+                is_ajax_input=true,
+                full_width=true,
+            ) %}
+        {% call input_wrapper::end() %}
     {% call form::end(
         hide_control_buttons=true,
         errors=errors,
@@ -28,13 +47,9 @@
         target="",
     ) %}
 
-    <div id="product_list">
-        {% for product in products %}
-            {% call list_entry::default(product) %}
-        {% endfor %}
-    </div>
-
-    {{ pagination.render(context).unwrap_or_default()|safe }}
-
+    {% include "partials/product/boosted_list.html" %}
 </div>
+
+{% endif %}
+
 {% endblock %}

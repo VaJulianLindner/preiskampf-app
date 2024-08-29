@@ -1,0 +1,10 @@
+{% import "partials/product/list_entry.html" as list_entry %}
+
+<div id="product_list">
+    <ul role="list">
+        {% for product in products %}
+            {% call list_entry::default(product) %}
+        {% endfor %}
+    </ul>
+    {{ pagination.render(context).unwrap_or_default()|safe }}
+</div>
