@@ -1,3 +1,4 @@
+use std::ops::Deref;
 use std::path::PathBuf;
 use std::convert::Into;
 use std::sync::Arc;
@@ -40,7 +41,10 @@ pub async fn validate(
             let split = header.to_str().unwrap().rsplit(";");
             let found_header = split.into_iter().find(|v| {
                 let header_value_vec = v.trim().rsplit("=").collect::<Vec<&str>>();
-                header_value_vec[1] == COOKIE_NAME
+                match header_value_vec.get(1) {
+                    Some(val) => *val == COOKIE_NAME,
+                    None => false
+                }
             });
             match found_header {
                 None => "".to_string(),
@@ -57,7 +61,6 @@ pub async fn validate(
 
     // if user is not authenticated and trying to access a protected route, redirect to index
     if authenticated_user.is_none() {
-        // TODO this blacklisting sucks with the controller and explicit routes
         let template_name = get_value_from_path(&path, "template_name");
         match template_name.as_ref() {
             "index" => (),
@@ -65,9 +68,6 @@ pub async fn validate(
             "login" => (),
             "registrieren" => (),
             _ => ()
-            // _ => {
-            //     return Ok((StatusCode::FOUND, [("Location", "/")], minify_html_response(String::from(""))).into_response())
-            // }
         }
     }
 
