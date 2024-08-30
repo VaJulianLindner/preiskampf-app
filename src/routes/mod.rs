@@ -28,7 +28,7 @@ pub async fn print_timestamp_middleware(
 ) -> impl IntoResponse {
     let before = Instant::now();
     let response = next.run(request).await;
-    println!("print_timestamp_middleware, processed request took {:.2?} for \"{}: {}\"", before.elapsed(), method, uri);
+    println!("processed request took {:.2?} for \"{}: {}\"", before.elapsed(), method, uri);
     response
 }
 

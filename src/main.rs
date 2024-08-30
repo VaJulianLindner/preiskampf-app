@@ -34,7 +34,7 @@ use routes::{
     emoji_list,
     templates::page_template,
     details::detail_template,
-    auth::{validate, authorize, register, logout},
+    auth,
     controller,
 };
 
@@ -85,6 +85,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let db_pool = db::init().await?;
     println!("started db!");
 
+    // TODO remove handlebars-templates, check everything be removing the engine from state and remove all hb-helpers
     let app_state = AppState { engine, db_pool, navigation };
     let app = Router::new()
         .merge(controller::product::routes())
@@ -96,12 +97,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .route("/:template_name", post(page_template))
         .route("/:template_name", get(page_template))
         .route("/", get(page_template))
-        .route("/authorize", post(authorize))
-        .route("/register", post(register))
-        .route("/logout", post(logout))
+        .merge(auth::routes())
         // TODO need error handler i guess
         .fallback(handle_not_found)
-        .layer(middleware::from_fn(validate))
+        .layer(middleware::from_fn(auth::validate))
         .layer(middleware::from_fn(print_timestamp_middleware))
         .nest_service("/assets", ServeDir::new("assets"))
         .with_state(app_state);

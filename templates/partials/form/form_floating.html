@@ -1,7 +1,29 @@
-{% macro start() %}
-<form>
+{% import "partials/atoms/button.html" as button %}
+
+{% macro start(method, action, swap) %}
+<form
+    class="p-8 transform-gpu overflow-hidden rounded-lg shadow-xl ring-1 bg-zinc-900 ring-zinc-800 sm:max-w-xl opacity-100 scale-100"
+    hx-{{- method -}}="{{- action -}}"
+    hx-swap="{{- swap -}}"
+>
 {% endmacro %}
 
-{% macro end() %}
+{% macro end(errors) %}
+    <br/>
+    <div align="center">
+        {% call button::as_button(
+            label="Absenden",
+            button_type="primary",
+            post=false,
+            get=false,
+            href="",
+            target="",
+            swap="",
+            is_ajax_action=false,
+        ) %}
+    </div>
+    {% for error in errors %}
+        <p class="text-red-400" align="center">{{ error|fmt("{:?}") }}</p>
+    {% endfor %}
 </form>
 {% endmacro %}

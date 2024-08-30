@@ -1,0 +1,48 @@
+{% if context.is_hx_request() %}
+    {% block content %}{% endblock %}
+    {% if notification.is_some() %}
+        {{ notification.as_ref().unwrap().render().unwrap_or_default()|safe }}
+    {% endif %}
+{% else %}
+
+{% let is_full_width_layout = true %}
+
+<!DOCTYPE html>
+<html lang="de" class="h-full">
+    <head>
+        {% include "partials/head_include.html" %}
+    </head>
+    <body class="flex min-h-full antialiased bg-zinc-900" xui-layout="full_width" hx-ext="http-header-enriched-ui">
+        <div class="w-full">
+            <div class="h-full">
+                <header class="contents lg:pointer-events-none lg:fixed lg:inset-0 lg:z-40 lg:flex">
+                    <div class="contents lg:pointer-events-auto lg:block lg:w-72 lg:overflow-y-auto lg:px-6 lg:pb-8 lg:pt-4 xl:w-80">
+                        <div class="hidden lg:flex">
+                            {% include "partials/atoms/logo.html" %}
+                        </div>
+                        {# mobile still seems off #}
+                        <div class="lg:hidden">
+                            {% include "partials/header/main.html" %}
+                        </nav>
+                    </div>
+                </header>
+                <div class="relative flex h-full flex-col px-4 pt-14 sm:px-6 lg:px-8">
+                    <main class="flex-auto mx-auto">
+                        <article class="flex h-full flex-col pb-10 lg:pt-16">
+                            {% include "partials/atoms/background_gradient.html" %}
+                            <div 
+                                class="flex-auto prose [html_:where(&>*)]:mx-auto [html_:where(&>*)]:max-w-2xl [html_:where(&>*)]:lg:mx-[calc(50%-min(50%,theme(maxWidth.lg)))] [html_:where(&>*)]:lg:max-w-full"
+                                id="swap-content"
+                            >
+                                {% block content %}{% endblock %}
+                            </div>
+                        </article>
+                    </main>
+                    {% include "partials/footer.html" %}
+                </div>
+            </div>
+        </div>
+        {% include "partials/notifications/message.html" %}
+    </body>
+</html>
+{% endif %}

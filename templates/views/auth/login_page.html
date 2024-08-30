@@ -1,0 +1,13 @@
+{% extends "layouts/full_width.html" %}
+
+{% block content %}
+<title>Preiskampf | Login</title>
+<div align="center">
+    <h2>Login</h2>
+</div>
+{% include "partials/auth/login_form.html" %}
+<p class="mt-10 text-center text-sm">
+    Noch keinen Account?
+    <a class="font-semibold leading-6 text-zinc-300 hover:text-zinc-600 no-underline" href="/registrieren">Hier erstellen</a>
+</p>
+{% endblock %}

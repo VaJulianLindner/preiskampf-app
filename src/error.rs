@@ -1,4 +1,4 @@
-use axum::http::{StatusCode};
+use axum::http::StatusCode;
 
 pub struct NotFoundError(anyhow::Error);
 

@@ -1,22 +1,25 @@
-use std::ops::Deref;
 use std::path::PathBuf;
 use std::convert::Into;
 use std::sync::Arc;
 use std::collections::HashMap;
+use askama::Template;
 use config::{Config, File};
-use axum::Form;
+use axum::{Extension, Form, Router};
 use axum::extract::{FromRequest, Path, Request, State};
 use axum::http::{StatusCode, HeaderMap, HeaderValue};
 use axum::middleware::Next;
 use axum::response::{IntoResponse, Response, Html};
+use axum::routing::{post, get};
 use jsonwebtoken::{decode, encode, Header, Algorithm, Validation, EncodingKey, DecodingKey};
 use once_cell::sync::Lazy;
 use serde_json::json;
 use sqlx::Error;
 
+use crate::core::context::Context;
 use crate::routes::{minify_html_response, get_value_from_path};
-use crate::model::user::{SessionUser, UserSignUpForm};
+use crate::model::user::{SessionUser, UserSignUpForm, User};
 use crate::services::user::{check_if_user_exists, create_user, find_user};
+use crate::view::auth::{LoginPageTemplate, RegisterPageTemplate};
 use crate::AppState;
 
 pub const COOKIE_NAME: &str = "preiskampf_auth_cookie";
@@ -187,6 +190,44 @@ pub async fn logout(
     Err((StatusCode::FOUND, headers))
 }
 
+pub async fn get_login_page(
+    Extension(authenticated_user): Extension<Arc<Option<User>>>,
+    request: Request,
+) -> impl IntoResponse {
+    if authenticated_user.is_some() {
+        return (StatusCode::TEMPORARY_REDIRECT, [("Location", "/")]).into_response();
+    }
+
+    let context = Context::from_request(&request);
+    let template = LoginPageTemplate {
+        authenticated_user: &None,
+        notification: None,
+        errors: &None,
+        context: context,
+    };
+
+    (StatusCode::OK, minify_html_response(template.render().unwrap_or_default())).into_response()
+}
+
+pub async fn get_register_page(
+    Extension(authenticated_user): Extension<Arc<Option<User>>>,
+    request: Request,
+) -> impl IntoResponse {
+    if authenticated_user.is_some() {
+        return (StatusCode::TEMPORARY_REDIRECT, [("Location", "/")]).into_response();
+    }
+
+    let context = Context::from_request(&request);
+    let template = RegisterPageTemplate {
+        authenticated_user: &None,
+        notification: None,
+        errors: &None,
+        context: context,
+    };
+
+    (StatusCode::OK, minify_html_response(template.render().unwrap_or_default())).into_response()
+}
+
 pub fn create_auth_cookie_for_user(user: &SessionUser) -> HeaderValue {
     let token = encode(&Header::default(), user, &KEYS.encoding).unwrap_or("".to_string());
     format!("{COOKIE_NAME}={}; Path=/; Secure; HttpOnly", token).parse().unwrap()
@@ -204,4 +245,14 @@ impl Keys {
             decoding: DecodingKey::from_secret(secret),
         }
     }
+}
+
+pub fn routes() -> Router<AppState> {
+    Router::new()
+        // TODO GET handler for login, registrieren routes i guess
+        .route("/authorize", post(authorize))
+        .route("/register", post(register))
+        .route("/logout", post(logout))
+        .route("/registrieren", get(get_register_page))
+        .route("/login", get(get_login_page))
 }

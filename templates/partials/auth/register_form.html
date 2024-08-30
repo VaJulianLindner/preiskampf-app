@@ -1,0 +1,36 @@
+{% import "partials/form/form_floating.html" as form %}
+{% import "partials/form/input/input.html" as input %}
+
+{% call form::start(
+    method="post",
+    action="/register",
+    swap="outerHTML",
+) %}
+    {% call input::label(for_input="email", label="Email", description="", inline=false) %}
+    {% call input::field(
+        input_type="email",
+        name="email",
+        value="",
+        placeholder="meine@email.de",
+        autocomplete=true,
+        required=true,
+        readonly=false,
+        inline=false,
+        is_ajax_input=false,
+        full_width=true,
+    ) %}
+
+    {% call input::label(for_input="password", label="Passwort", description="", inline=false) %}
+    {% call input::field(
+        input_type="password",
+        name="password",
+        value="",
+        placeholder="**** ****",
+        autocomplete=false,
+        required=true,
+        readonly=false,
+        inline=false,
+        is_ajax_input=false,
+        full_width=true,
+    ) %}
+{% call form::end(errors=errors) %}
