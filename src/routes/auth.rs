@@ -1,11 +1,10 @@
 use std::path::PathBuf;
 use std::convert::Into;
 use std::sync::Arc;
-use std::collections::HashMap;
 use askama::Template;
 use config::{Config, File};
 use axum::{Extension, Form, Router};
-use axum::extract::{FromRequest, Path, Request, State};
+use axum::extract::{FromRequest, Request, State};
 use axum::http::{StatusCode, HeaderMap, HeaderValue};
 use axum::middleware::Next;
 use axum::response::{IntoResponse, Response, Html};
@@ -16,7 +15,7 @@ use serde_json::json;
 use sqlx::Error;
 
 use crate::core::context::Context;
-use crate::routes::{minify_html_response, get_value_from_path};
+use crate::routes::minify_html_response;
 use crate::model::user::{SessionUser, UserSignUpForm, User};
 use crate::services::user::{check_if_user_exists, create_user, find_user};
 use crate::view::auth::{LoginPageTemplate, RegisterPageTemplate};
@@ -34,7 +33,6 @@ pub static KEYS: Lazy<Keys> = Lazy::new(|| {
 });
 
 pub async fn validate(
-    path: Path<HashMap<String, String>>,
     mut request: Request,
     next: Next,
 ) -> Result<impl IntoResponse, Response> {
@@ -64,13 +62,20 @@ pub async fn validate(
 
     // if user is not authenticated and trying to access a protected route, redirect to index
     if authenticated_user.is_none() {
-        let template_name = get_value_from_path(&path, "template_name");
-        match template_name.as_ref() {
-            "index" => (),
-            "about" => (),
-            "login" => (),
-            "registrieren" => (),
-            _ => ()
+        let is_illegal_access = match request.uri().path() {
+            "/" => false,
+            "/index" => false,
+            "/about" => false,
+            "/login" => false,
+            "/registrieren" => false,
+            "/authorize" => false,
+            "/register" => false,
+            _ => true,
+        };
+
+        if is_illegal_access {
+            println!("attempted access to \"{}\" is illegal", request.uri().path());
+            return Ok((StatusCode::TEMPORARY_REDIRECT, [("Location", "/")]).into_response());
         }
     }
 
@@ -83,6 +88,9 @@ pub async fn authorize(
     state: State<AppState>,
     request: Request,
 ) -> impl IntoResponse {
+    let uri = request.uri().clone();
+    let req_headers = request.headers().clone();
+    let context = Context::new(&uri, &req_headers);
     let form_data = Form::<UserSignUpForm>::from_request(request, &state).await.unwrap();
     
     let mut headers = HeaderMap::new();
@@ -118,19 +126,25 @@ pub async fn authorize(
         }
     }
 
-    let rendered_content = state.engine.render("partials/elements/login", &(json!({
-        "errors": errors,
-        "password": form_data.password.as_str(),
-        "email": form_data.email.as_str(),
-    }))).unwrap_or("".to_string());
+    let template = LoginPageTemplate {
+        authenticated_user: &None,
+        notification: None,
+        errors: &Some(errors),
+        context: context,
+    };
 
-    (StatusCode::OK, headers, minify_html_response(rendered_content)).into_response()
+    (StatusCode::OK, minify_html_response(template.render().unwrap_or_default())).into_response()
 }
 
 pub async fn register(
     state: State<AppState>,
-    Form(form_data): Form<UserSignUpForm>,
-) -> Result<Html<String>, (StatusCode, HeaderMap)> {
+    request: Request,
+) -> impl IntoResponse {
+    let uri = request.uri().clone();
+    let req_headers = request.headers().clone();
+    let context = Context::new(&uri, &req_headers);
+    let form_data = Form::<UserSignUpForm>::from_request(request, &state).await.unwrap();
+
     let mut headers = HeaderMap::new();
     let mut errors: Vec<String> = vec![];
 
@@ -156,7 +170,7 @@ pub async fn register(
                     let token = encode(&Header::default(), &session_user, &KEYS.encoding).unwrap_or("".to_string());
                     headers.insert("set-cookie", format!("{COOKIE_NAME}={}", token).parse().unwrap());
                     headers.insert("hx-redirect", "/".parse().unwrap());
-                    return Err((StatusCode::FOUND, headers));
+                    return (StatusCode::TEMPORARY_REDIRECT, headers).into_response();
                 },
                 Err(e) => {
                     match e {
@@ -173,13 +187,14 @@ pub async fn register(
         }
     }
 
-    let rendered_content = state.engine.render("partials/elements/register", &(json!({
-        "errors": errors,
-        "password": form_data.password.as_str(),
-        "email": form_data.email.as_str(),
-    }))).unwrap_or("".to_string());
+    let template = RegisterPageTemplate {
+        authenticated_user: &None,
+        notification: None,
+        errors: &None,
+        context: context,
+    };
 
-    Ok(minify_html_response(rendered_content))
+    (StatusCode::OK, minify_html_response(template.render().unwrap_or_default())).into_response()
 }
 
 pub async fn logout(
@@ -187,7 +202,7 @@ pub async fn logout(
 ) -> Result<Html<String>, (StatusCode, HeaderMap)> {
     headers.insert("set-cookie", format!("{COOKIE_NAME}=").parse().unwrap());
     headers.insert("hx-redirect", "/".parse().unwrap());
-    Err((StatusCode::FOUND, headers))
+    Err((StatusCode::TEMPORARY_REDIRECT, headers))
 }
 
 pub async fn get_login_page(

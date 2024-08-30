@@ -11,6 +11,8 @@ pub struct Context<'a> {
 }
 
 impl<'a> Context<'a> {
+    // TODO for more convenience
+    // impl axum::extract::FromRequestParts<AppState> for Context {}
     pub fn new(uri: &'a axum::http::Uri, headers: &'a axum::http::HeaderMap) -> Self {
         Self {
             uri: uri,
@@ -86,6 +88,3 @@ impl<'a> Context<'a> {
         }     
     }
 }
-
-// TODO for more convenience
-// impl axum::extract::FromRequestParts<AppState> for Context {}

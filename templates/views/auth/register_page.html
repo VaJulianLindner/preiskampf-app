@@ -1,6 +1,10 @@
 {% extends "layouts/full_width.html" %}
 
 {% block content %}
+
+{% if context.is_hx_request() %}
+{% include "partials/auth/register_form.html" %}
+{% else %}
 <title>Preiskampf | Registrieren</title>
 <div align="center">
     <h2>Registrierung</h2>
@@ -10,4 +14,6 @@
     Account bereits vorhanden?
     <a class="font-semibold leading-6 text-zinc-300 hover:text-zinc-600 no-underline" href="/login">Hier einloggen</a>
 </p>
+{% endif %}
+
 {% endblock %}

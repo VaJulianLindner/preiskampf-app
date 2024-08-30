@@ -43,8 +43,10 @@
         </div>
     {% endif %}
 
-    {% for error in errors %}
-        <p class="text-red-400" align="center">{{ error|fmt("{:?}") }}</p>
-    {% endfor %}
+    {% if errors.is_some() %}
+        {% for error in errors.as_ref().unwrap() %}
+            <p class="text-red-400" align="center">{{ error }}</p>
+        {% endfor %}
+    {% endif %}
 </form>
 {% endmacro %}

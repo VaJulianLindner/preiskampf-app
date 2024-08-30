@@ -21,7 +21,7 @@ pub async fn init() -> Result<Pool<Postgres>, Error> {
     PgPoolOptions::new()
         .min_connections(5)
         .max_connections(50)
-        .acquire_timeout(Duration::from_secs(5))
+        .acquire_timeout(Duration::from_secs(3))
         .connect(connection_string.as_str())
         .await
 }
