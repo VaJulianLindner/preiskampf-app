@@ -16,7 +16,7 @@ impl DetailOperations {
         }
     }
 
-    pub fn to_string(&self) -> String {
+    pub fn _to_string(&self) -> String {
         match self {
             DetailOperations::Create => "anlegen".to_string(),
             DetailOperations::Read => "detail".to_string(),

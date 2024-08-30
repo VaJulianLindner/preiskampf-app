@@ -1,6 +1,6 @@
 use askama::Template;
 use axum::{
-    extract::{Extension, Path, Request, State}, http::{header, HeaderMap, Method, StatusCode, Uri}, middleware::Next, response::{Html, IntoResponse}, RequestExt
+    extract::{Extension, Path, Request, State}, http::{header, HeaderMap, Method, StatusCode, Uri}, middleware::Next, response::{Html, IntoResponse}
 };
 use chrono::{DateTime, Local};
 use handlebars::{handlebars_helper, Handlebars, Helper, Context, RenderContext, Output, HelperResult};
@@ -121,6 +121,7 @@ pub fn create_error_notification(message: Option<&str>) -> NotificationTemplate 
     )
 }
 
+// TODO should return a result and Err instead of String "forbidden"
 pub fn get_value_from_path(path: &Path<HashMap<String, String>>, name: &str) -> String {
     match path.get(name) {
         None => {

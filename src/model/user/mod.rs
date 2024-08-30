@@ -83,7 +83,7 @@ impl User {
         if self.password.is_none() {
             return false;
         }
-        sha512_crypt::verify(password, self.password.expect("you cant verify a password if there is no password").as_str())
+        sha512_crypt::verify(password, self.password.unwrap().as_str())
     }
 }
 

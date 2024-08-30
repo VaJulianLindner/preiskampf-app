@@ -28,10 +28,6 @@ impl SortOrder {
             _ => SortOrder::Desc,
         }
     }
-
-    pub fn from_string(str: String) -> Self {
-        SortOrder::from_str(str.as_str())
-    }
 }
 
 
@@ -51,7 +47,6 @@ impl RedirectSuccessState {
 }
 
 #[derive(Deserialize, Serialize, Debug)]
-// TODO impl Default for the fields so that getters always return and not only options, can move from String to &str then
 pub struct StateParams {
     q: Option<String>,
     page: Option<usize>,
@@ -80,24 +75,19 @@ impl StateParams {
         for part in parts {
             let mut splitted_param = part.splitn(2, |b| b == '=');
             let name = splitted_param.next().unwrap();
-            let value = match splitted_param.next() {
-                Some(val) => Some(val.to_owned()),
-                None => None,
-            };
+            let value = splitted_param.next();
 
             if value.is_none() {
                 continue;
             }
 
-            println!("value {:?}", value.as_ref().unwrap());
-
             match name {
-                "q" => state_params.q = value,
+                "q" => state_params.q = value.unwrap().parse().ok(),
                 "page" => state_params.page = value.unwrap().parse().ok(),
                 "limit" => state_params.limit = value.unwrap().parse().ok(),
-                "sort_by" => state_params.sort_by = value,
-                "sort_order" => state_params.sort_order = value,
-                "is" => state_params.is = value,
+                "sort_by" => state_params.sort_by = value.unwrap().parse().ok(),
+                "sort_order" => state_params.sort_order = value.unwrap().parse().ok(),
+                "is" => state_params.is = value.unwrap().parse().ok(),
                 _ => println!("no StateParam for {:?} implemented", name),
             }
         }
@@ -105,7 +95,7 @@ impl StateParams {
         state_params
     }
 
-    pub fn success_state_notify(&self) -> String {
+    pub fn _success_state_notify(&self) -> String {
         if self.is.is_none() {
             return String::from("");
         }

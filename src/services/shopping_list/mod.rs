@@ -80,7 +80,7 @@ pub async fn delete_shopping_list(
         .await
 }
 
-pub async fn save_shopping_list_item(
+pub async fn _save_shopping_list_item(
     _db_pool: &Pool<Postgres>,
     _user_id: i64,
     _shopping_list_id: i64,

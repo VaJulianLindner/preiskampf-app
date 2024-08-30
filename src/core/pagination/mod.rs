@@ -7,7 +7,7 @@ use handlebars::handlebars_helper;
 
 use crate::{core::{query_params::StateParams, context::Context}, view::misc::PaginationTemplate};
 
-pub enum PaginationType {
+pub enum _PaginationType {
     ByOffset,
     ByCursor
 }
@@ -24,15 +24,15 @@ pub struct Pagination {
 }
 
 impl Pagination {
-    pub fn from_request<T>(request: &Request<T>) {
-
+    pub fn _from_request<T>(request: &Request<T>) -> Self {
+        Pagination::_from_uri(request.uri())
     }
 
-    pub fn from_uri(uri: &Uri) -> Self {
-        Pagination::from_query_params(&StateParams::from_query(uri.query()))
+    pub fn _from_uri(uri: &Uri) -> Self {
+        Pagination::_from_query(uri.query())
     }
 
-    pub fn from_query(query: Option<&str>) -> Self {
+    pub fn _from_query(query: Option<&str>) -> Self {
         Pagination::from_query_params(&StateParams::from_query(query))
     }
 
