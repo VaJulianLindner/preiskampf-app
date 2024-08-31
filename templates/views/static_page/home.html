@@ -1,7 +1,42 @@
 {% extends "layouts/default.html" %}
+{% import "partials/atoms/button.html" as button %}
+{% import "partials/atoms/link.html" as link %}
 
 {% block content %}
 
 <title>Preiskampf</title>
+<h1>Preiskampf</h1>
+
+{% if authenticated_user.is_none() %}
+<p>
+    {% call link::start_highlighted(
+        href="/login",
+        method="",
+        target="",
+        swap="",
+        stop_propagation="",
+        disabled=false,
+        class_name="",
+        is_ajax_action=false,
+        is_entering_detail_view=false,
+    ) %}Melde dich an{% call link::end() %}
+    oder
+    {%- call link::start_highlighted(
+        href="/registrieren",
+        method="",
+        target="",
+        swap="",
+        stop_propagation="",
+        disabled=false,
+        class_name="",
+        is_ajax_action=false,
+        is_entering_detail_view=false,
+    ) -%}erstelle dir einen Account,{%- call link::end() -%}
+    um unsere Services zu nutzen
+</p>
+<hr class="my-8">
+{% endif %}
+
+{# TODO service kacheln #}
 
 {% endblock %}

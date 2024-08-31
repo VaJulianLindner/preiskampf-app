@@ -1,9 +1,22 @@
 {% macro start(href, method, target, swap, stop_propagation, disabled, class_name, is_ajax_action, is_entering_detail_view) %}
     <a
-        hx-{{ method }}="{{ href }}"
+        {% if method.len() > 0 %} hx-{{ method }}="{{ href }}" {% else %} href="{{ href }}" {% endif %}
         hx-target="{% if target.len() > 0 %}{{ target }}{% else %}#swap-content{% endif %}"
         hx-swap="{% if swap.len() > 0 %}{{ swap }}{% else %}innerHTML transition:true{% endif %}"
         class="text-sm font-medium transition text-zinc-400 {% if !disabled %}hover:text-white cursor-pointer{% endif %} {{ class_name }}"
+        {% if stop_propagation.len() > 0 %} xui-stop-propagation="{{stop_propagation}}" {% endif %}
+        {% if disabled %} xui-hx-disabled="1" {% endif %}
+        {% if is_entering_detail_view %} xui-detail-view="1" {% endif %}
+        {% if is_ajax_action %} xui-el="Navigation" {% endif %}
+    >
+{% endmacro %}
+
+{% macro start_highlighted(href, method, target, swap, stop_propagation, disabled, class_name, is_ajax_action, is_entering_detail_view) %}
+    <a
+        {% if method.len() > 0 %} hx-{{ method }}="{{ href }}" {% else %} href="{{ href }}" {% endif %}
+        hx-target="{% if target.len() > 0 %}{{ target }}{% else %}#swap-content{% endif %}"
+        hx-swap="{% if swap.len() > 0 %}{{ swap }}{% else %}innerHTML transition:true{% endif %}"
+        class="text-sm font-medium transition text-emerald-400 {% if !disabled %}hover:emerald-500 cursor-pointer{% endif %} {{ class_name }}"
         {% if stop_propagation.len() > 0 %} xui-stop-propagation="{{stop_propagation}}" {% endif %}
         {% if disabled %} xui-hx-disabled="1" {% endif %}
         {% if is_entering_detail_view %} xui-detail-view="1" {% endif %}
