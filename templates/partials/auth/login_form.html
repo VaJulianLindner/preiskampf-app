@@ -4,7 +4,8 @@
 {% call form::start(
     method="post",
     action="/authorize",
-    swap="outerHTML",
+    swap="innerHTML",
+    target="#swap-content"
 ) %}
     {% call input::label(for_input="email", label="Email", description="", inline=false) %}
     {% call input::field(

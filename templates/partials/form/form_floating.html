@@ -1,9 +1,10 @@
 {% import "partials/atoms/button.html" as button %}
 
-{% macro start(method, action, swap) %}
+{% macro start(method, action, target, swap) %}
 <form
     class="p-8 transform-gpu overflow-hidden rounded-lg shadow-xl ring-1 bg-zinc-900 ring-zinc-800 sm:max-w-xl opacity-100 scale-100"
     hx-{{- method -}}="{{- action -}}"
+    hx-target="{{- target -}}"
     hx-swap="{{- swap -}}"
 >
 {% endmacro %}

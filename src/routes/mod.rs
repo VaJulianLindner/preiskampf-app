@@ -42,10 +42,7 @@ pub async fn handle_not_found(
     // TODO return type based on http-header requested method/content-type
     println!("handle_not_found, method: {}, uri: {}", method, uri.path());
 
-    let is_navigation_action = headers.is_hx_request();
-
-    let rendered_content = if is_navigation_action {
-        /* just return empty string if client tried to reload unknown element */
+    let rendered_content = if headers.is_boosted_request() {
         String::from("")
     } else {
         state.engine.render("404", &(json!({
@@ -62,7 +59,7 @@ pub async fn handle_not_found(
         StatusCode::NOT_FOUND,
         [(header::VARY, "Hx-Request, Hx-Boosted")],
         minify_html_response(rendered_content),
-    )
+    ).into_response()
 }
 
 pub fn render_notification(
@@ -136,6 +133,7 @@ pub fn get_value_from_path(path: &Path<HashMap<String, String>>, name: &str) -> 
 }
 
 pub fn minify_html_response(unprocessed_html: String) -> Html<String> {
+    // TODO need to add [(header::VARY, "Hx-Request, Hx-Boosted")] in all of the responses!
     Html(minify(unprocessed_html).expect("unexpected error during minification"))
 }
 

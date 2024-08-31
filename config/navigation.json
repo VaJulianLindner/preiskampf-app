@@ -44,6 +44,10 @@
                     "href": "/about"
                 },
                 {
+                    "label": "Impressum",
+                    "href": "/imprint"
+                },
+                {
                     "label": "Login",
                     "href": "/login",
                     "hidden_if_authenticated": true

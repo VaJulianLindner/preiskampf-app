@@ -36,3 +36,8 @@ impl<T> HttpExt for Request<T> {
         self.headers().is_boosted_request()
     }
 }
+
+pub fn strip_query_from_uri(path_and_query: &str) -> &str {
+    let path = path_and_query.splitn(2, "?").next();
+    path.unwrap_or(path_and_query)
+}

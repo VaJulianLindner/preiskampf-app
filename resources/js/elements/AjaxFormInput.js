@@ -63,9 +63,9 @@ class AjaxFormInput extends HtmxEventListener {
         }
 
         if (pushUrl) {
-            window.router.push(url, routerOpts);
+            Router.push(url, routerOpts);
         } else {
-            window.router.replace(url, routerOpts);
+            Router.replace(url, routerOpts);
         }
     }
 };

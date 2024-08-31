@@ -46,7 +46,7 @@ class Navigation extends HtmxEventListener {
             }
         }
 
-        window.router.push(url, {
+        Router.push(url, {
             withTransition: this.el.getAttribute("hx-swap")?.indexOf("transition:true") > -1,
             openInNewTab: openInNewTab,
             isEnteringDetailView: isEnteringDetailView,

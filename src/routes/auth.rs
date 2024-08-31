@@ -64,7 +64,7 @@ pub async fn validate(
     if authenticated_user.is_none() {
         let is_illegal_access = match request.uri().path() {
             "/" => false,
-            "/index" => false,
+            "/imprint" => false,
             "/about" => false,
             "/login" => false,
             "/registrieren" => false,

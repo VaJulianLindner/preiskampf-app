@@ -77,11 +77,11 @@ function onEvent(name, e) {
             if (!location) {
                 return;
             }
-            return window.router.push(location, {reload: true});
+            return Router.push(location, {reload: true});
         }
 
         // e.detail.shouldSwap = false;
-        window.router.push(toUrl, {
+        Router.push(toUrl, {
             target: e.detail.xhr.getResponseHeader("xui-target"),
             swap: e.detail.xhr.getResponseHeader("xui-swap"),
             withTransition: true,

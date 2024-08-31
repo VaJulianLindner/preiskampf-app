@@ -22,7 +22,7 @@ const Elements = {
 htmx.defineExtension("http-header-enriched-ui", { onEvent: HttpHeaderEnrichedUiOnEvent });
 
 window.htmx = htmx;
-window.router = new Router();
+window.Router = new Router();
 window.HERE_CLIENT_API_KEY = "OLsRSTH_Diw-raJw5TB5UgfiCHhbCbXlEdOp2Z0IH8U";
 
 if (window.location.search.includes("htmx-debug")) {
@@ -43,7 +43,7 @@ document.onreadystatechange = function (e, state) {
             e.detail.shouldSwap = true;
             e.detail.isError = false;
 
-            // replace document with whole 404 status page
+            // replace document with 404 status page instead of handling 404 of single elements/navigations etc
             if (e.detail.xhr.status === 404) {
                 e.detail.target = document.body;
             }
@@ -52,7 +52,6 @@ document.onreadystatechange = function (e, state) {
 }
 
 htmx.onLoad(content => {
-    // TODO into extension? USE NEW POPOVER HTML API?! => migrate this case to an actual button, not a popover
     content.addEventListener("mousedown", hideActiveDialogs);
 
     const elements = content.getAttribute("xui-el") ? [content] : content.querySelectorAll("[xui-el]");

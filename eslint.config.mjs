@@ -9,6 +9,7 @@ export default [
                 ...globals.commonjs,
                 ...globals.node,
                 H: "readable",
+                Router: "readable",
             },
         } 
     },

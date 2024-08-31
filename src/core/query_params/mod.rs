@@ -95,7 +95,7 @@ impl StateParams {
         state_params
     }
 
-    pub fn _success_state_notify(&self) -> String {
+    pub fn success_state_notify(&self) -> String {
         if self.is.is_none() {
             return String::from("");
         }

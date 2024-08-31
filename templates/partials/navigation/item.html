@@ -10,7 +10,7 @@
         xui-is-nav
         {% endif %}
         class="flex cursor-pointer justify-between gap-2 py-1 pr-3 text-sm transition hover:text-white
-            {% if href.starts_with(context.uri.path()) %} text-white font-bold{% else %} text-zinc-400{% endif %}
+            {% if crate::core::request_extension::strip_query_from_uri(href) == context.uri.path() %} text-white font-bold{% else %} text-zinc-400{% endif %}
         "
     >
         <span class="truncate">{{ label }}</span>
