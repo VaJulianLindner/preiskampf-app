@@ -28,7 +28,7 @@ jobs:
           user: ${{ secrets.REMOTE_USER }}
           host: ${{ secrets.REMOTE_HOST }}
         run: |
-          ssh -i /tmp/ssh_private_key $user@$host /usr/bin/bash /opt/scripts/restart_preiskampf_ui_service.sh
+          ssh -i /tmp/ssh_private_key $user@$host sudo /usr/bin/bash /opt/scripts/restart_preiskampf_ui_service.sh
 
       - name: remove key file
         run: |
