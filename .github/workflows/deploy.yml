@@ -7,7 +7,6 @@ on:
 
 jobs:
   restart_service:
-    # ubuntu-latest
     runs-on: ubuntu-22.04
 
     steps:
