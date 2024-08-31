@@ -29,7 +29,7 @@ if (window.location.search.includes("htmx-debug")) {
     htmx.logAll();
 }
 
-const WHITELIST_STATUSCODES_FOR_RENDER = [401, 422];
+const WHITELIST_STATUSCODES_FOR_RENDER = [401, 404, 422];
 
 document.onreadystatechange = function (e, state) {
     if (document.readyState !== "complete") {
@@ -42,6 +42,11 @@ document.onreadystatechange = function (e, state) {
             // a form was submitted with bad data and want to rerender with the errors
             e.detail.shouldSwap = true;
             e.detail.isError = false;
+
+            // replace document with whole 404 status page
+            if (e.detail.xhr.status === 404) {
+                e.detail.target = document.body;
+            }
         }
     });
 }

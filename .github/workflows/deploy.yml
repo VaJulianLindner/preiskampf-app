@@ -15,8 +15,8 @@ jobs:
         env:
           ssh_private_key: ${{ secrets.REMOTE_SSH_PRIVATE_KEY }}
         run: |
-          echo "$ssh_private_key" > /tmp/aws_ec2_ssh_private_key
-          chmod 600 /tmp/aws_ec2_ssh_private_key
+          echo "$ssh_private_key" > /tmp/ssh_private_key
+          chmod 600 /tmp/ssh_private_key
 
       - name: install ssh key
         uses: shimataro/ssh-key-action@v2
@@ -29,8 +29,8 @@ jobs:
           user: ${{ secrets.REMOTE_USER }}
           host: ${{ secrets.REMOTE_HOST }}
         run: |
-          ssh -i /tmp/aws_ec2_ssh_private_key $user@$host /usr/bin/bash /opt/scripts/restart_preiskampf_ui_service.sh
+          ssh -i /tmp/ssh_private_key $user@$host /usr/bin/bash /opt/scripts/restart_preiskampf_ui_service.sh
 
       - name: remove key file
         run: |
-          rm /tmp/aws_ec2_ssh_private_key
+          rm /tmp/ssh_private_key

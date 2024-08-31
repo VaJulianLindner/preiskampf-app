@@ -25,6 +25,10 @@
                     "href": "/mein-profil"
                 },
                 {
+                    "label": "Meine Freunde",
+                    "href": "/friends"
+                },
+                {
                     "label": "Meine Einkaufszettel",
                     "href": "/einkaufszettel?limit=6"
                 }
