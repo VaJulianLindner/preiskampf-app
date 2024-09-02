@@ -16,6 +16,7 @@ pub async fn init() -> Result<Pool<Postgres>, Error> {
 
     let connection_string = format!("postgres://postgres.{}:{}@aws-0-eu-central-1.pooler.supabase.com:5432/postgres", db_user, db_password);
 
+    // user postgres.{} on db postgres
     PgPoolOptions::new()
         .min_connections(5)
         .max_connections(50)

@@ -4,4 +4,5 @@ package-lock.json
 /assets/dist
 /node_modules
 .lh
+.history
 .env
