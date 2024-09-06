@@ -27,3 +27,11 @@ pub struct AboutTemplate<'a> {
     pub notification: Option<NotificationTemplate<'a>>,
     pub context: Context<'a>,
 }
+
+#[derive(Template)]
+#[template(path = "views/static_page/404.html")]
+pub struct NotFoundTemplate<'a> {
+    pub authenticated_user: &'a Option<User>,
+    pub notification: Option<NotificationTemplate<'a>>,
+    pub context: Context<'a>,
+}

@@ -1,22 +1,27 @@
 use askama::Template;
 use axum::{
-    extract::{Extension, Path, Request, State}, http::{header, HeaderMap, Method, StatusCode, Uri}, middleware::Next, response::{Html, IntoResponse}
+    extract::{Extension, Path, Request}, http::{header, Method, StatusCode, Uri}, middleware::Next, response::{Html, IntoResponse}
 };
 use chrono::{DateTime, Local};
-use handlebars::{handlebars_helper, Handlebars, Helper, Context, RenderContext, Output, HelperResult};
+use handlebars::{handlebars_helper, Handlebars, Helper, RenderContext, Output, HelperResult};
 use html_minifier::minify;
-use serde_json::{json, Value};
+use serde_json::Value;
 use std::collections::HashMap;
 use std::sync::Arc;
 use std::time::Instant;
 
-use crate::{core::request_extension::HttpExt, model::{misc::Notification, user::User}};
-use crate::AppState;
-use crate::view::misc::NotificationTemplate;
+use crate::{
+    core::{
+        context::Context, request_extension::HttpExt
+    },
+    model::{misc::Notification, user::User},
+};
+use crate::view::{
+    static_page::NotFoundTemplate,
+    misc::NotificationTemplate,
+};
 
 pub mod auth;
-pub mod details;
-pub mod templates;
 pub mod controller;
 pub mod api;
 
@@ -33,26 +38,23 @@ pub async fn print_timestamp_middleware(
 }
 
 pub async fn handle_not_found(
-    state: State<AppState>,
-    headers: HeaderMap,
     Extension(authenticated_user): Extension<Arc<Option<User>>>,
     method: Method,
-    uri: Uri,
+    request: Request,
 ) -> impl IntoResponse {
+    let context = Context::from_request(&request);
     // TODO return type based on http-header requested method/content-type
-    println!("handle_not_found, method: {}, uri: {}", method, uri.path());
+    println!("handle_not_found, method: {}, uri: {}", method, context.uri);
+    eprintln!("handle_not_found, method: {}, uri: {}", method, context.uri);
 
-    let rendered_content = if headers.is_boosted_request() {
+    let rendered_content = if context.is_boosted_request() {
         String::from("")
     } else {
-        state.engine.render("404", &(json!({
-            "requested_path": uri.path(),
-            "authenticated_user": authenticated_user,
-            "navigation": state.navigation,
-        }))).unwrap_or_else(|e| {
-            println!("error rendering template: {}", e);
-            String::from("")
-        })
+        NotFoundTemplate {
+            authenticated_user: &authenticated_user,
+            notification: None,
+            context: context,
+        }.render().unwrap_or_default()
     };
 
     (
@@ -140,7 +142,7 @@ pub fn minify_html_response(unprocessed_html: String) -> Html<String> {
 pub fn concat(
     h: &Helper,
     _: &Handlebars,
-    _: &Context,
+    _: &handlebars::Context,
     _rc: &mut RenderContext,
     out: &mut dyn Output,
 ) -> HelperResult {

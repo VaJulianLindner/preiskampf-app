@@ -10,11 +10,12 @@ use axum::{
 };
 use crate::core::context::Context;
 use crate::model::user::User;
-use crate::routes::{minify_html_response, templates};
+use crate::routes::minify_html_response;
 use crate::view::static_page::{
     AboutTemplate,
     HomeTemplate,
     ImprintTemplate,
+    NotFoundTemplate,
 };
 use crate::AppState;
 
@@ -24,6 +25,7 @@ pub async fn get_static_page(
     request: Request,
 ) -> impl IntoResponse {
     let context = Context::from_request(&request);
+    let mut status_code = StatusCode::OK;
 
     let rendered_template = match request.uri().path() {
         "/imprint" => ImprintTemplate {
@@ -42,13 +44,17 @@ pub async fn get_static_page(
             context: context,
         }.render(),
         _ => {
-            // TODO 404-page
             eprintln!("couldnt find template for static-page {}", request.uri().path());
-            return (StatusCode::TEMPORARY_REDIRECT, [("Location", "/nicht-gefunden")]).into_response();
+            status_code = StatusCode::NOT_FOUND;
+            NotFoundTemplate {
+                authenticated_user: &authenticated_user,
+                notification: None,
+                context: context,
+            }.render()
         }
     };
 
-    (StatusCode::OK, minify_html_response(rendered_template.unwrap_or_default())).into_response()
+    (status_code, minify_html_response(rendered_template.unwrap_or_default())).into_response()
 }
 
 pub fn routes() -> Router<AppState> {

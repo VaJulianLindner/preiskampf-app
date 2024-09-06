@@ -39,14 +39,7 @@ impl<'a> Context<'a> {
     }
 
     pub fn get_current_page(&self) -> usize {
-        match self.uri.query() {
-            None => 0,
-            Some(query) => {
-                query.split("&").find(|v| {
-                    v.starts_with("page=")
-                }).unwrap_or("page=0").split("=").last().unwrap_or("0").parse::<usize>().unwrap_or(0)
-            }
-        }
+        self.query_params.get_page().unwrap_or(0)
     }
 
     pub fn preserve_query_state(&self, page: &usize, with_pathname: bool) -> String {

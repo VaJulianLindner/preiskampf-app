@@ -14,9 +14,9 @@ pub async fn init() -> Result<Pool<Postgres>, Error> {
         .unwrap_or_else(|_| std::env::var(DB_PASSWORD_KEY).expect(format!("{DB_PASSWORD_KEY} must be set in env").as_str())
     );
 
+    // user 'postgres.{}' on db 'postgres'
     let connection_string = format!("postgres://postgres.{}:{}@aws-0-eu-central-1.pooler.supabase.com:5432/postgres", db_user, db_password);
 
-    // user postgres.{} on db postgres
     PgPoolOptions::new()
         .min_connections(5)
         .max_connections(50)

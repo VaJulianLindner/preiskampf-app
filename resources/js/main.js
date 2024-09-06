@@ -42,11 +42,6 @@ document.onreadystatechange = function (e, state) {
             // a form was submitted with bad data and want to rerender with the errors
             e.detail.shouldSwap = true;
             e.detail.isError = false;
-
-            // replace document with 404 status page instead of handling 404 of single elements/navigations etc
-            if (e.detail.xhr.status === 404) {
-                e.detail.target = document.body;
-            }
         }
     });
 }

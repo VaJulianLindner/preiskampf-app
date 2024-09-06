@@ -32,8 +32,6 @@ use routes::{
     concat,
     humanize_utc_time,
     emoji_list,
-    templates::page_template,
-    details::detail_template,
     auth,
     controller,
 };
@@ -93,13 +91,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .merge(controller::social_timeline::routes())
         .merge(controller::static_page::routes())
         .merge(controller::user::routes())
-        // .route("/:template_name/:resource_id", post(detail_template))
-        // .route("/:template_name/:resource_id", get(detail_template))
-        // .route("/:template_name", post(page_template))
-        // .route("/:template_name", get(page_template))
-        // .route("/", get(page_template))
         .merge(auth::routes())
-        // TODO need error handler i guess
         .fallback(handle_not_found)
         .layer(middleware::from_fn(auth::validate))
         .layer(middleware::from_fn(print_timestamp_middleware))
