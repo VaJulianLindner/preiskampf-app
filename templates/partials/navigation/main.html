@@ -33,10 +33,10 @@
         </h2>
         <div class="relative mt-3 pl-2">
             <ul role="list" class="border-l border-transparent">
-                {% call navigation::item("Über uns", "/about", true) %}
-                {% call navigation::item("Impressum", "/imprint", true) %}
+                {% call navigation::item("Über uns", "/about", false) %}
+                {% call navigation::item("Impressum", "/imprint", false) %}
                 {% if authenticated_user.is_none() %}
-                {% call navigation::item("Login", "/login", true) %}
+                {% call navigation::item("Login", "/login", false) %}
                 {% endif %}
             </ul>
         </div>

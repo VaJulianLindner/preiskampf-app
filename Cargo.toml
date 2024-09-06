@@ -10,7 +10,6 @@ tokio = { version = "1.39.0", features = ["macros", "rt-multi-thread"] }
 axum = "0.7.2"
 serde_json = "1.0.108"
 tower-http = { version = "0.5.0", features = ["fs", "trace"] }
-handlebars = { version = "4.5.0", features = ["dir_source"] }
 config = "0.13.3"
 serde = "1.0.192"
 sqlx = { version = "0.7.4", features = ["runtime-tokio", "postgres", "json", "chrono"] }

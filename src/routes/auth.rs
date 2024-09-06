@@ -1,5 +1,4 @@
 use std::path::PathBuf;
-use std::convert::Into;
 use std::sync::Arc;
 use askama::Template;
 use config::{Config, File};
@@ -11,7 +10,6 @@ use axum::response::{IntoResponse, Response, Html};
 use axum::routing::{post, get};
 use jsonwebtoken::{decode, encode, Header, Algorithm, Validation, EncodingKey, DecodingKey};
 use once_cell::sync::Lazy;
-use serde_json::json;
 use sqlx::Error;
 
 use crate::core::context::Context;

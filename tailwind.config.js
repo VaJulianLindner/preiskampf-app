@@ -3,7 +3,6 @@ const typographyPlugin = require('@tailwindcss/typography');
 
 module.exports = {
     content: [
-        "./templates_old/**/*.hbs",
         "./templates/**/*.html",
     ],
     theme: {

@@ -50,3 +50,28 @@
     {% endif %}
 </form>
 {% endmacro %}
+
+{% macro end_as_submit(errors, reset_url, target, swap) %}
+        </div>
+    </div>
+
+    <div class="mt-6 flex items-center justify-center">
+        {% call button::as_button(
+            label="Absenden",
+            button_type="primary",
+            post=false,
+            get=false,
+            href="",
+            target="",
+            swap="",
+            is_ajax_action=false,
+        ) %}
+    </div>
+
+    {% if errors.is_some() %}
+        {% for error in errors.as_ref().unwrap() %}
+            <p class="text-red-400" align="center">{{ error }}</p>
+        {% endfor %}
+    {% endif %}
+</form>
+{% endmacro %}

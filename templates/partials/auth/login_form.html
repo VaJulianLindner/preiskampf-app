@@ -1,37 +1,53 @@
-{% import "partials/form/form_floating.html" as form %}
+{% import "partials/form/form_left_aligned.html" as form %}
+{% import "partials/form/input_wrapper/left_aligned.html" as input_wrapper %}
 {% import "partials/form/input/input.html" as input %}
+{% import "partials/atoms/button.html" as button %}
 
 {% call form::start(
     method="post",
     action="/authorize",
     swap="innerHTML",
-    target="#swap-content"
+    target="#swap-content",
+    boost=false,
+    push_url=false,
+    headers="",
 ) %}
-    {% call input::label(for_input="email", label="Email", description="", inline=false) %}
-    {% call input::field(
-        input_type="email",
-        name="email",
-        value="",
-        placeholder="meine@email.de",
-        autocomplete=true,
-        required=true,
-        readonly=false,
-        inline=false,
-        is_ajax_input=false,
-        full_width=true,
+    {% call input_wrapper::start(
+        for_input="email", label="Email", description="", hide_border=true
     ) %}
+        {% call input::field(
+            input_type="email",
+            name="email",
+            value="",
+            placeholder="meine@email.de",
+            autocomplete=true,
+            required=true,
+            readonly=false,
+            inline=true,
+            is_ajax_input=false,
+            full_width=true,
+        ) %}
+    {% call input_wrapper::end() %}
 
-    {% call input::label(for_input="password", label="Passwort", description="", inline=false) %}
-    {% call input::field(
-        input_type="password",
-        name="password",
-        value="",
-        placeholder="**** ****",
-        autocomplete=false,
-        required=true,
-        readonly=false,
-        inline=false,
-        is_ajax_input=false,
-        full_width=true,
+    {% call input_wrapper::start(
+        for_input="password", label="Passwort", description="", hide_border=true
     ) %}
-{% call form::end(errors=errors) %}
+        {% call input::field(
+            input_type="password",
+            name="password",
+            value="",
+            placeholder="**** ****",
+            autocomplete=false,
+            required=true,
+            readonly=false,
+            inline=true,
+            is_ajax_input=false,
+            full_width=true,
+        ) %}       
+    {% call input_wrapper::end() %}
+{% call form::end_as_submit(
+    errors=errors,
+    reset_url="",
+    swap="",
+    target="",
+) %}

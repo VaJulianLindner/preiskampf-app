@@ -1,9 +1,7 @@
 use std::fmt::Debug;
-
 use askama::Template;
 use axum::http::{Request, Uri};
 use serde_json::{json, Value};
-use handlebars::handlebars_helper;
 
 use crate::{core::{query_params::StateParams, context::Context}, view::misc::PaginationTemplate};
 
@@ -87,21 +85,3 @@ impl Pagination {
         PaginationTemplate { pagination: self, context }.render()
     }
 }
-
-// TODO remove handlebars_helpers after move to askama
-handlebars_helper!(prev_page_if_last_item: |current_page: u32, current_list: Value| {
-    match current_list.as_array() {
-        Some(val) => {
-            if val.len() == 1 {
-                if current_page > 0 {
-                    current_page - 1
-                } else {
-                    0
-                }
-            } else {
-                current_page
-            }
-        },
-        None => 0
-    }
-});

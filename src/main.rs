@@ -2,9 +2,7 @@ use std::error::Error;
 use std::io::BufReader;
 use std::net::{Ipv4Addr, SocketAddrV4};
 use std::fs;
-use handlebars::Handlebars;
-use axum::{middleware, Router, routing};
-use routing::{get, post};
+use axum::{middleware, Router};
 use tower_http::services::ServeDir;
 use serde_json::Value;
 use sqlx::{Pool, Postgres};
@@ -16,29 +14,15 @@ mod model;
 mod view;
 mod routes;
 mod core;
-
-use core::pagination::prev_page_if_last_item;
-use core::query_params::preserve_query_params;
 use routes::{
     print_timestamp_middleware,
     handle_not_found,
-    button_type,
-    check_auth_required,
-    hide_if_authenticated,
-    format_price,
-    xor,
-    sub,
-    add,
-    concat,
-    humanize_utc_time,
-    emoji_list,
     auth,
     controller,
 };
 
 #[derive(Clone)]
 pub struct AppState {
-    engine: Handlebars<'static>,
     db_pool: Pool<Postgres>,
     navigation: Value,
 }
@@ -58,33 +42,15 @@ async fn main() -> Result<(), Box<dyn Error>> {
     };
     println!("is_release: {:?}", is_release);
 
-    let mut engine = Handlebars::new();
-    engine.set_strict_mode(false);
-    engine.set_dev_mode(!is_release);
-    engine.register_templates_directory(".hbs", format!("{}/templates_old", manifest_dir))?;
-    engine.register_helper("button_type", Box::new(button_type));
-    engine.register_helper("check_auth_required", Box::new(check_auth_required));
-    engine.register_helper("hide_if_authenticated", Box::new(hide_if_authenticated));
-    engine.register_helper("format_price", Box::new(format_price));
-    engine.register_helper("xor", Box::new(xor));
-    engine.register_helper("sub", Box::new(sub));
-    engine.register_helper("add", Box::new(add));
-    engine.register_helper("concat", Box::new(concat));
-    engine.register_helper("preserve_query_params", Box::new(preserve_query_params));
-    engine.register_helper("humanize_utc_time", Box::new(humanize_utc_time));
-    engine.register_helper("emoji_list", Box::new(emoji_list));
-    engine.register_helper("prev_page_if_last_item", Box::new(prev_page_if_last_item));
-
-    let file = fs::File::open(format!("{}/config/navigation.json", manifest_dir))?;
-    let reader = BufReader::new(file);
+    let navigation_file = fs::File::open(format!("{}/config/navigation.json", manifest_dir))?;
+    let reader = BufReader::new(navigation_file);
     let navigation = serde_json::from_reader(reader)?;
 
     println!("starting db..");
     let db_pool = db::init().await?;
     println!("started db!");
 
-    // TODO remove handlebars-templates, check everything be removing the engine from state and remove all hb-helpers
-    let app_state = AppState { engine, db_pool, navigation };
+    let app_state = AppState { db_pool, navigation };
     let app = Router::new()
         .merge(controller::product::routes())
         .merge(controller::shopping_list::routes())

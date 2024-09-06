@@ -28,7 +28,6 @@ try {
 
     const headIncluePaths = [
         path.resolve("./templates/partials/head_include.html"),
-        path.resolve("./templates_old/partials/head_include.hbs"),
     ];
     
     headIncluePaths.forEach(headIncluePath => {

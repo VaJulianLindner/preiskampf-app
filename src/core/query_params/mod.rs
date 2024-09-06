@@ -1,9 +1,6 @@
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
-use handlebars::{Context, Handlebars, Helper, HelperResult, JsonRender, Output, RenderContext};
 use crate::routes::{render_success_notification, render_error_notification};
-
-const PAGE_KEY: &str = "page";
 
 #[derive(Deserialize, Debug)]
 pub enum SortOrder {
@@ -146,37 +143,4 @@ impl StateParams {
     pub fn get_page(self: &Self) -> Option<usize> {
         self.page
     }
-}
-
-// TODO all handlebars helpers can be removed after migration to askama is complete
-pub fn preserve_query_params(
-    h: &Helper,
-    _hb: &Handlebars,
-    _ctx: &Context,
-    _rctx: &mut RenderContext,
-    out: &mut dyn Output,
-) -> HelperResult {
-    // TODO i actually dont even need to pass that value in the template, i could just read it from the ctx
-    let provided_value = h.param(0).map(|v| v.value());
-    if provided_value.is_none() {
-        return Ok(());
-    }
-
-    let query_params = provided_value.unwrap().as_object();
-    if query_params.is_none() {
-        return Ok(());
-    }
-
-    let map = query_params.unwrap();
-    // TODO skip the damn page param?
-    map.into_iter()
-        .filter(|(key, val)| {
-            !val.is_null() && key != &PAGE_KEY
-        })
-        .for_each(|(key, val)| {
-            let param = format!("&{}={}", key, val.render());
-            let _ = out.write(param.as_str()).inspect_err(|e| eprintln!("error writing query_string {e:?}"));
-        });
-
-    Ok(())
 }

@@ -1,8 +1,8 @@
-{% macro item(label, href, use_full_page_layout) %}
+{% macro item(label, href, reload_page) %}
 <li class="z-10 mt-6">
     <a
         href="{{ href }}"
-        {% if !use_full_page_layout %}
+        {% if !reload_page %}
         hx-get="{{ href }}"
         hx-target="#swap-content"
         hx-swap="innerHTML transition:true"
