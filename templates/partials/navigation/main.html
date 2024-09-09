@@ -21,7 +21,7 @@
         <div class="relative mt-3 pl-2">
             <ul role="list" class="border-l border-transparent">
                 {% call navigation::item("Mein Profil", "/mein-profil", false) %}
-                {% call navigation::item("Meine Freunde", "/friends", false) %}
+                {% call navigation::item("Meine Freunde", "/contacts", false) %}
                 {% call navigation::item("Meine Einkaufszettel", "/einkaufszettel?limit=6", false) %}
             </ul>
         </div>
@@ -35,9 +35,6 @@
             <ul role="list" class="border-l border-transparent">
                 {% call navigation::item("Über uns", "/about", false) %}
                 {% call navigation::item("Impressum", "/imprint", false) %}
-                {% if authenticated_user.is_none() %}
-                {% call navigation::item("Login", "/login", false) %}
-                {% endif %}
             </ul>
         </div>
     </li>

@@ -1,3 +1,5 @@
+pub mod contacts;
+
 use askama::Template;
 use crate::core::context::Context;
 use crate::core::request_extension::HttpExt;

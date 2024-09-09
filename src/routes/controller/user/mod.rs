@@ -10,7 +10,10 @@ use crate::routes::{minify_html_response, create_success_notification, render_su
 use crate::services::user::{update_user, update_selected_shopping_list};
 use crate::model::user::{User, SessionUser, UserUpdateForm};
 use crate::routes::auth::create_auth_cookie_for_user;
-use crate::view::user::UserDetailTemplate;
+use crate::view::user::{
+    UserDetailTemplate,
+    contacts::ContactPageTemplate,
+};
 
 pub async fn save_user(
     state: State<AppState>,
@@ -62,7 +65,7 @@ pub async fn save_user(
 }
 
 
-pub async fn get_user(
+pub async fn get_user_page(
     Extension(authenticated_user): Extension<Arc<Option<User>>>,
     request: Request,
 ) -> impl IntoResponse {
@@ -76,15 +79,28 @@ pub async fn get_user(
     (StatusCode::OK, minify_html_response(template.render().unwrap_or_default())).into_response()
 }
 
+
+pub async fn get_friends_page(
+    Extension(authenticated_user): Extension<Arc<Option<User>>>,
+    request: Request,
+) -> impl IntoResponse {
+    let context = Context::from_request(&request);
+    let template = ContactPageTemplate {
+        authenticated_user: &authenticated_user,
+        notification: None,
+        errors: &None,
+        context: context,
+    };
+    (StatusCode::OK, minify_html_response(template.render().unwrap_or_default())).into_response()
+}
+
 pub async fn save_selected_shopping_list(
     state: State<AppState>,
     Extension(authenticated_user): Extension<Arc<Option<User>>>,
     path: Path<HashMap<String, String>>,
 ) -> impl IntoResponse {
-    let mut headers = HeaderMap::new();
-
     if authenticated_user.is_none() {
-        return (StatusCode::FORBIDDEN, headers, minify_html_response(String::from("")));
+        return (StatusCode::FORBIDDEN, minify_html_response(String::from(""))).into_response();
     }
 
     let authenticated_user_id = match *authenticated_user {
@@ -92,7 +108,7 @@ pub async fn save_selected_shopping_list(
             u.get_id().expect("authenticated user must have an id")
         },
         None => {
-            return (StatusCode::FORBIDDEN, headers, minify_html_response(String::from("")));
+            return (StatusCode::FORBIDDEN, minify_html_response(String::from(""))).into_response();
         }
     };
     let shopping_list_id = get_value_from_path(&path, "shopping_list_id").parse::<i64>().unwrap_or_default();
@@ -103,6 +119,7 @@ pub async fn save_selected_shopping_list(
         shopping_list_id,
     ).await {
         Ok(_) => {
+            let mut headers = HeaderMap::new();
             let unprocessed_html = render_success_notification(Some("Auswahl gespeichert"));
             match *authenticated_user {
                 Some(ref user) => {
@@ -129,12 +146,12 @@ pub async fn save_selected_shopping_list(
                 },
                 None => (),
             };
-            (StatusCode::OK, headers, minify_html_response(unprocessed_html))
+            (StatusCode::OK, headers, minify_html_response(unprocessed_html)).into_response()
         },
         Err(e) => {
             eprintln!("error in save_selected_shopping_list route: {:?}", e);
             let notification = render_error_notification(None);
-            (StatusCode::UNPROCESSABLE_ENTITY, headers, minify_html_response(notification))
+            (StatusCode::UNPROCESSABLE_ENTITY, minify_html_response(notification)).into_response()
         }
     }
 }
@@ -143,5 +160,6 @@ pub fn routes() -> Router<AppState> {
     Router::new()
         .route("/user/save", post(save_user))
         .route("/user/save_selected_shopping_list/:shopping_list_id", put(save_selected_shopping_list))
-        .route("/mein-profil", get(get_user))
+        .route("/contacts", get(get_friends_page))
+        .route("/mein-profil", get(get_user_page))
 }
