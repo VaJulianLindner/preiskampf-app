@@ -1,0 +1,10 @@
+
+{% import "partials/form/form_left_aligned.html" as form %}
+{% import "partials/form/input_wrapper/left_aligned.html" as input_wrapper %}
+{% import "partials/form/input/input.html" as input %}
+{% import "partials/form/input/input_address.html" as address_input %}
+
+{% macro contact_add_form(with_pending_list) %}
+    {% call form::with_defaults(method="POST", action="/user/TO-BE-DONE/add-new-contact") %}
+    {% call form::end_with_defaults(reset_url="/user/TO-BE-DONE/add-new-contact-RESET") %}
+{% endmacro %} 

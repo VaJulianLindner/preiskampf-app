@@ -1,0 +1,12 @@
+{% extends "layouts/default.html" %}
+{% import "partials/user/contacts_form.html" as contacts %}
+
+{% block content %}
+
+{% let authenticated_user = authenticated_user.as_ref() %}
+
+<title>Preiskampf | Meine Kontakte</title>
+<h1>Kontaktliste</h1>
+{% call contacts::contact_add_form(with_pending_list=true) %}
+
+{% endblock %}
