@@ -2,9 +2,13 @@
 {% import "partials/form/form_left_aligned.html" as form %}
 {% import "partials/form/input_wrapper/left_aligned.html" as input_wrapper %}
 {% import "partials/form/input/input.html" as input %}
-{% import "partials/form/input/input_address.html" as address_input %}
 
 {% macro contact_add_form(with_pending_list) %}
-    {% call form::with_defaults(method="POST", action="/user/TO-BE-DONE/add-new-contact") %}
-    {% call form::end_with_defaults(reset_url="/user/TO-BE-DONE/add-new-contact-RESET") %}
+    {% call form::with_defaults(method="PUT", action="/contacts/save_contact_request") %}
+
+        {% call input_wrapper::with_defaults(for_input="contact_email", label="Kontaktanfrage an Email") %}
+            {% call input::field_with_defaults(input_type="email", name="contact_email", value="") %}
+        {% call input_wrapper::end() %}
+
+    {% call form::end_as_submit_with_defaults(errors=errors) %}
 {% endmacro %} 

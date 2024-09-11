@@ -26,7 +26,7 @@
 ) %}
 {% endmacro %}
 
-{% macro end(hide_control_buttons, errors, reset_url, target, swap) %}
+{% macro end(hide_control_buttons, errors, reset_url, target, swap, submit_label) %}
         </div>
     </div>
 
@@ -43,7 +43,7 @@
                 is_ajax_action=false,
             ) %}
             {% call button::as_button(
-                label="Speichern",
+                label=submit_label,
                 button_type="primary",
                 post=false,
                 get=false,
@@ -70,11 +70,12 @@
         reset_url=reset_url,
         swap="innerHTML",
         target="#swap-content",
+        submit_label="",
     ) %}
 </form>
 {% endmacro %}
 
-{% macro end_as_submit(errors, reset_url, target, swap) %}
+{% macro end_as_submit(errors, target, swap) %}
         </div>
     </div>
 
@@ -96,5 +97,10 @@
             <p class="text-red-400" align="center">{{ error }}</p>
         {% endfor %}
     {% endif %}
+</form>
+{% endmacro %}
+
+{% macro end_as_submit_with_defaults(errors) %}
+    {% call end_as_submit(errors, target="", swap="") %}
 </form>
 {% endmacro %}

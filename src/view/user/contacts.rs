@@ -12,3 +12,10 @@ pub struct ContactPageTemplate<'a> {
     pub errors: &'a Option<Vec<String>>,
     pub context: Context<'a>,
 }
+
+#[derive(Template)]
+#[template(path = "partials/user/contacts_form.html")]
+pub struct AddContactFormTemplate<'a> {
+    pub errors: &'a Option<Vec<String>>,
+    pub context: Context<'a>,
+}

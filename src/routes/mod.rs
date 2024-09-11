@@ -2,9 +2,7 @@ use askama::Template;
 use axum::{
     extract::{Extension, Path, Request}, http::{header, Method, StatusCode, Uri}, middleware::Next, response::{Html, IntoResponse}
 };
-use chrono::{DateTime, Local};
 use html_minifier::minify;
-use serde_json::Value;
 use std::collections::HashMap;
 use std::sync::Arc;
 use std::time::Instant;
@@ -44,7 +42,6 @@ pub async fn handle_not_found(
     let context = Context::from_request(&request);
     // TODO return type based on http-header requested method/content-type
     println!("handle_not_found, method: {}, uri: {}", method, context.uri);
-    eprintln!("handle_not_found, method: {}, uri: {}", method, context.uri);
 
     let rendered_content = if context.is_boosted_request() {
         String::from("")
@@ -135,5 +132,14 @@ pub fn get_value_from_path(path: &Path<HashMap<String, String>>, name: &str) -> 
 
 pub fn minify_html_response(unprocessed_html: String) -> Html<String> {
     // TODO need to add [(header::VARY, "Hx-Request, Hx-Boosted")] in all of the responses!
-    Html(minify(unprocessed_html).expect("unexpected error during minification"))
+    // make this function also accept statuscode and headers and return the Response|impl IntoResponse directly,
+    // so all the default setters can easily be set
+
+    match minify(unprocessed_html) {
+        Ok(html) => Html(html),
+        Err(e) => {
+            eprintln!("error in minify_html_response: {:?}", e);
+            Html("".to_string())
+        }
+    }
 }

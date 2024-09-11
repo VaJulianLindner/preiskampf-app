@@ -1,3 +1,5 @@
+pub mod contacts;
+
 use sqlx::FromRow;
 use serde::{Deserialize, Serialize};
 use chrono::{Duration, Utc};

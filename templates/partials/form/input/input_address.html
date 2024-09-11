@@ -11,7 +11,7 @@
 
 {% macro field(name, value, lng, lat, placeholder, required, readonly, inline, full_width) %}
 <input
-    class="bg-transparent {% if readonly %}text-zinc-400 cursor-not-allowed{% else %}text-white{% endif %} sm:text-sm {% if inline %}inline-block pl-2 py-2{% else %}my-2{% endif %} {% if full_width %}w-full{% endif %}"
+    class="bg-zinc-900 rounded-md {% if readonly %}text-zinc-400 cursor-not-allowed{% else %}text-white{% endif %} sm:text-sm {% if inline %}inline-block pl-2 py-2{% else %}my-2{% endif %} {% if full_width %}w-full{% endif %}"
     placeholder="{{ placeholder }}"
     type="text"
     name="{{ name }}"

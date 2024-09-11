@@ -37,7 +37,7 @@
     {% endif %}
 
     {% call input_wrapper::start(
-        for_input="email", label="Email", description="", hide_border=false
+        for_input="email", label="Email", description="", hide_border=true
     ) %}
         {% call input::field(
             input_type="email",
@@ -54,7 +54,7 @@
     {% call input_wrapper::end() %}
 
     {% call input_wrapper::start(
-        for_input="username", label="Benutzername", description="", hide_border=false
+        for_input="username", label="Benutzername", description="", hide_border=true
     ) %}
         {% call input::field(
             input_type="text",
@@ -72,7 +72,7 @@
 
 
     {% call input_wrapper::start(
-        for_input="address", label="Adresse", description="Hier kannst du deine Adresse hinterlegen, um spezifische Sonderangebote zu erhalten", hide_border=false
+        for_input="address", label="Adresse", description="Hier kannst du deine Adresse hinterlegen, um spezifische Sonderangebote zu erhalten", hide_border=true
     ) %}
         {% call address_input::field(
             name="address",
@@ -93,6 +93,7 @@
     reset_url="/mein-profil",
     swap="innerHTML",
     target="#swap-content",
+    submit_label="",
 ) %}
 
 {% endblock %}

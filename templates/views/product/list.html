@@ -24,7 +24,7 @@
         headers="{\"Hx-Boosted\": true}",
     ) %}
         {% call input_wrapper::start(
-            for_input="q", label="Suchbegriff", description="", hide_border=false
+            for_input="q", label="Suchbegriff", description="", hide_border=true
         ) %}
             {% call input::field(
                 input_type="text",
@@ -45,6 +45,7 @@
         reset_url="",
         swap="",
         target="",
+        submit_label="",
     ) %}
 
     {% include "partials/product/boosted_list.html" %}

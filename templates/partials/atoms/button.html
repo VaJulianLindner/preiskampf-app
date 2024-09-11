@@ -3,7 +3,7 @@
         class="{% call class_for_button_type(button_type) %}"
         {% call attributes_for_button(post, get, href, target, swap, is_ajax_action) %}
     >
-        {{ label }}
+        {% if label.len() > 0 %}{{ label }}{% else %}Speichern{% endif %}
     </a>
 {% endmacro %}
 
@@ -12,7 +12,7 @@
         class="{% call class_for_button_type(button_type) %}"
         {% call attributes_for_button(post, get, href, target, swap, is_ajax_action) %}
     >
-        {{ label }}
+        {% if label.len() > 0 %}{{ label }}{% else %}Speichern{% endif %}
     </button>
 {% endmacro %}
 

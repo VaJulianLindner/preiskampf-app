@@ -1,3 +1,5 @@
+pub mod contacts;
+
 use std::{collections::HashMap, sync::Arc};
 use askama::Template;
 use axum::{
@@ -14,6 +16,7 @@ use crate::view::user::{
     UserDetailTemplate,
     contacts::ContactPageTemplate,
 };
+use contacts::{save_contact_request, get_friends_page};
 
 pub async fn save_user(
     state: State<AppState>,
@@ -71,21 +74,6 @@ pub async fn get_user_page(
 ) -> impl IntoResponse {
     let context = Context::from_request(&request);
     let template = UserDetailTemplate {
-        authenticated_user: &authenticated_user,
-        notification: None,
-        errors: &None,
-        context: context,
-    };
-    (StatusCode::OK, minify_html_response(template.render().unwrap_or_default())).into_response()
-}
-
-
-pub async fn get_friends_page(
-    Extension(authenticated_user): Extension<Arc<Option<User>>>,
-    request: Request,
-) -> impl IntoResponse {
-    let context = Context::from_request(&request);
-    let template = ContactPageTemplate {
         authenticated_user: &authenticated_user,
         notification: None,
         errors: &None,
@@ -160,6 +148,7 @@ pub fn routes() -> Router<AppState> {
     Router::new()
         .route("/user/save", post(save_user))
         .route("/user/save_selected_shopping_list/:shopping_list_id", put(save_selected_shopping_list))
+        .route("/contacts/save_contact_request", put(save_contact_request))
         .route("/contacts", get(get_friends_page))
         .route("/mein-profil", get(get_user_page))
 }

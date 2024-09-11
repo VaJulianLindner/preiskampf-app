@@ -55,3 +55,15 @@ pub async fn update_selected_shopping_list(
         .fetch_one(db_pool)
         .await
 }
+
+pub async fn add_contact_request(
+    db_pool: &Pool<Postgres>,
+    user_id: i64,
+    requested_users_email: &str,
+) -> Result<(), Error> {
+    sqlx::query_as::<_, _>(include_str!("./add_contact_request.sql"))
+        .bind(user_id)
+        .bind(requested_users_email)
+        .fetch_one(db_pool)
+        .await
+}

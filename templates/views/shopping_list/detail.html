@@ -50,7 +50,7 @@
     {% call input_wrapper::end() %}
 
     {% call input_wrapper::start(
-        for_input="name", label="Name", description="", hide_border=false
+        for_input="name", label="Name", description="", hide_border=true
     ) %}
         {% call input::field(
             input_type="text",
@@ -72,6 +72,7 @@
     reset_url=Self::get_reset_url(self),
     swap="innerHTML",
     target="#swap-content",
+    submit_label="",
 ) %}
 
 {% endblock %}

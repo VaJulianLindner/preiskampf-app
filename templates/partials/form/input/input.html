@@ -7,9 +7,13 @@
 </label>
 {% endmacro %}
 
+{% macro label_with_defaults(for_input, label) %}
+    {% call label(for_input, label, description="", inline=true) %}
+{% endmacro %}
+
 {% macro field(input_type, name, value, placeholder, autocomplete, required, readonly, inline, is_ajax_input, full_width) %}
 <input
-    class="bg-transparent {% if readonly %}text-zinc-400 cursor-not-allowed{% else %}text-white{% endif %} sm:text-sm {% if inline %}inline-block pl-2 py-2{% else %}my-2{% endif %} {% if full_width %}w-full{% endif %}"
+    class="bg-zinc-900 rounded-md {% if readonly %}text-zinc-400 cursor-not-allowed{% else %}text-white{% endif %} sm:text-sm {% if inline %}inline-block pl-2 py-2{% else %}my-2{% endif %} {% if full_width %}w-full{% endif %}"
     placeholder="{{ placeholder }}"
     type="{{ input_type }}"
     name="{{ name }}"
@@ -20,4 +24,8 @@
     {% if readonly %}readonly="true"{% endif %}
     {% if is_ajax_input %}xui-el="AjaxFormInput"{% endif %}
 />
+{% endmacro %}
+
+{% macro field_with_defaults(input_type, name, value) %}
+    {% call field(input_type, name, value, placeholder="", autocomplete=true, required=true, readonly=false, inline=true, is_ajax_input=false, full_width=true) %}
 {% endmacro %}
