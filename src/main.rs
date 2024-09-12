@@ -65,13 +65,12 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .with_state(app_state);
 
     let port = match std::env::var("PORT") {
-        Ok(port) => port.parse::<u16>().unwrap(),
+        Ok(port) => port.parse::<u16>().unwrap_or(4000),
         Err(_) => 4000,
     };
-    println!("server using port {:?}", port);
     let addr = SocketAddrV4::new(Ipv4Addr::new(0, 0, 0, 0), port);
     let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
-    println!("server started on {:?}!", addr);
+    println!("server started on {:?}", addr);
     axum::serve(listener, app).await.unwrap();
 
     Ok(())

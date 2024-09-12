@@ -262,7 +262,6 @@ impl Keys {
 
 pub fn routes() -> Router<AppState> {
     Router::new()
-        // TODO GET handler for login, registrieren routes i guess
         .route("/authorize", post(authorize))
         .route("/register", post(register))
         .route("/logout", post(logout))
