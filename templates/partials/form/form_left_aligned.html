@@ -14,11 +14,12 @@
         <div class="mt-10 space-y-8 border-b border-zinc-400/10 pb-12 sm:space-y-0 sm:divide-y sm:divide-zinc-400/10 sm:border-t sm:pb-0">
 {% endmacro %}
 
+{# TODO give some thoughts to defaultly swapping with transition:true #}
 {% macro with_defaults(method, action) %}
 {% call start(
     method=method, 
     action=action,
-    swap="innerHTML",
+    swap="innerHTML transition:true",
     target="#swap-content",
     boost=false,
     push_url=false,

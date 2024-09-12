@@ -62,6 +62,7 @@ class AjaxFormInput extends HtmxEventListener {
             } catch (e) {/*ignore*/}
         }
 
+        console.warn("ENABLE FORM SUBMISSIONS TO BE HANDLED WITH VIEW-TRANSITION API");
         if (pushUrl) {
             Router.push(url, routerOpts);
         } else {

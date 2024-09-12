@@ -10,4 +10,15 @@
         {% call input_wrapper::end() %}
 
     {% call form::end_as_submit_with_defaults(errors=errors) %}
+
+    {% if with_pending_list %}
+        <h3>Gesendete Anfragen</h3>
+        <ul>
+            <li>todo@to.do</li>
+        </ul>
+        <h3>Empfangene Anfragen</h3>
+        <ul>
+            <li>todo@to.do</li>
+        </ul>
+    {% endif %}
 {% endmacro %} 
