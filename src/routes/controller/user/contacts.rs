@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{any::Any, sync::Arc};
 use askama::Template;
 use axum::{
     extract::{Request, State, FromRequest}, http::{HeaderMap, StatusCode}, response::IntoResponse, Extension, Form
@@ -6,7 +6,7 @@ use axum::{
 
 use crate::{core::context::Context, routes::{render_error_notification, render_success_notification, minify_html_response}, AppState};
 use crate::model::user::{User, contacts::AddContactRequestForm};
-use crate::services::user::add_contact_request;
+use crate::services::user::contacts::add_contact_request;
 use crate::view::user::contacts::{ContactPageTemplate, AddContactFormTemplate};
 
 pub async fn get_friends_page(
@@ -43,7 +43,7 @@ pub async fn save_contact_request(
     match add_contact_request(
         &state.db_pool,
         authenticated_user_id,
-        &form_data.contact_email,
+        &form_data,
     ).await {
         Ok(_) => {
             (
@@ -59,14 +59,30 @@ pub async fn save_contact_request(
                 render_error_notification(Some("Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es später erneut."))
             ).into_response()
         },
+        Err(sqlx::Error::Database(e)) => {
+            if e.is_unique_violation() {
+                (
+                    StatusCode::UNPROCESSABLE_ENTITY,
+                    [("Hx-Reswap", "none")],
+                    render_error_notification(Some("Kontaktanfrage ist bereits vorhanden"))
+                ).into_response()
+            } else {
+                eprintln!("unexpected error in controller::contacts::add_contact_request {:?}", e);
+                unexpected_error().into_response()
+            }
+        },
         Err(e) => {
             eprintln!("unexpected error in controller::contacts::add_contact_request {:?}", e);
-            (
-                StatusCode::UNPROCESSABLE_ENTITY,
-                [("Hx-Reswap", "none")],
-                render_error_notification(Some("Ein unerwarteter Fehler ist aufgetreten"))
-            ).into_response()
+            unexpected_error().into_response()
         }
     }
 
+}
+
+pub fn unexpected_error() -> impl IntoResponse {
+    (
+        StatusCode::UNPROCESSABLE_ENTITY,
+        [("Hx-Reswap", "none")],
+        render_error_notification(Some("Ein unerwarteter Fehler ist aufgetreten"))
+    )
 }

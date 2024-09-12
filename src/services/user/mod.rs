@@ -1,5 +1,6 @@
-use sqlx::{Pool, Postgres, Error};
+pub mod contacts;
 
+use sqlx::{Pool, Postgres, Error};
 use crate::model::user::{User, UserUpdateForm, UserSignUpForm};
 
 pub async fn check_if_user_exists(db_pool: &Pool<Postgres>, email: &str) -> bool {
@@ -52,18 +53,6 @@ pub async fn update_selected_shopping_list(
     sqlx::query_as::<_, _>(include_str!("./update_selected_shopping_list.sql"))
         .bind(user_id)
         .bind(shopping_list_id)
-        .fetch_one(db_pool)
-        .await
-}
-
-pub async fn add_contact_request(
-    db_pool: &Pool<Postgres>,
-    user_id: i64,
-    requested_users_email: &str,
-) -> Result<(), Error> {
-    sqlx::query_as::<_, _>(include_str!("./add_contact_request.sql"))
-        .bind(user_id)
-        .bind(requested_users_email)
         .fetch_one(db_pool)
         .await
 }
