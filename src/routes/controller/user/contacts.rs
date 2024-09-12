@@ -49,40 +49,37 @@ pub async fn save_contact_request(
             (
                 StatusCode::OK,
                 // [("Hx-Reswap", "[hx-put=\"/contacts/save_contact_request\")]")],
-                render_success_notification(Some("Die Kontaktanfrage wurde versendet"))
+                minify_html_response(render_success_notification(Some("Die Kontaktanfrage wurde versendet")))
             ).into_response()
         },
         Err(sqlx::Error::PoolTimedOut) => {
             (
                 StatusCode::TOO_MANY_REQUESTS,
                 [("Hx-Reswap", "none")],
-                render_error_notification(Some("Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es später erneut."))
+                minify_html_response(render_error_notification(Some("Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.")))
             ).into_response()
         },
         Err(sqlx::Error::Database(e)) => {
-            if e.is_unique_violation() {
-                (
-                    StatusCode::UNPROCESSABLE_ENTITY,
-                    [("Hx-Reswap", "none")],
-                    render_error_notification(Some("Kontaktanfrage ist bereits vorhanden"))
-                ).into_response()
+            let rendered_content = if e.is_unique_violation() {
+                render_error_notification(Some("Kontaktanfrage ist bereits vorhanden"))
             } else {
-                eprintln!("unexpected error in controller::contacts::add_contact_request {:?}", e);
-                unexpected_error().into_response()
-            }
+                eprintln!("Database error in controller::contacts::add_contact_request {:?}", e);
+                render_error_notification(Some("Ein unerwarteter Fehler ist aufgetreten"))
+            };
+            (
+                StatusCode::UNPROCESSABLE_ENTITY,
+                [("Hx-Reswap", "none")],
+                minify_html_response(rendered_content)
+            ).into_response()
         },
         Err(e) => {
             eprintln!("unexpected error in controller::contacts::add_contact_request {:?}", e);
-            unexpected_error().into_response()
+            (
+                StatusCode::UNPROCESSABLE_ENTITY,
+                [("Hx-Reswap", "none")],
+                minify_html_response(render_error_notification(Some("Ein unerwarteter Fehler ist aufgetreten")))
+            ).into_response()
         }
     }
 
-}
-
-pub fn unexpected_error() -> impl IntoResponse {
-    (
-        StatusCode::UNPROCESSABLE_ENTITY,
-        [("Hx-Reswap", "none")],
-        render_error_notification(Some("Ein unerwarteter Fehler ist aufgetreten"))
-    )
 }
