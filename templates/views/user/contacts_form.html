@@ -1,0 +1,7 @@
+{% import "partials/user/contacts_form.html" as contacts %}
+
+{% call contacts::contact_add_form(with_pending_list=true) %}
+
+{% if notification.is_some() %}
+    {{ notification.as_ref().unwrap().render().unwrap_or_default()|safe }}
+{% endif %}

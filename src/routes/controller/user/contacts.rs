@@ -4,7 +4,7 @@ use axum::{
     extract::{Request, State, FromRequest}, http::{HeaderMap, StatusCode}, response::IntoResponse, Extension, Form
 };
 
-use crate::{core::context::Context, routes::{render_error_notification, render_success_notification, minify_html_response}, AppState};
+use crate::{core::context::Context, routes::{create_notification, minify_html_response, render_error_notification, render_success_notification}, AppState};
 use crate::model::user::{User, contacts::AddContactRequestForm};
 use crate::services::user::contacts::add_contact_request;
 use crate::view::user::contacts::{ContactPageTemplate, AddContactFormTemplate};
@@ -32,13 +32,22 @@ pub async fn save_contact_request(
     let req_headers = request.headers().clone();
     let context = Context::new(&uri, &req_headers);
 
+    let form_data = Form::<AddContactRequestForm>::from_request(request, &state).await.unwrap();
     let authenticated_user_id = match *authenticated_user {
-        Some(ref u) => u.get_id().expect("authenticated user must have an id"),
+        Some(ref u) => {
+            if u.get_email() == form_data.contact_email {
+                return (
+                    StatusCode::FORBIDDEN,
+                    [("Hx-Reswap", "none")],
+                    minify_html_response(render_success_notification(Some("Du kannst nicht dein eigener Freund sein")))
+                ).into_response();
+            }
+            u.get_id().expect("authenticated user must have an id")
+        },
         None => {
-            return (StatusCode::FORBIDDEN, minify_html_response(String::from(""))).into_response();
+            return (StatusCode::FORBIDDEN, [("Hx-Reswap", "none")], minify_html_response(String::from(""))).into_response();
         }
     };
-    let form_data = Form::<AddContactRequestForm>::from_request(request, &state).await.unwrap();
 
     match add_contact_request(
         &state.db_pool,
@@ -46,10 +55,15 @@ pub async fn save_contact_request(
         &form_data,
     ).await {
         Ok(_) => {
+            let template = AddContactFormTemplate {
+                notification: Some(create_notification("Die Kontaktanfrage wurde versendet", true)),
+                errors: &None,
+                context: context
+            };
             (
                 StatusCode::OK,
-                // [("Hx-Reswap", "[hx-put=\"/contacts/save_contact_request\")]")],
-                minify_html_response(render_success_notification(Some("Die Kontaktanfrage wurde versendet")))
+                [("Hx-Retarget", "[hx-put=\"/contacts/save_contact_request\"]")],
+                minify_html_response(template.render().unwrap_or_default())
             ).into_response()
         },
         Err(sqlx::Error::PoolTimedOut) => {

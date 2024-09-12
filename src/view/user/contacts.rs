@@ -14,8 +14,9 @@ pub struct ContactPageTemplate<'a> {
 }
 
 #[derive(Template)]
-#[template(path = "partials/user/contacts_form.html")]
+#[template(path = "views/user/contacts_form.html")]
 pub struct AddContactFormTemplate<'a> {
+    pub notification: Option<NotificationTemplate<'a>>,
     pub errors: &'a Option<Vec<String>>,
     pub context: Context<'a>,
 }

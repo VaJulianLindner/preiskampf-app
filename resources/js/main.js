@@ -29,7 +29,7 @@ if (window.location.search.includes("htmx-debug")) {
     htmx.logAll();
 }
 
-const WHITELIST_STATUSCODES_FOR_RENDER = [401, 404, 422];
+const WHITELIST_STATUSCODES_FOR_RENDER = [401, 403, 404, 422];
 
 document.onreadystatechange = function (e, state) {
     if (document.readyState !== "complete") {
@@ -38,8 +38,8 @@ document.onreadystatechange = function (e, state) {
 
     document.body.addEventListener("htmx:beforeSwap", function (e) {
         if (WHITELIST_STATUSCODES_FOR_RENDER.includes(e.detail.xhr.status)) {
-            // allow 401/422 responses to swap as we are using this as a signal that
-            // a form was submitted with bad data and want to rerender with the errors
+            // allow error responses to swap as we are using this as a signal that
+            // a request was submitted with bad data and want to rerender with the errors
             e.detail.shouldSwap = true;
             e.detail.isError = false;
         }
