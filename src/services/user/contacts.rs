@@ -1,5 +1,12 @@
 use sqlx::{Pool, Postgres, Error};
-use crate::model::user::contacts::AddContactRequestForm;
+use crate::model::user::contacts::{Contact, AddContactRequestForm};
+
+pub async fn find_contacts(
+    db_pool: &Pool<Postgres>,
+    user_id: i64,
+) -> Result<Vec<Contact>, Error> {
+    Ok(vec![Contact::default()])
+}
 
 pub async fn add_contact_request(
     db_pool: &Pool<Postgres>,

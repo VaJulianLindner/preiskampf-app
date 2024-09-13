@@ -12,10 +12,7 @@ use crate::routes::{minify_html_response, create_success_notification, render_su
 use crate::services::user::{update_user, update_selected_shopping_list};
 use crate::model::user::{User, SessionUser, UserUpdateForm};
 use crate::routes::auth::create_auth_cookie_for_user;
-use crate::view::user::{
-    UserDetailTemplate,
-    contacts::ContactPageTemplate,
-};
+use crate::view::user::UserDetailTemplate;
 use contacts::{save_contact_request, get_friends_page};
 
 pub async fn save_user(

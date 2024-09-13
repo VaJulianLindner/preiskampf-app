@@ -14,12 +14,16 @@ pub async fn get_friends_page(
     request: Request,
 ) -> impl IntoResponse {
     let context = Context::from_request(&request);
+
+    // TODO get contacts: confirmed, pending, requesting..
+
     let template = ContactPageTemplate {
         authenticated_user: &authenticated_user,
         notification: None,
         errors: &None,
         context: context,
     };
+
     (StatusCode::OK, minify_html_response(template.render().unwrap_or_default())).into_response()
 }
 
@@ -39,7 +43,7 @@ pub async fn save_contact_request(
                 return (
                     StatusCode::FORBIDDEN,
                     [("Hx-Reswap", "none")],
-                    minify_html_response(render_success_notification(Some("Du kannst nicht dein eigener Freund sein")))
+                    minify_html_response(render_success_notification(Some("Jeder ist sich selbst am nächsten")))
                 ).into_response();
             }
             u.get_id().expect("authenticated user must have an id")
