@@ -36,8 +36,7 @@
             {% call button::as_button(
                 label="Verwerfen",
                 button_type="secondary",
-                post=false,
-                get=true,
+                method="get",
                 href=reset_url,
                 target=target,
                 swap=swap,
@@ -46,8 +45,7 @@
             {% call button::as_button(
                 label=submit_label,
                 button_type="primary",
-                post=false,
-                get=false,
+                method="",
                 href="",
                 target="",
                 swap="",
@@ -84,8 +82,7 @@
         {% call button::as_button(
             label="Absenden",
             button_type="primary",
-            post=false,
-            get=false,
+            method="",
             href="",
             target="",
             swap="",

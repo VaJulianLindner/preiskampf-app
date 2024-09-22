@@ -94,14 +94,14 @@ pub async fn save_contact_request(
         &form_data,
     ).await {
         Ok(_) => {
-            // TODO also need to add to the pending contact list at the end as oob-swap !!!
             let template = AddContactFormTemplate {
                 notification: Some(create_notification("Die Kontaktanfrage wurde versendet", true)),
                 errors: &None,
                 context: context
             };
             let mut content = template.render().unwrap_or_default();
-            content.push_str("<span hx-swap-oob=\"beforeend\" id=\"sent-requests-list\"><li>NEU</li></span>");
+            // TODO templatize!
+            content.push_str(format!("<span hx-swap-oob=\"beforeend\" id=\"sent-requests-list\"><li>{}</li></span>", form_data.contact_email).as_str());
             (
                 StatusCode::OK,
                 [("Hx-Retarget", "[hx-put=\"/contacts/save_contact_request\"]")],
@@ -138,4 +138,12 @@ pub async fn save_contact_request(
         }
     }
 
+}
+
+pub async fn remove_contact() -> impl IntoResponse {
+    (StatusCode::OK, [("Hx-Reswap", "none")]).into_response()
+}
+
+pub async fn confirm_contact() -> impl IntoResponse {
+    (StatusCode::OK, [("Hx-Reswap", "none")]).into_response()
 }

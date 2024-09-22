@@ -3,7 +3,7 @@ pub mod contacts;
 use std::{collections::HashMap, sync::Arc};
 use askama::Template;
 use axum::{
-    extract::{Path, State, Request, FromRequest}, http::{HeaderMap, StatusCode}, response::IntoResponse, routing::{post, put, get}, Extension, Form, Router
+    extract::{FromRequest, Path, Request, State}, http::{HeaderMap, StatusCode}, response::IntoResponse, routing::{delete, get, post, put}, Extension, Form, Router
 };
 
 use crate::{core::context::Context, AppState};
@@ -13,7 +13,7 @@ use crate::services::user::{update_user, update_selected_shopping_list};
 use crate::model::user::{User, SessionUser, UserUpdateForm};
 use crate::routes::auth::create_auth_cookie_for_user;
 use crate::view::user::UserDetailTemplate;
-use contacts::{save_contact_request, get_friends_page};
+use contacts::{get_friends_page, remove_contact, save_contact_request, confirm_contact};
 
 pub async fn save_user(
     state: State<AppState>,
@@ -145,6 +145,8 @@ pub fn routes() -> Router<AppState> {
     Router::new()
         .route("/user/save", post(save_user))
         .route("/user/save_selected_shopping_list/:shopping_list_id", put(save_selected_shopping_list))
+        .route("/contacts/delete_contact_request", delete(remove_contact))
+        .route("/contacts/confirm_contact_request", post(confirm_contact))
         .route("/contacts/save_contact_request", put(save_contact_request))
         .route("/contacts", get(get_friends_page))
         .route("/mein-profil", get(get_user_page))

@@ -23,18 +23,18 @@
                 {% call link::start("/mein-profil", "get", "", "", "", false, "", true, false) %}
                     {{ authenticated_user.as_ref().unwrap().get_email() }}
                 {% call link::end() %}
-                {% call button::as_link(label="Logout", href="/logout", button_type="primary", post=true, get=false, target="", swap="", is_ajax_action=false) %}
+                {% call button::as_link(label="Logout", href="/logout", button_type="primary", method="post", target="", swap="", is_ajax_action=false) %}
             {% else %}
-                {% call button::as_link(label="Login", href="/login", button_type="primary", post=false, get=false, target="", swap="", is_ajax_action=false) %}
+                {% call button::as_link(label="Login", href="/login", button_type="primary", method="", target="", swap="", is_ajax_action=false) %}
             {% endif %}
         </div>
     </div>
 
     <div class="min-[416px]:hidden absolute right-2">
         {% if authenticated_user.is_some() %}
-            {% call button::as_link(label="Logout", href="/logout", button_type="primary", post=true, get=false, target="", swap="", is_ajax_action=false) %}
+            {% call button::as_link(label="Logout", href="/logout", button_type="primary", method="post", target="", swap="", is_ajax_action=false) %}
         {% else %}
-            {% call button::as_link(label="Login", href="/login", button_type="primary", post=false, get=false, target="", swap="", is_ajax_action=false) %}
+            {% call button::as_link(label="Login", href="/login", button_type="primary", method="", target="", swap="", is_ajax_action=false) %}
         {% endif %}
     </div>
 </div>

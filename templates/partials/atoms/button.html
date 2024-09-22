@@ -1,16 +1,16 @@
-{% macro as_link(label, button_type, post, get, href, target, swap, is_ajax_action) %}
+{% macro as_link(label, button_type, method, href, target, swap, is_ajax_action) %}
     <a
         class="{% call class_for_button_type(button_type) %}"
-        {% call attributes_for_button(post, get, href, target, swap, is_ajax_action) %}
+        {% call attributes_for_button(method, href, target, swap, is_ajax_action) %}
     >
         {% if label.len() > 0 %}{{ label }}{% else %}Speichern{% endif %}
     </a>
 {% endmacro %}
 
-{% macro as_link_start(button_type, post, get, href, target, swap, is_ajax_action) %}
+{% macro as_link_start(button_type, method, href, target, swap, is_ajax_action) %}
     <a
         class="{% call class_for_button_type(button_type) %}"
-        {% call attributes_for_button(post, get, href, target, swap, is_ajax_action) %}
+        {% call attributes_for_button(method, href, target, swap, is_ajax_action) %}
     >
 {% endmacro %}
 
@@ -18,10 +18,10 @@
     </a>
 {% endmacro %}
 
-{% macro as_button(label, button_type, post, get, href, target, swap, is_ajax_action) %}
+{% macro as_button(label, button_type, method, href, target, swap, is_ajax_action) %}
     <button
         class="{% call class_for_button_type(button_type) %}"
-        {% call attributes_for_button(post, get, href, target, swap, is_ajax_action) %}
+        {% call attributes_for_button(method, href, target, swap, is_ajax_action) %}
     >
         {% if label.len() > 0 %}{{ label }}{% else %}Speichern{% endif %}
     </button>
@@ -49,18 +49,20 @@
     {% endif %}
 {% endmacro %}
 
-{% macro attributes_for_button(post, get, href, target, swap, is_ajax_action) %}
-    {% if post %}
-        hx-post="{{ href }}"
-    {% else %} {% if get %}
-        type="button"
-        hx-get="{{ href }}"
-        {% if is_ajax_action %} xui-el="Navigation" {% endif %}
-        {% if target.len() > 0 %} hx-target="{{ target }}" {% endif %}
-        {% if swap.len() > 0 %} hx-swap="{{ swap }}" {% endif %}
-    {% else %} {% if href.len() > 0 %}
+{% macro attributes_for_button(method, href, target, swap, is_ajax_action) %}
+    {% if method.len() > 0 %}
+        {% if method == "get" %}
+            type="button"
+            hx-get="{{ href }}"
+            {% if is_ajax_action %} xui-el="Navigation" {% endif %}
+            {% if target.len() > 0 %} hx-target="{{ target }}" {% endif %}
+            {% if swap.len() > 0 %} hx-swap="{{ swap }}" {% endif %}
+        {% else %}
+            hx-{{ method }}="{{ href }}"
+        {% endif %}
+    {% else if href.len() > 0 %}
         href="{{ href }}"
     {% else %}
         type="submit"
-    {% endif %}{% endif %}{% endif %}
+    {% endif %}
 {% endmacro %}

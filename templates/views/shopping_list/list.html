@@ -10,8 +10,7 @@
 {% call button::as_link(
     label="Neuen Einkaufszettel anlegen",
     button_type="primary",
-    post=false,
-    get=true,
+    method="get",
     href="/einkaufszettel/anlegen",
     target="#swap-content",
     swap="innerHTML transition:true",
