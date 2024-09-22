@@ -1,12 +1,22 @@
 {% extends "layouts/default.html" %}
 {% import "partials/user/contacts_form.html" as contacts %}
+{% import "partials/user/contacts_list.html" as list %}
+{% import "partials/icons.html" as icons %}
 
 {% block content %}
 
-{% let authenticated_user = authenticated_user.as_ref() %}
-
 <title>Preiskampf | Meine Kontakte</title>
 <h1>Kontaktliste</h1>
-{% call contacts::contact_add_form(with_pending_list=true) %}
+
+{% call contacts::contact_add_form() %}
+
+<h3>Bestätigte Kontakte</h3>
+{% call list::default("confirmed-contacts-list", contacts) %}
+
+<h3>Gesendete Anfragen</h3>
+{% call list::default("sent-requests-list", requested_contacts) %}
+
+<h3>Empfangene Anfragen</h3>
+{% call list::default("pending-requests-list", pending_contacts) %}
 
 {% endblock %}

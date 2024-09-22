@@ -74,10 +74,10 @@ Navigation.toggle = (forcedCurrentState) => {
 
     switch (state) {
         case "open":
-            document.querySelector(`[${NAVIGATION_TOGGLE_ICON}='${state}']`).style.display = "none";
+            document.querySelectorAll(`[${NAVIGATION_TOGGLE_ICON}='${state}']`).forEach(el => el.style.display = "none");
 
             state = "closed";
-            document.querySelector(`[${NAVIGATION_TOGGLE_ICON}='${state}']`).style.display = "initial";
+            document.querySelectorAll(`[${NAVIGATION_TOGGLE_ICON}='${state}']`).forEach(el => el.style.display = "initial");
             navigationToggle.setAttribute(NAVIGATION_TOGGLE_ATTRIBUTE, state);
             mainHeader.classList.add(...MAIN_HEADER_PASSIVE_CLASSES);
             mainHeader.classList.remove(...MAIN_HEADER_ACTIVE_CLASSES);
@@ -89,10 +89,10 @@ Navigation.toggle = (forcedCurrentState) => {
             }
             break;
         case "closed":
-            document.querySelector(`[${NAVIGATION_TOGGLE_ICON}='${state}']`).style.display = "none";
+            document.querySelectorAll(`[${NAVIGATION_TOGGLE_ICON}='${state}']`).forEach(el => el.style.display = "none");
 
             state = "open";
-            document.querySelector(`[${NAVIGATION_TOGGLE_ICON}='${state}']`).style.display = "initial";
+            document.querySelectorAll(`[${NAVIGATION_TOGGLE_ICON}='${state}']`).forEach(el => el.style.display = "initial");
             navigationToggle.setAttribute(NAVIGATION_TOGGLE_ATTRIBUTE, state);
             mainHeader.classList.add(...MAIN_HEADER_ACTIVE_CLASSES);
             mainHeader.classList.remove(...MAIN_HEADER_PASSIVE_CLASSES);

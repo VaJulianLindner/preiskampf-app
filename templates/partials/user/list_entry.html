@@ -1,0 +1,36 @@
+{% import "partials/atoms/link.html" as link %}
+{% import "partials/atoms/button.html" as button %}
+{% import "partials/icons.html" as icons %}
+
+{% macro default(contact) %}
+
+<li class="flex justify-between gap-x-6 py-2 border-t border-zinc-400/10" id="{{ contact.contact.id }}">
+    <div class="grid grid-cols-2 min-w-0 gap-x-4">
+        <div class="min-w-0">
+            <p class="text-xs leading-6 max-h-6 truncate text-white">
+                {{ contact.email }}
+            </p>
+        </div>
+        <div class="min-w-0 my-auto">
+            {% if contact.contact.state == "pending_contact_request" %}
+                {% if authenticated_user.as_ref().unwrap().get_id().unwrap() == contact.contact.by_user_id %}
+                    {% call button::as_link_start(
+                        href="/contacts/delete_contact_request", button_type="secondary", post=true, get=false, target="", swap="", is_ajax_action=false
+                    ) %}
+                        {% call icons::close(5, 5, "firebrick") %}
+                    {% call button::as_link_end() %}
+                {% else %}
+                    {% call button::as_link_start(
+                        href="/contacts/confirm_contact_request", button_type="primary", post=true, get=false, target="", swap="", is_ajax_action=false
+                    ) %}
+                        {% call icons::checkmark(5, 5, "text-green-400") %}
+                    {% call button::as_link_end() %}
+                {% endif %} 
+            {% else if contact.contact.state == "confirmed" %}
+                {# TODO bestehenden contact löschen #}
+            {% endif %}
+        </div>
+    </div>
+</li>
+
+{% endmacro %}

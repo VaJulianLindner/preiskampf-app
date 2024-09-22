@@ -4,7 +4,7 @@
     <div class="flex items-start">
         {% if notification.is_success %}
             <div class="flex-shrink-0">
-                {% call icons::checkmark(text_color = "text-green-400") %}
+                {% call icons::checkmark_bordered(6, 6, text_color = "text-green-400") %}
             </div>
         {% else %}
             <div class="flex-shrink-0">

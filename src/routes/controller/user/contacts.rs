@@ -1,4 +1,5 @@
-use std::{any::Any, sync::Arc};
+use std::sync::Arc;
+use futures::{join, try_join};
 use askama::Template;
 use axum::{
     extract::{Request, State, FromRequest}, http::{HeaderMap, StatusCode}, response::IntoResponse, Extension, Form
@@ -6,19 +7,53 @@ use axum::{
 
 use crate::{core::context::Context, routes::{create_notification, minify_html_response, render_error_notification, render_success_notification}, AppState};
 use crate::model::user::{User, contacts::AddContactRequestForm};
-use crate::services::user::contacts::add_contact_request;
+use crate::services::user::contacts::{
+    add_contact_request,
+    find_contacts,
+    find_requested_contacts,
+    find_pending_contacts,
+};
 use crate::view::user::contacts::{ContactPageTemplate, AddContactFormTemplate};
 
 pub async fn get_friends_page(
+    state: State<AppState>,
     Extension(authenticated_user): Extension<Arc<Option<User>>>,
     request: Request,
 ) -> impl IntoResponse {
     let context = Context::from_request(&request);
+    let authenticated_user_id = match *authenticated_user {
+        Some(ref u) => {
+            u.get_id().expect("authenticated user must have an id")
+        },
+        None => {
+            return (StatusCode::FORBIDDEN, [("Hx-Reswap", "none")], minify_html_response(String::from(""))).into_response();
+        }
+    };
 
-    // TODO get contacts: confirmed, pending, requesting..
+    // TODO use transaction to reduce network-trips?
+    // let mut transaction = state.db_pool.begin().await.unwrap();
+    let future_result = try_join!(
+        find_contacts(&state.db_pool, &authenticated_user_id),
+        find_requested_contacts(&state.db_pool, &authenticated_user_id),
+        find_pending_contacts(&state.db_pool, &authenticated_user_id),
+    );
+    let (
+        contacts,
+        requested_contacts,
+        pending_contacts,
+    ) = match future_result {
+        Ok(val) => val,
+        Err(e) => {
+            eprintln!("error in controller::contacts::get_friends_page {:?}", e);
+            (vec![], vec![], vec![])
+        }
+    };
 
     let template = ContactPageTemplate {
         authenticated_user: &authenticated_user,
+        contacts: &contacts,
+        requested_contacts: &requested_contacts,
+        pending_contacts: &pending_contacts,
         notification: None,
         errors: &None,
         context: context,
@@ -55,19 +90,22 @@ pub async fn save_contact_request(
 
     match add_contact_request(
         &state.db_pool,
-        authenticated_user_id,
+        &authenticated_user_id,
         &form_data,
     ).await {
         Ok(_) => {
+            // TODO also need to add to the pending contact list at the end as oob-swap !!!
             let template = AddContactFormTemplate {
                 notification: Some(create_notification("Die Kontaktanfrage wurde versendet", true)),
                 errors: &None,
                 context: context
             };
+            let mut content = template.render().unwrap_or_default();
+            content.push_str("<span hx-swap-oob=\"beforeend\" id=\"sent-requests-list\"><li>NEU</li></span>");
             (
                 StatusCode::OK,
                 [("Hx-Retarget", "[hx-put=\"/contacts/save_contact_request\"]")],
-                minify_html_response(template.render().unwrap_or_default())
+                minify_html_response(content),
             ).into_response()
         },
         Err(sqlx::Error::PoolTimedOut) => {

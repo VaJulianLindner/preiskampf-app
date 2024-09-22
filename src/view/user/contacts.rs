@@ -1,6 +1,7 @@
 use askama::Template;
 use crate::core::context::Context;
 use crate::core::request_extension::HttpExt;
+use crate::model::user::contacts::LinkedContact;
 use crate::view::misc::NotificationTemplate;
 use crate::model::user::User;
 
@@ -8,6 +9,9 @@ use crate::model::user::User;
 #[template(path = "views/user/contacts.html")]
 pub struct ContactPageTemplate<'a> {
     pub authenticated_user: &'a Option<User>,
+    pub contacts: &'a Vec<LinkedContact>,
+    pub requested_contacts: &'a Vec<LinkedContact>,
+    pub pending_contacts: &'a Vec<LinkedContact>,
     pub notification: Option<NotificationTemplate<'a>>,
     pub errors: &'a Option<Vec<String>>,
     pub context: Context<'a>,

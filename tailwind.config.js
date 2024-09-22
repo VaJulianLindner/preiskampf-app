@@ -83,7 +83,15 @@ module.exports = {
         "sm:translate-y-0",
         "sm:translate-x-0",
         "sm:translate-x-2",
-        "xui-entering-detail"
+        "xui-entering-detail",
+        "w-1",
+        "h-1",
+        "w-2",
+        "h-2",
+        "w-3",
+        "h-3",
+        "w-4",
+        "h-4",
     ],
     plugins: [typographyPlugin],
 }

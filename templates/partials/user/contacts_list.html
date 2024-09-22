@@ -1,0 +1,9 @@
+{% import "partials/user/list_entry.html" as list_entry %}
+
+{% macro default(id, contacts) %}
+<ul role="list" id="{{ id }}" class="not-prose">
+    {% for contact in contacts %}
+        {% call list_entry::default(contact) %}
+    {% endfor %}
+</ul>
+{% endmacro default %}
