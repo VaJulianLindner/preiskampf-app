@@ -55,11 +55,11 @@
             type="button"
             hx-get="{{ href }}"
             {% if is_ajax_action %} xui-el="Navigation" {% endif %}
-            {% if target.len() > 0 %} hx-target="{{ target }}" {% endif %}
-            {% if swap.len() > 0 %} hx-swap="{{ swap }}" {% endif %}
         {% else %}
             hx-{{ method }}="{{ href }}"
         {% endif %}
+        {% if target.len() > 0 %} hx-target="{{ target }}" {% endif %}
+        {% if swap.len() > 0 %} hx-swap="{{ swap }}" {% endif %}
     {% else if href.len() > 0 %}
         href="{{ href }}"
     {% else %}

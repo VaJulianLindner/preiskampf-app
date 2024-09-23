@@ -1,4 +1,5 @@
 SELECT
+    contacts.id AS contact_id,
     *
 FROM
     contacts

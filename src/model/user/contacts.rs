@@ -12,15 +12,15 @@ pub struct Contact {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct LinkedContact {
-    pub contact: Contact,
+    pub inner: Contact,
     pub email: String,
 }
 
 impl<'r> FromRow<'r, PgRow> for LinkedContact {
     fn from_row(row: &'r PgRow) -> Result<Self, sqlx::Error> {
         Ok(Self {
-            contact: Contact {
-                id: row.try_get("id")?,
+            inner: Contact {
+                id: row.try_get("contact_id")?,
                 by_user_id: row.try_get("by_user_id")?,
                 to_user_id: row.try_get("to_user_id")?,
                 state: row.try_get("state")?,

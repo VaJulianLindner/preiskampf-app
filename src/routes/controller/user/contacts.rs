@@ -1,17 +1,19 @@
-use std::sync::Arc;
-use futures::{join, try_join};
+use std::{collections::HashMap, sync::Arc};
+use futures::try_join;
 use askama::Template;
 use axum::{
-    extract::{Request, State, FromRequest}, http::{HeaderMap, StatusCode}, response::IntoResponse, Extension, Form
+    extract::{FromRequest, Path, Request, State}, http::{HeaderMap, StatusCode}, response::{Html, IntoResponse}, Extension, Form
 };
 
-use crate::{core::context::Context, routes::{create_notification, minify_html_response, render_error_notification, render_success_notification}, AppState};
+use crate::{core::context::Context, routes::{create_notification, get_value_from_path, minify_html_response, render_error_notification, render_success_notification}, AppState};
 use crate::model::user::{User, contacts::AddContactRequestForm};
 use crate::services::user::contacts::{
     add_contact_request,
     find_contacts,
     find_requested_contacts,
     find_pending_contacts,
+    delete_request,
+    confirm_request,
 };
 use crate::view::user::contacts::{ContactPageTemplate, AddContactFormTemplate};
 
@@ -48,6 +50,8 @@ pub async fn get_friends_page(
             (vec![], vec![], vec![])
         }
     };
+
+    println!("{:?}", requested_contacts);
 
     let template = ContactPageTemplate {
         authenticated_user: &authenticated_user,
@@ -140,10 +144,51 @@ pub async fn save_contact_request(
 
 }
 
-pub async fn remove_contact() -> impl IntoResponse {
-    (StatusCode::OK, [("Hx-Reswap", "none")]).into_response()
+pub async fn remove_contact(
+    state: State<AppState>,
+    Extension(authenticated_user): Extension<Arc<Option<User>>>,
+    path: Path<HashMap<String, String>>,
+) -> impl IntoResponse {
+    let contact_id = get_value_from_path(&path, "contact_id").parse::<i64>().unwrap_or_default();
+
+    match delete_request(&state.db_pool, &contact_id).await {
+        Ok(_) => (StatusCode::NO_CONTENT, [("Xui-Deleted", "yes")], Html("".to_string())).into_response(),
+        Err(e) => {
+            eprintln!("unexpected error in controller::contacts::remove_contact {:?}", e);
+            (
+                StatusCode::UNPROCESSABLE_ENTITY,
+                [("Hx-Reswap", "none")],
+                minify_html_response(render_error_notification(Some("Ein unerwarteter Fehler ist aufgetreten")))
+            ).into_response()
+        }
+    }
 }
 
-pub async fn confirm_contact() -> impl IntoResponse {
+pub async fn confirm_contact(
+    state: State<AppState>,
+    Extension(authenticated_user): Extension<Arc<Option<User>>>,
+    path: Path<HashMap<String, String>>,
+) -> impl IntoResponse {
+    let contact_id = get_value_from_path(&path, "contact_id").parse::<i64>().unwrap_or_default();
+
+    match confirm_request(&state.db_pool, &contact_id).await {
+        Ok(val) => {
+            println!("confirm_request {:?}", val);
+            (
+                StatusCode::UNPROCESSABLE_ENTITY,
+                [("Hx-Reswap", "none")],
+                minify_html_response(render_success_notification(Some("Top")))
+            ).into_response()
+        },
+        Err(e) => {
+            eprintln!("unexpected error in controller::contacts::remove_contact {:?}", e);
+            (
+                StatusCode::UNPROCESSABLE_ENTITY,
+                [("Hx-Reswap", "none")],
+                minify_html_response(render_error_notification(Some("Ein unerwarteter Fehler ist aufgetreten")))
+            ).into_response()
+        }
+    };
+
     (StatusCode::OK, [("Hx-Reswap", "none")]).into_response()
 }
