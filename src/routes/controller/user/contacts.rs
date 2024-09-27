@@ -15,7 +15,11 @@ use crate::services::user::contacts::{
     delete_request,
     confirm_request,
 };
-use crate::view::user::contacts::{ContactPageTemplate, AddContactFormTemplate};
+use crate::view::user::contacts::{
+    ContactPageTemplate,
+    AddContactFormTemplate,
+    ContactListEntryTemplate,
+};
 
 pub async fn get_friends_page(
     state: State<AppState>,
@@ -50,8 +54,6 @@ pub async fn get_friends_page(
             (vec![], vec![], vec![])
         }
     };
-
-    println!("{:?}", requested_contacts);
 
     let template = ContactPageTemplate {
         authenticated_user: &authenticated_user,
@@ -97,19 +99,18 @@ pub async fn save_contact_request(
         &authenticated_user_id,
         &form_data,
     ).await {
-        Ok(_) => {
-            let template = AddContactFormTemplate {
+        Ok(linked_contact) => {
+            let template = ContactListEntryTemplate {
+                authenticated_user: &authenticated_user,
                 notification: Some(create_notification("Die Kontaktanfrage wurde versendet", true)),
-                errors: &None,
+                contact_entry: &linked_contact,
+                oob_swap_target: &Some("sent-requests-list"),
                 context: context
             };
-            let mut content = template.render().unwrap_or_default();
-            // TODO templatize!
-            content.push_str(format!("<span hx-swap-oob=\"beforeend\" id=\"sent-requests-list\"><li>{}</li></span>", form_data.contact_email).as_str());
             (
                 StatusCode::OK,
-                [("Hx-Retarget", "[hx-put=\"/contacts/save_contact_request\"]")],
-                minify_html_response(content),
+                [("Hx-Reswap", "none")],
+                minify_html_response(template.render().unwrap_or_default()),
             ).into_response()
         },
         Err(sqlx::Error::PoolTimedOut) => {
@@ -151,8 +152,21 @@ pub async fn remove_contact(
 ) -> impl IntoResponse {
     let contact_id = get_value_from_path(&path, "contact_id").parse::<i64>().unwrap_or_default();
 
-    match delete_request(&state.db_pool, &contact_id).await {
-        Ok(_) => (StatusCode::NO_CONTENT, [("Xui-Deleted", "yes")], Html("".to_string())).into_response(),
+    let authenticated_user_id = match *authenticated_user {
+        Some(ref u) => {
+            u.get_id().expect("authenticated user must have an id")
+        },
+        None => {
+            return (StatusCode::FORBIDDEN, [("Hx-Reswap", "none")], minify_html_response(String::from(""))).into_response();
+        }
+    };
+
+    match delete_request(&state.db_pool, &authenticated_user_id, &contact_id).await {
+        Ok(_) => (
+            StatusCode::NO_CONTENT,
+            [("Xui-Deleted", "yes")],
+            minify_html_response(render_success_notification(Some("Der Kontakt wurde entfernt")))
+        ).into_response(),
         Err(e) => {
             eprintln!("unexpected error in controller::contacts::remove_contact {:?}", e);
             (
@@ -168,27 +182,34 @@ pub async fn confirm_contact(
     state: State<AppState>,
     Extension(authenticated_user): Extension<Arc<Option<User>>>,
     path: Path<HashMap<String, String>>,
+    request: Request,
 ) -> impl IntoResponse {
     let contact_id = get_value_from_path(&path, "contact_id").parse::<i64>().unwrap_or_default();
 
+    // TODO confirm_request needs to create contact relation for BOTH directions!
     match confirm_request(&state.db_pool, &contact_id).await {
-        Ok(val) => {
-            println!("confirm_request {:?}", val);
+        Ok(confirmed_contact) => {
+            let template = ContactListEntryTemplate {
+                authenticated_user: &authenticated_user,
+                notification: Some(create_notification("Die Kontaktanfrage wurde bestätigt", true)),
+                contact_entry: &confirmed_contact,
+                // TODO confirmed-contacts-list etc should be statics in the contact module to not accidentally change them in the templates
+                oob_swap_target: &Some("confirmed-contacts-list"),
+                context: Context::from_request(&request),
+            };
             (
                 StatusCode::UNPROCESSABLE_ENTITY,
-                [("Hx-Reswap", "none")],
-                minify_html_response(render_success_notification(Some("Top")))
+                [("Xui-Confirmed", "yes")],
+                minify_html_response(template.render().unwrap_or_default())
             ).into_response()
         },
         Err(e) => {
-            eprintln!("unexpected error in controller::contacts::remove_contact {:?}", e);
+            eprintln!("unexpected error in controller::contacts::confirm_contact {:?}", e);
             (
                 StatusCode::UNPROCESSABLE_ENTITY,
                 [("Hx-Reswap", "none")],
                 minify_html_response(render_error_notification(Some("Ein unerwarteter Fehler ist aufgetreten")))
             ).into_response()
         }
-    };
-
-    (StatusCode::OK, [("Hx-Reswap", "none")]).into_response()
+    }
 }

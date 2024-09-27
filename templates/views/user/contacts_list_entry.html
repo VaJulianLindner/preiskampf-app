@@ -1,0 +1,13 @@
+{% import "partials/user/list_entry.html" as list_entry %}
+
+{% if oob_swap_target.is_some() %}
+<span hx-swap-oob="beforeend" id="{{ oob_swap_target.as_ref().unwrap() }}">
+    {% call list_entry::default(contact=contact_entry) %}
+</span>
+{% else %}
+{% call list_entry::default(contact=contact_entry) %}
+{% endif %}
+
+{% if notification.is_some() %}
+    {{ notification.as_ref().unwrap().render().unwrap_or_default()|safe }}
+{% endif %}

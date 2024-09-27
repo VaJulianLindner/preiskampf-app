@@ -13,14 +13,7 @@
         </div>
         <div class="min-w-0 my-auto">
             {% if contact.inner.state == "pending_contact_request" %}
-                {% if authenticated_user.as_ref().unwrap().get_id().unwrap() == contact.inner.by_user_id %}
-                    {% let delete_href = format!("/contacts/delete_contact_request/{}", contact.inner.id) %}
-                    {% call button::as_link_start(
-                        href=delete_href, button_type="secondary", method="delete", target=format!("#contact_{}", contact.inner.id), swap="outerHTML", is_ajax_action=false
-                    ) %}
-                        {% call icons::close(5, 5, "firebrick") %}
-                    {% call button::as_link_end() %}
-                {% else %}
+                {% if authenticated_user.as_ref().unwrap().get_id().unwrap() == contact.inner.to_user_id %}
                     {% let confirm_href = format!("/contacts/confirm_contact_request/{}", contact.inner.id) %}
                     {% call button::as_link_start(
                         href=confirm_href, button_type="primary", method="post", target=format!("#contact_{}", contact.inner.id), swap="outerHTML", is_ajax_action=false
@@ -28,9 +21,14 @@
                         {% call icons::checkmark(5, 5, "text-green-400") %}
                     {% call button::as_link_end() %}
                 {% endif %} 
-            {% else if contact.inner.state == "confirmed" %}
-                {# TODO bestehenden contact löschen #}
             {% endif %}
+
+            {% let delete_href = format!("/contacts/delete_contact_request/{}", contact.inner.id) %}
+            {% call button::as_link_start(
+                href=delete_href, button_type="secondary", method="delete", target=format!("#contact_{}", contact.inner.id), swap="outerHTML", is_ajax_action=false
+            ) %}
+                {% call icons::close(5, 5, "firebrick") %}
+            {% call button::as_link_end() %}
         </div>
     </div>
 </li>
