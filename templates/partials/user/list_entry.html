@@ -14,7 +14,7 @@
         <div class="min-w-0 my-auto">
             {% if contact.inner.state == "pending_contact_request" %}
                 {% if authenticated_user.as_ref().unwrap().get_id().unwrap() == contact.inner.to_user_id %}
-                    {% let confirm_href = format!("/contacts/confirm_contact_request/{}", contact.inner.id) %}
+                    {% let confirm_href = format!("/contacts/confirm_contact_request/{}", contact.inner.by_user_id) %}
                     {% call button::as_link_start(
                         href=confirm_href, button_type="primary", method="post", target=format!("#contact_{}", contact.inner.id), swap="outerHTML", is_ajax_action=false
                     ) %}

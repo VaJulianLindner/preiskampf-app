@@ -39,9 +39,6 @@ pub async fn find_products(
     match query
         .fetch_all(db_pool)
         .await {
-            // TODO might some real generic unwrapping + finding total on db-queries
-            // TODO also further up in this file and in the routes::templates i can find a clean abstract way for handling the query-param parsing+input
-            // and then parse the list output here
             Ok(rows) => {
                 let products = rows.iter()
                     .map(|row| Product::from_row(row).unwrap())

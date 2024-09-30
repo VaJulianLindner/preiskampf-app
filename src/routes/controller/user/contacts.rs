@@ -8,6 +8,7 @@ use axum::{
 use crate::{core::context::Context, routes::{create_notification, get_value_from_path, minify_html_response, render_error_notification, render_success_notification}, AppState};
 use crate::model::user::{User, contacts::AddContactRequestForm};
 use crate::services::user::contacts::{
+    add_contact_request_by_email,
     add_contact_request,
     find_contacts,
     find_requested_contacts,
@@ -94,16 +95,19 @@ pub async fn save_contact_request(
         }
     };
 
-    match add_contact_request(
+    // TODO automatically accept contact, if you want to create request to a user, that already has an open request to you
+    match add_contact_request_by_email(
         &state.db_pool,
         &authenticated_user_id,
         &form_data,
+        None,
     ).await {
         Ok(linked_contact) => {
             let template = ContactListEntryTemplate {
                 authenticated_user: &authenticated_user,
                 notification: Some(create_notification("Die Kontaktanfrage wurde versendet", true)),
                 contact_entry: &linked_contact,
+                // TODO confirmed-contacts-list etc should be statics in the contact module to not accidentally change them in the templates
                 oob_swap_target: &Some("sent-requests-list"),
                 context: context
             };
@@ -184,32 +188,45 @@ pub async fn confirm_contact(
     path: Path<HashMap<String, String>>,
     request: Request,
 ) -> impl IntoResponse {
-    let contact_id = get_value_from_path(&path, "contact_id").parse::<i64>().unwrap_or_default();
-
-    // TODO confirm_request needs to create contact relation for BOTH directions!
-    match confirm_request(&state.db_pool, &contact_id).await {
-        Ok(confirmed_contact) => {
-            let template = ContactListEntryTemplate {
-                authenticated_user: &authenticated_user,
-                notification: Some(create_notification("Die Kontaktanfrage wurde bestätigt", true)),
-                contact_entry: &confirmed_contact,
-                // TODO confirmed-contacts-list etc should be statics in the contact module to not accidentally change them in the templates
-                oob_swap_target: &Some("confirmed-contacts-list"),
-                context: Context::from_request(&request),
-            };
-            (
-                StatusCode::UNPROCESSABLE_ENTITY,
-                [("Xui-Confirmed", "yes")],
-                minify_html_response(template.render().unwrap_or_default())
-            ).into_response()
+    let by_user_id = get_value_from_path(&path, "by_user_id").parse::<i64>().unwrap_or_default();
+    let authenticated_user_id = match *authenticated_user {
+        Some(ref u) => {
+            u.get_id().expect("authenticated user must have an id")
         },
+        None => {
+            return (StatusCode::FORBIDDEN, [("Hx-Reswap", "none")], minify_html_response(String::from(""))).into_response();
+        }
+    };
+
+    // TODO should be transaction, because it should fail or succeed only entirely
+    println!("confirm_contact by_user_id {by_user_id}, authenticated_user_id {authenticated_user_id}");
+    let future_result = try_join!(
+        add_contact_request(&state.db_pool, &authenticated_user_id, &by_user_id, Some("confirmed")),
+        confirm_request(&state.db_pool, &by_user_id)
+    );
+    let confirmed_contact = match future_result {
+        Ok(val) => val.1,
         Err(e) => {
             eprintln!("unexpected error in controller::contacts::confirm_contact {:?}", e);
-            (
+            return (
                 StatusCode::UNPROCESSABLE_ENTITY,
                 [("Hx-Reswap", "none")],
                 minify_html_response(render_error_notification(Some("Ein unerwarteter Fehler ist aufgetreten")))
-            ).into_response()
+            ).into_response();
         }
-    }
+    };
+
+    let template = ContactListEntryTemplate {
+        authenticated_user: &authenticated_user,
+        notification: Some(create_notification("Die Kontaktanfrage wurde bestätigt", true)),
+        contact_entry: &confirmed_contact,
+        // TODO confirmed-contacts-list etc should be statics in the contact module to not accidentally change them in the templates
+        oob_swap_target: &Some("confirmed-contacts-list"),
+        context: Context::from_request(&request),
+    };
+    (
+        StatusCode::UNPROCESSABLE_ENTITY,
+        [("Xui-Confirmed", "yes")],
+        minify_html_response(template.render().unwrap_or_default())
+    ).into_response()
 }

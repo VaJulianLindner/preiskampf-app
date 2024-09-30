@@ -146,7 +146,7 @@ pub fn routes() -> Router<AppState> {
         .route("/user/save", post(save_user))
         .route("/user/save_selected_shopping_list/:shopping_list_id", put(save_selected_shopping_list))
         .route("/contacts/delete_contact_request/:contact_id", delete(remove_contact))
-        .route("/contacts/confirm_contact_request/:contact_id", post(confirm_contact))
+        .route("/contacts/confirm_contact_request/:by_user_id", post(confirm_contact))
         .route("/contacts/save_contact_request", put(save_contact_request))
         .route("/contacts", get(get_friends_page))
         .route("/mein-profil", get(get_user_page))

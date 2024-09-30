@@ -2,6 +2,7 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::{FromRow, Row, postgres::PgRow};
 
+// TODO price should be normalized in the products table to avoid joins on query!
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Product {
     pub id: String,
