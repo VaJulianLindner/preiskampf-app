@@ -9,16 +9,21 @@ SELECT
     prices_table.currency,
     COUNT(*) OVER() AS total
 FROM
-    products products_table
-LEFT JOIN
-    (
-        SELECT prices.product_id, prices.price, prices.currency
-        FROM prices
-        ORDER BY prices.created_at DESC
-        LIMIT 1
-    ) AS prices_table
-ON
-    products_table.id = prices_table.product_id
+  products products_table
+  LEFT JOIN (
+    SELECT
+      product_id,
+      RANK() OVER (
+        PARTITION BY product_id
+        ORDER BY
+          created_at DESC
+      ) as ranked_created_at,
+      price,
+      currency
+    FROM
+      prices
+  ) AS prices_table ON products_table.id = prices_table.product_id
+  AND prices_table.ranked_created_at = 1
 WHERE
     full_text_search @@ to_tsquery('{}', '{}:*')
 LIMIT 
