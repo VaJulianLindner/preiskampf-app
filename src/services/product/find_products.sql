@@ -7,7 +7,6 @@ SELECT
   products_table.market_id,
   prices_table.price,
   prices_table.currency,
-  prices_table.ranked_created_at AS prices_creation_rank,
   COUNT(*) OVER () AS total
 FROM
   products products_table
@@ -25,9 +24,6 @@ FROM
       prices
   ) AS prices_table ON products_table.id = prices_table.product_id
   AND prices_table.ranked_created_at = 1
--- FROM
---   products products_table
---   LEFT JOIN prices prices_table ON products_table.id = prices_table.product_id
 ORDER BY
   products_table.{} {}
 LIMIT

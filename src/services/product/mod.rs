@@ -14,7 +14,6 @@ pub async fn find_products(
     // https://www.reddit.com/r/rust/comments/17hoxzl/performance_on_multiple_statements_sqlx_sql/
 
     let query_sort_order = SortOrder::from_str(sort_order.as_str()).to_string();
-    // TODO sanitize inputs for text search
     let statement = if search_query.as_deref().is_some_and(|q| q != "") {
         format!(
             // include_str!("./find_products_by_text.sql"),
@@ -41,7 +40,7 @@ pub async fn find_products(
         .await {
             Ok(rows) => {
                 let products = rows.iter()
-                    .map(|row| Product::from_row(row).unwrap())
+                    .filter_map(|row| Product::from_row(row).ok())
                     .collect::<Vec<Product>>();
                 let total: u64 = match rows.get(0) {
                     Some(row) => row.try_get::<i64, &str>("total").unwrap_or_default() as u64,

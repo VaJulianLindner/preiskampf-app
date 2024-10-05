@@ -80,7 +80,7 @@ impl Price {
             "0"
         };
         let cents = &price_val[(price_val.len() - 2)..];
-        
+
         format!("{}.{} {}", euros, cents, self.currency)
     }
 }

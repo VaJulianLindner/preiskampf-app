@@ -34,7 +34,6 @@ pub async fn get_product_detail_page(
                 prices: &val.1,
                 authenticated_user: &authenticated_user,
                 notification: None,
-                // navigation: &state.navigation,
                 context: Context::new(request.uri(), request.headers()),
             };
         

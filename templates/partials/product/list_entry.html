@@ -39,7 +39,7 @@
                         {{ product.format_price() }}
                     </li>
                     <li>
-                        <time datetime="{{ product.created_at }}">{{ product.created_at }}</time>
+                        <time datetime="{{ product.created_at }}">{{ product.created_at.format("%d.%m.%Y") }}</time>
                     </li>
                     <li>
                         <div class="mt-1 flex items-center gap-x-1.5">
@@ -55,7 +55,7 @@
         <div class="hidden shrink-0 sm:flex sm:flex-col sm:items-end">
             {# TODO hier kann auch LIDL etc rauskommen nachdem ich das über INNER JOIN mitziehe #}
             <p class="text-sm leading-6 text-white">
-                <time datetime="{{ product.created_at }}">{{ product.created_at }}</time>
+                <time datetime="{{ product.created_at }}">{{ product.created_at.format("%d.%m.%Y") }}</time>
             </p>
             {# TODO halt in echt abchecken #}
             <div class="mt-1 flex items-center gap-x-1.5">
