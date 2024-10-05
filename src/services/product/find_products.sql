@@ -25,6 +25,9 @@ FROM
       prices
   ) AS prices_table ON products_table.id = prices_table.product_id
   AND prices_table.ranked_created_at = 1
+-- FROM
+--   products products_table
+--   LEFT JOIN prices prices_table ON products_table.id = prices_table.product_id
 ORDER BY
   products_table.{} {}
 LIMIT

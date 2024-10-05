@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 use sqlx::{FromRow, Row, postgres::PgRow};
 
 // TODO price should be normalized in the products table to avoid joins on query!
+// TODO or create a separate materialized view
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Product {
     pub id: String,
@@ -32,6 +33,7 @@ impl<'r> FromRow<'r, PgRow> for Product {
                 Price {
                     price: price.ok(),
                     currency: currency.unwrap(),
+                    created_at: None,
                 }
             );
         }
@@ -51,18 +53,10 @@ impl<'r> FromRow<'r, PgRow> for Product {
 impl<'a> Product {
     pub fn format_price(&self) -> String {
         if self.current_price.is_none() {
-            "--.--".to_string()
-        } else {
-            let price_ref = self.current_price.as_ref();
-            if price_ref.unwrap().price.is_none() {
-                "--.--".to_string()
-            } else {
-                let price = price_ref.unwrap();
-                let mut price_val = price.price.unwrap().to_string();
-                let cents = price_val.split_off(price_val.len() - 2);
-                format!("{}.{} {}", price_val, cents, price.currency)
-            }
+            return "--.--".to_string();
         }
+
+        self.current_price.as_ref().expect("current_price must be some after the is_none check").format()
     }
 }
 
@@ -70,4 +64,23 @@ impl<'a> Product {
 pub struct Price {
     pub price: Option<i32>,
     pub currency: String, // TODO it's actually an enum, "GBP", "EUR", "USD" usw.
+    pub created_at: Option<DateTime<Utc>>,
+}
+
+impl Price {
+    pub fn format(&self) -> String {
+        if self.price.is_none() {
+            return "--.--".to_string();
+        }
+
+        let price_val = self.price.expect("self.price must be some after the is_none check").to_string();
+        let euros = if price_val.len() > 2 {
+            &price_val[..(price_val.len() - 2)]
+        } else {
+            "0"
+        };
+        let cents = &price_val[(price_val.len() - 2)..];
+        
+        format!("{}.{} {}", euros, cents, self.currency)
+    }
 }

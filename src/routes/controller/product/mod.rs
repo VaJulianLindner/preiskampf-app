@@ -8,8 +8,9 @@ use axum::{
     Router,
 };
 use askama::Template;
+use futures::try_join;
 
-use crate::{core::{context::Context, pagination::Pagination, query_params::StateParams}, services::product::{find_product, find_products}};
+use crate::{core::{context::Context, pagination::Pagination, query_params::StateParams}, services::product::{find_product, find_products, find_product_prices}};
 use crate::routes::{minify_html_response, get_value_from_path};
 use crate::AppState;
 use crate::model::user::User;
@@ -23,11 +24,22 @@ pub async fn get_product_detail_page(
 ) -> impl IntoResponse {
     let product_id = get_value_from_path(&path, "product_id");
 
-    let product = match find_product(
-        &state.db_pool,
-        product_id.as_str(),
-    ).await {
-        Ok(product) => product,
+    match try_join!(
+        find_product(&state.db_pool, product_id.as_str()),
+        find_product_prices(&state.db_pool, product_id.as_str()),
+    ) {
+        Ok(val) => {
+            let template = ProductDetailTemplate {
+                product: &val.0,
+                prices: &val.1,
+                authenticated_user: &authenticated_user,
+                notification: None,
+                // navigation: &state.navigation,
+                context: Context::new(request.uri(), request.headers()),
+            };
+        
+            (StatusCode::OK, minify_html_response(template.render().unwrap_or_default())).into_response()
+        },
         Err(sqlx::Error::RowNotFound) => {
             eprintln!("couldnt find product {:?}", product_id);
             return (StatusCode::TEMPORARY_REDIRECT, [("Location", format!("/nicht-gefunden/produkt/{}", product_id))]).into_response();
@@ -36,20 +48,11 @@ pub async fn get_product_detail_page(
             return (StatusCode::TOO_MANY_REQUESTS).into_response();
         }
         Err(e) => {
-            eprintln!("undefined error in find_product: {:?}", e);
+            eprintln!("error in get_product_detail_page: {:?}", e);
             return (StatusCode::TEMPORARY_REDIRECT, [("Location", "/einkaufstour")]).into_response();
         }
-    };
+    }
 
-    let template = ProductDetailTemplate {
-        product: &product,
-        authenticated_user: &authenticated_user,
-        notification: None,
-        // navigation: &state.navigation,
-        context: Context::new(request.uri(), request.headers()),
-    };
-
-    (StatusCode::OK, minify_html_response(template.render().unwrap_or_default())).into_response()
 }
 
 pub async fn get_product_list_page(
