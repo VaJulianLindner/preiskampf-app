@@ -1,4 +1,4 @@
-{% macro start(href, method, target, swap, stop_propagation, disabled, class_name, is_ajax_action, is_entering_detail_view) %}
+{% macro start(href, method, target, swap, stop_propagation, disabled, class_name, is_ajax_action, is_entering_detail_view, title) %}
     <a
         {% if method.len() > 0 %} hx-{{ method }}="{{ href }}" {% else %} href="{{ href }}" {% endif %}
         hx-target="{% if target.len() > 0 %}{{ target }}{% else %}#swap-content{% endif %}"
@@ -8,7 +8,12 @@
         {% if disabled %} xui-hx-disabled="1" {% endif %}
         {% if is_entering_detail_view %} xui-detail-view="1" {% endif %}
         {% if is_ajax_action %} xui-el="Navigation" {% endif %}
+        {% if title.len() > 0 %} title="{{title}}" {% endif %}
     >
+{% endmacro %}
+
+{% macro start_with_defaults(href, method, class_name, title) %}
+    {% call start(href, method, "#swap-content", "innerHTML transition:true", "", false, class_name, true, false, title) %}
 {% endmacro %}
 
 {% macro start_highlighted(href, method, target, swap, stop_propagation, disabled, class_name, is_ajax_action, is_entering_detail_view) %}

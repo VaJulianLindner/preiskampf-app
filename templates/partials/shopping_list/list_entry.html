@@ -36,20 +36,14 @@
                 {{ shopping_list.name }}
             </div>
 
-            {# TODO actually could these actions just go on their own line? #}
             <div class="relative ml-auto {# grid grid-cols-2 #} flex justify-between">
-                {% call link::start(
+                {% call link::start_with_defaults(
                     format!("/einkaufszettel/{}", shopping_list.id),
                     "get",
-                    "",
-                    "",
-                    "post",
-                    false,
                     "block px-3 py-1 leading-6 text-sm",
-                    true,
-                    false
+                    "Bearbeiten"
                 ) %}
-                    {% call icons::file_edit(5, 5, "rgb(52 211 153)") %}
+                    {% call icons::file_edit(5, 5, "text-emerald-400 hover:text-emerald-300") %}
                 {% call link::end() %}
 
                 {% let current_page = context.get_current_page() %}
@@ -66,9 +60,10 @@
                         false,
                         "block px-3 py-1 leading-6 text-sm",
                         false,
-                        false
+                        false,
+                        "Löschen"
                     ) %}
-                        {% call icons::file_remove(5, 5, "rgb(248 113 113)") %}
+                        {% call icons::file_remove(5, 5, "text-red-400 hover:text-red-300") %}
                     {% call link::end() %}
                 {% else %}
                     {% let query_state = context.preserve_query_state(current_page, false) %}
@@ -83,9 +78,10 @@
                         false,
                         "block px-3 py-1 leading-6 text-sm",
                         false,
-                        false
+                        false,
+                        "Löschen"
                     ) %}
-                        {% call icons::file_remove(5, 5, "rgb(248 113 113)") %}
+                        {% call icons::file_remove(5, 5, "text-red-400 hover:text-red-300") %}
                     {% call link::end() %}
                 {% endif %}
             </div>

@@ -20,7 +20,7 @@
     <div class="flex items-center gap-5">
         <div class="hidden min-[416px]:contents">
             {% if authenticated_user.is_some() %}
-                {% call link::start("/mein-profil", "get", "", "", "", false, "", true, false) %}
+                {% call link::start("/mein-profil", "get", "", "", "", false, "", true, false, "Mein Profil") %}
                     {{ authenticated_user.as_ref().unwrap().get_email() }}
                 {% call link::end() %}
                 {% call button::as_link(label="Logout", href="/logout", button_type="primary", method="post", target="", swap="", is_ajax_action=false) %}

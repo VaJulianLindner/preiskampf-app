@@ -6,12 +6,12 @@
     <div class="-mt-px flex w-0 flex-1">
         {% let is_first_page = pagination.page == 0 %}
         {% if !is_first_page %}            
-            {% call link::start(context.preserve_query_state(pagination.page - 1, true), "get", "", "", "", is_first_page, "inline-flex pt-4", true, false) %}                
+            {% call link::start(context.preserve_query_state(pagination.page - 1, true), "get", "", "", "", is_first_page, "inline-flex pt-4", true, false, "Vorherige Seite") %}                
                 {% call icons::arrow(back=true) %}
                 Vorherige Seite
             {% call link::end() %}
         {% else %}        
-            {% call link::start(context.preserve_query_state(pagination.page, true), "get", "", "", "", is_first_page, "inline-flex pt-4", true, false) %}                
+            {% call link::start(context.preserve_query_state(pagination.page, true), "get", "", "", "", is_first_page, "inline-flex pt-4", true, false, "Vorherige Seite") %}                
                 {% call icons::arrow(back=true) %}
                 Vorherige Seite
             {% call link::end() %}
@@ -40,7 +40,7 @@
     </div>
     <div class="-mt-px flex w-0 flex-1 justify-end">
         {% let is_last_page = pagination.page == pagination.last_page.unwrap_or(0) %}
-        {% call link::start(context.preserve_query_state(pagination.page + 1, true), "get", "", "", "", is_last_page, "inline-flex pt-4", true, false) %}                
+        {% call link::start(context.preserve_query_state(pagination.page + 1, true), "get", "", "", "", is_last_page, "inline-flex pt-4", true, false, "Nächste Seite") %}                
             Nächste Seite
             {% call icons::arrow(back=false) %}
         {% call link::end() %}
