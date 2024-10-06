@@ -8,6 +8,13 @@
     <div class="grid grid-cols-2 min-w-0 gap-x-4">
         <div class="min-w-0">
             <p class="text-xs leading-6 max-h-6 truncate text-white">
+                {% if contact.inner.state == "pending_contact_request" %}
+                    {% if authenticated_user.as_ref().unwrap().get_id().unwrap() == contact.inner.to_user_id %}
+                        Empfangene Anfrage:
+                    {% else %}
+                        Gesendete Anfrage:
+                    {% endif %}
+                {% endif %}
                 {{ contact.email }}
             </p>
         </div>

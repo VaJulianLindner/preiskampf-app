@@ -8,15 +8,12 @@
 <title>Preiskampf | Meine Kontakte</title>
 <h1>Kontaktliste</h1>
 
-{% call contacts::contact_add_form() %}
-
-<h3>Bestätigte Kontakte</h3>
 {% call list::default("confirmed-contacts-list", contacts) %}
 
-<h3>Gesendete Anfragen</h3>
-{% call list::default("sent-requests-list", requested_contacts) %}
+{% call contacts::contact_add_form() %}
 
-<h3>Empfangene Anfragen</h3>
+<br>
+{% call list::default("sent-requests-list", requested_contacts) %}
 {% call list::default("pending-requests-list", pending_contacts) %}
 
 {% endblock %}
