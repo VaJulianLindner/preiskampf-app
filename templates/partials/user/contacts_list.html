@@ -1,7 +1,7 @@
 {% import "partials/user/list_entry.html" as list_entry %}
 
 {% macro default(id, contacts) %}
-<ul role="list" id="{{ id }}" class="not-prose">
+<ul role="list" id="{{ id }}" class="not-prose grid grid-cols-1 gap-x-6 gap-y-8 lg:grid-cols-3 xl:gap-x-8">
     {% for contact in contacts %}
         {% call list_entry::default(contact) %}
     {% endfor %}

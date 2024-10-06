@@ -8,10 +8,9 @@
 <title>Preiskampf | Meine Kontakte</title>
 <h1>Kontaktliste</h1>
 
-{% call list::default("confirmed-contacts-list", contacts) %}
-
 {% call contacts::contact_add_form() %}
-
+<br>
+{% call list::default("confirmed-contacts-list", contacts) %}
 <br>
 {% call list::default("sent-requests-list", requested_contacts) %}
 {% call list::default("pending-requests-list", pending_contacts) %}
