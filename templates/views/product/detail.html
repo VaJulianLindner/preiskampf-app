@@ -35,7 +35,7 @@
     {{ product.format_price() }}
 </p>
 <p class="mt-10 truncate leading-5 text-gray-400 sm:hidden">
-    <time datetime="{{ product.created_at }}">{{ product.created_at }}</time>
+    <time datetime="{{ product.created_at }}">{{ product.created_at.format("%d.%m.%Y") }}</time>
 </p>
 
 {% for price in prices %}
