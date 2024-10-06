@@ -10,81 +10,53 @@
             <div class="text-sm font-medium leading-6 text-white">
                 {{ contact.email }}
             </div>
-
-            <div class="relative ml-auto {# grid grid-cols-2 #} flex justify-between">
-                {% if contact.inner.state == "pending_contact_request" %}
-                    {% if authenticated_user.as_ref().unwrap().get_id().unwrap() == contact.inner.to_user_id %}
-                        {% let confirm_href = format!("/contacts/confirm_contact_request/{}", contact.inner.by_user_id) %}
-                        {% call button::as_link_start(
-                            href=confirm_href, 
-                            button_type="primary", 
-                            method="post", 
-                            target=format!("#contact_{}", contact.inner.id), 
-                            swap="outerHTML", 
-                            is_ajax_action=false,
-                        ) %}
-                            {% call icons::checkmark(5, 5, "text-green-400") %}
-                        {% call button::as_link_end() %}
-                    {% endif %} 
-                {% endif %}
-            </div>
         </div>
 
-        <dl class="divide-y divide-white/10 px-6 pb-4 text-sm leading-6">
-            <div class="flex justify-between gap-x-4">
+        <div class="divide-y divide-white/10 px-6 pb-4 text-sm leading-6 grid gap-x-4">
 
-                {% if contact.inner.state == "pending_contact_request" %}
-                    {% if authenticated_user.as_ref().unwrap().get_id().unwrap() == contact.inner.to_user_id %}
-                        <dt class="text-zinc-400">Anfrage annehmen</dt>
-                        <dd class="flex items-start gap-x-2"></dd>
-                        <dt class="text-zinc-400">Anfrage ablehnen</dt>
-                        <dd class="flex items-start gap-x-2">
-                            {% let delete_href = format!("/contacts/delete_contact_request/{}", contact.inner.id) %}
-                            {% call button::as_link_start(
-                                href=delete_href, 
-                                button_type="secondary", 
-                                method="delete", 
-                                target=format!("#contact_{}", contact.inner.id), 
-                                swap="outerHTML", 
-                                is_ajax_action=false,
-                            ) %}
-                                {% call icons::close(5, 5, "firebrick") %}
-                            {% call button::as_link_end() %}
-                        </dd>
-                    {% else %}
-                        <dt class="text-zinc-400">Anfrage zurückziehen</dt>
-                        <dd class="flex items-start gap-x-2">
-                            {% let delete_href = format!("/contacts/delete_contact_request/{}", contact.inner.id) %}
-                            {% call button::as_link_start(
-                                href=delete_href, 
-                                button_type="secondary", 
-                                method="delete", 
-                                target=format!("#contact_{}", contact.inner.id), 
-                                swap="outerHTML", 
-                                is_ajax_action=false,
-                            ) %}
-                                {% call icons::close(5, 5, "firebrick") %}
-                            {% call button::as_link_end() %}
-                        </dd>
-                    {% endif %}
-                {% else %}
-                    <dt class="text-zinc-400">Kontakt löschen</dt>
-                    <dd class="flex items-start gap-x-2">
-                        {% let delete_href = format!("/contacts/delete_contact_request/{}", contact.inner.id) %}
-                        {% call button::as_link_start(
-                            href=delete_href, 
-                            button_type="secondary", 
-                            method="delete", 
-                            target=format!("#contact_{}", contact.inner.id), 
-                            swap="outerHTML", 
-                            is_ajax_action=false,
-                        ) %}
-                            {% call icons::close(5, 5, "firebrick") %}
-                        {% call button::as_link_end() %}
-                    </dd>
-                {% endif %}
+            {% if contact.inner.state == "pending_contact_request" %}
+                {% if authenticated_user.as_ref().unwrap().get_id().unwrap() == contact.inner.to_user_id %}
+            <div class="grid grid-cols-3">
+                <dt class="text-zinc-400 col-span-2">Anfrage annehmen</dt>
+                <dd class="col-span-1">
+                    {% let confirm_href = format!("/contacts/confirm_contact_request/{}", contact.inner.by_user_id) %}
+                    {% call button::as_link_start(
+                        href=confirm_href, 
+                        button_type="primary", 
+                        method="post", 
+                        target=format!("#contact_{}", contact.inner.id), 
+                        swap="outerHTML", 
+                        is_ajax_action=false,
+                    ) %}
+                        {% call icons::checkmark(5, 5, "text-green-400") %}
+                    {% call button::as_link_end() %}
+                </dd>
             </div>
-        </dl>
+            <div class="grid grid-cols-3">
+                <dt class="text-zinc-400 col-span-2">Anfrage ablehnen</dt>
+                {% else %}
+            <div class="grid grid-cols-3">
+                <dt class="text-zinc-400 col-span-2">Anfrage zurückziehen</dt>
+                {% endif %}
+            {% else %}
+            <div class="grid grid-cols-3">
+                <dt class="text-zinc-400 col-span-2">Kontakt löschen</dt>
+            {% endif %}
+                <dd class="col-span-1">
+                    {% let delete_href = format!("/contacts/delete_contact_request/{}", contact.inner.id) %}
+                    {% call button::as_link_start(
+                        href=delete_href, 
+                        button_type="secondary", 
+                        method="delete", 
+                        target=format!("#contact_{}", contact.inner.id), 
+                        swap="outerHTML", 
+                        is_ajax_action=false,
+                    ) %}
+                        {% call icons::close(5, 5, "firebrick") %}
+                    {% call button::as_link_end() %}
+                </dd>
+            </div>
+        </div>
 
     </div>
 </li>
