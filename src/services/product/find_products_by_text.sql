@@ -5,25 +5,11 @@ SELECT
     products_table.images,
     products_table.url,
     products_table.market_id,
-    prices_table.price,
-    prices_table.currency,
+    products_table.price,
+    products_table.currency,
     COUNT(*) OVER() AS total
 FROM
   products products_table
-  LEFT JOIN (
-    SELECT
-      product_id,
-      RANK() OVER (
-        PARTITION BY product_id
-        ORDER BY
-          created_at DESC
-      ) as ranked_created_at,
-      price,
-      currency
-    FROM
-      prices
-  ) AS prices_table ON products_table.id = prices_table.product_id
-  AND prices_table.ranked_created_at = 1
 WHERE
     full_text_search @@ to_tsquery('{}', '{}:*')
 LIMIT 
