@@ -1,7 +1,7 @@
 import { transition } from "./ViewTransition";
 import { Navigation, NAVIGATION_CONTENT } from "../elements/Navigation";
 // TODO pre-loading, offline-mode..
-// TODO form History API to Navigation API?!
+// TODO from History API to Navigation API?!
 
 /**
  * @typedef {Object} XuiRoutingEventProperties
@@ -15,6 +15,17 @@ import { Navigation, NAVIGATION_CONTENT } from "../elements/Navigation";
  * @property {string} toUrl - the url, that was pushed on to the history stack
  * @property {boolean} shouldTransition - whether to use the view-transition api or not
  * @property {[string, string, XuiRoutingEventProperties]} args - copy of the arguments, that are applied to the htmx.ajax call
+ */
+
+/**
+ * @typedef {Object} RouterRoutingOptions
+ * @property {boolean} [opts.openInNewTab] - defaults to false
+ * @property {boolean} [opts.reload] - instead of using the client-side router, escape and reset window.location, defaults to false
+ * @property {string} [opts.method=GET] - defaults to GET
+ * @property {string} [opts.target=#swap-content] - defaults to #swap-content
+ * @property {string} [opts.swap=innerHTML] - defaults to innerHTML
+ * @property {boolean} [opts.withTransition=false] - defaults to false
+ * @property {boolean} [opts.isEnteringDetailView=false] - defaults to false
  */
 
 class Router {
@@ -31,6 +42,13 @@ class Router {
         this.execute(historyState, false, true, false, clientScroll);
     }
 
+    /**
+     * push an entry into the client-side router
+     * @param {string} url
+     * @param {RouterRoutingOptions} opts
+     * @param {boolean} [replace=false]
+     * @param {boolean} [resetScroll=false]
+     */
     push(url, opts = {}, replace = false, resetScroll = false) {
         if (opts.openInNewTab) {
             window.open(url, "_blank");
@@ -58,6 +76,12 @@ class Router {
         };
         const clientScroll = { scrollX: window.scrollX, scrollY: window.scrollY };
 
+        // should have a possible scrollTarget
+        console.warn("TODO implement scrollTarget option for RouterRoutingOptions for e.g. navigating during pagination actions (scroll to list top etc)")
+        if (opts.isEnteringDetailView) {
+            resetScroll = true;
+        }
+
         this.execute(historyState, replace, false, opts.isEnteringDetailView, clientScroll, resetScroll);
     }
 
@@ -83,7 +107,6 @@ class Router {
 
     /**
      * set the current address and geo location for the geocoding suggestion
-     * @constructor
      * @param {HistoryState} historyState
      * @param {boolean} replace
      * @param {boolean} isHistoryEvent
@@ -110,11 +133,7 @@ class Router {
             await window.htmx.ajax.apply(this, historyState.args);
 
             if (isHistoryEvent) {   
-                window.scrollTo({
-                    behavior: "smooth",
-                    top: historyState.clientScroll?.scrollY || 0,
-                    left: historyState.clientScroll?.scrollX || 0,
-                });
+                this.restoreClientScroll(historyState.clientScroll);
                 this.restoreFormState(historyState.toUrl);
                 return;
             }
@@ -122,6 +141,7 @@ class Router {
             if (!replace) {
                 this.saveClientScroll(clientScroll);
             }
+            console.log("DEBUG, Router::execute update, resetScroll =", resetScroll);
             if (resetScroll) {
                 window.scrollTo(0, 0);
             }
@@ -135,6 +155,18 @@ class Router {
         } else {
             update.apply(this);
         }
+    }
+
+    restoreClientScroll(clientScroll) {
+        console.warn("restoreClientScroll is currently disabled");
+        // if (!clientScroll) {
+        //     return;
+        // }
+        // window.scrollTo({
+        //     behavior: "smooth",
+        //     top: clientScroll.scrollY || 0,
+        //     left: clientScroll.scrollX || 0,
+        // });
     }
 
     saveClientScroll(clientScroll) {
@@ -161,7 +193,7 @@ class Router {
         url.searchParams.forEach((val, key) => {
             const formEl = document.querySelector(`[name='${key}']`);
             if (formEl) {
-                formEl.value = val;
+                formEl.value = decodeURIComponent(val);
             }
         });
     }

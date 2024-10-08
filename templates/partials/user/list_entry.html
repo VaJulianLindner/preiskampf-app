@@ -18,7 +18,7 @@
                 {% if authenticated_user.as_ref().unwrap().get_id().unwrap() == contact.inner.to_user_id %}
             <div class="grid grid-cols-3">
                 <dt class="text-zinc-400 col-span-2">Anfrage annehmen</dt>
-                <dd class="col-span-1">
+                <dd class="col-span-1 grid justify-end">
                     {% let confirm_href = format!("/contacts/confirm_contact_request/{}", contact.inner.by_user_id) %}
                     {% call button::as_link_start(
                         href=confirm_href, 
@@ -42,7 +42,7 @@
             <div class="grid grid-cols-3">
                 <dt class="text-zinc-400 col-span-2">Kontakt löschen</dt>
             {% endif %}
-                <dd class="col-span-1">
+                <dd class="col-span-1 grid justify-end">
                     {% let delete_href = format!("/contacts/delete_contact_request/{}", contact.inner.id) %}
                     {% call button::as_link_start(
                         href=delete_href, 
