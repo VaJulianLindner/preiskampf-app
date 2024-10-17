@@ -3,7 +3,13 @@ pub mod contacts;
 use std::{collections::HashMap, sync::Arc};
 use askama::Template;
 use axum::{
-    extract::{FromRequest, Path, Request, State}, http::{HeaderMap, StatusCode}, response::IntoResponse, routing::{delete, get, post, put}, Extension, Form, Router
+    extract::{FromRequest, Path, Request, State},
+    http::{HeaderMap, StatusCode, header::SET_COOKIE},
+    response::IntoResponse,
+    routing::{delete, get, post, put},
+    Extension,
+    Form,
+    Router
 };
 
 use crate::{core::context::Context, AppState};
@@ -53,7 +59,7 @@ pub async fn save_user(
 
     let updated_user = user_update_result.unwrap();
     let cookie_val = create_auth_cookie_for_user(&SessionUser::new(updated_user.clone()));
-    headers.insert("set-cookie", cookie_val);
+    headers.insert(SET_COOKIE, cookie_val);
 
     let template = UserDetailTemplate {
         authenticated_user: &Some(updated_user),
@@ -127,7 +133,7 @@ pub async fn save_selected_shopping_list(
 
                     cloned_user.selected_shopping_list_id = Some(shopping_list_id);
                     let cookie_val = create_auth_cookie_for_user(&SessionUser::new(cloned_user));
-                    headers.insert("set-cookie", cookie_val);
+                    headers.insert(SET_COOKIE, cookie_val);
                 },
                 None => (),
             };

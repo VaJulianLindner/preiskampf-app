@@ -1,10 +1,11 @@
 use std::path::PathBuf;
+use std::str::FromStr;
 use std::sync::Arc;
 use askama::Template;
 use config::{Config, File};
 use axum::{Extension, Form, Router};
 use axum::extract::{FromRequest, Request, State};
-use axum::http::{StatusCode, HeaderMap, HeaderValue};
+use axum::http::{StatusCode, HeaderMap, HeaderValue, HeaderName, header::SET_COOKIE};
 use axum::middleware::Next;
 use axum::response::{IntoResponse, Response, Html};
 use axum::routing::{post, get};
@@ -18,6 +19,8 @@ use crate::model::user::{SessionUser, UserSignUpForm, User};
 use crate::services::user::{check_if_user_exists, create_user, find_user};
 use crate::view::auth::{LoginPageTemplate, RegisterPageTemplate};
 use crate::AppState;
+
+use super::render_success_notification;
 
 pub const COOKIE_NAME: &str = "preiskampf_auth_cookie";
 
@@ -106,8 +109,11 @@ pub async fn authorize(
         match existing_user_result {
             Ok(existing_user) => {
                 let session_user = SessionUser::new(existing_user);
-                headers.insert("set-cookie", create_auth_cookie_for_user(&session_user));
+                headers.insert(SET_COOKIE, create_auth_cookie_for_user(&session_user));
+                // TODO whats the benefit of using HeaderName?
+                // headers.insert(HeaderName::from_bytes("hx-redirect".as_bytes()).unwrap(), "/".parse().unwrap());
                 headers.insert("hx-redirect", "/".parse().unwrap());
+                // TODO success notification: after redirect to home
                 return (StatusCode::FOUND, headers).into_response();
             },
             Err(e) => {
@@ -166,8 +172,9 @@ pub async fn register(
                 Ok(created_user) => {
                     let session_user = SessionUser::new(created_user);
                     let token = encode(&Header::default(), &session_user, &KEYS.encoding).unwrap_or("".to_string());
-                    headers.insert("set-cookie", format!("{COOKIE_NAME}={}", token).parse().unwrap());
+                    headers.insert(SET_COOKIE, format!("{COOKIE_NAME}={}", token).parse().unwrap());
                     headers.insert("hx-redirect", "/".parse().unwrap());
+                    // TODO success notification: after redirect to home
                     return (StatusCode::TEMPORARY_REDIRECT, headers).into_response();
                 },
                 Err(e) => {
@@ -195,10 +202,9 @@ pub async fn register(
     (StatusCode::OK, minify_html_response(template.render().unwrap_or_default())).into_response()
 }
 
-pub async fn logout(
-    mut headers: HeaderMap,
-) -> Result<Html<String>, (StatusCode, HeaderMap)> {
-    headers.insert("set-cookie", format!("{COOKIE_NAME}=").parse().unwrap());
+pub async fn logout() -> Result<Html<String>, (StatusCode, HeaderMap)> {
+    let mut headers = HeaderMap::with_capacity(2);
+    headers.insert(SET_COOKIE, format!("{COOKIE_NAME}=").parse().unwrap());
     headers.insert("hx-redirect", "/".parse().unwrap());
     Err((StatusCode::TEMPORARY_REDIRECT, headers))
 }
