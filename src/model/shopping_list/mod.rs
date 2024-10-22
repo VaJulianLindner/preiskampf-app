@@ -1,6 +1,6 @@
-use sqlx::FromRow;
 use serde::{Deserialize, Serialize};
 use chrono::{DateTime, FixedOffset};
+use sqlx::{FromRow, Row, postgres::PgRow};
 
 #[derive(Debug, Serialize, Deserialize, FromRow, Clone)]
 pub struct ShoppingList {
@@ -41,4 +41,33 @@ pub struct ShoppingListUpdateForm {
     pub id: Option<i64>,
     pub emoji_presentation: Option<String>,
     pub name: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct AddShoppingListItemForm {
+    pub shopping_list_id: Option<i64>,
+    pub product_id: String,
+}
+
+#[derive(Debug)]
+pub enum ToggleShoppingListItemOp {
+    Added,
+    Removed,
+    Unknown,
+}
+
+impl ToggleShoppingListItemOp {
+    pub fn from_number(num: i16) -> Self {
+        match num {
+            0 => ToggleShoppingListItemOp::Removed,
+            1 => ToggleShoppingListItemOp::Added,
+            _ => ToggleShoppingListItemOp::Unknown,
+        }
+    }
+}
+
+impl<'r> FromRow<'r, PgRow> for ToggleShoppingListItemOp {
+    fn from_row(row: &'r PgRow) -> Result<Self, sqlx::Error> {
+        Result::Ok(ToggleShoppingListItemOp::from_number(row.try_get(0)?))
+    }
 }

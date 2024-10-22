@@ -1,5 +1,9 @@
-use sqlx::{Error, Row, FromRow, Pool, Postgres};
-use crate::model::shopping_list::{ShoppingList, ShoppingListUpdateForm};
+use sqlx::{postgres::PgQueryResult, Error, FromRow, Pool, Postgres, Row};
+use crate::model::shopping_list::{
+    ShoppingList,
+    ShoppingListUpdateForm,
+    ToggleShoppingListItemOp,
+};
 
 
 pub async fn upsert_shopping_list(
@@ -80,21 +84,34 @@ pub async fn delete_shopping_list(
         .await
 }
 
-pub async fn _save_shopping_list_item(
-    _db_pool: &Pool<Postgres>,
-    _user_id: i64,
-    _shopping_list_id: i64,
-    _product_id: i64,
-    _amount: i64,
-) -> Result<(), Error> {
-    // TODO add product to a shopping list for this user 
-    /* sqlx::query("INSERT INTO shopping_list_items (shopping_list_id, product_id, amount) VALUES ($1, $2, $3)")
+pub async fn add_product_to_list(
+    db_pool: &Pool<Postgres>,
+    user_id: &i64,
+    shopping_list_id: &i64,
+    product_id: &str,
+    amount: i64,
+) -> Result<PgQueryResult, Error> {
+    sqlx::query(include_str!("./insert_shopping_list_item.sql"))
         .bind(user_id)
-        .bind(shopping_list_id)
         .bind(product_id)
+        .bind(shopping_list_id)
         .bind(amount)
         .execute(db_pool)
-        .await?; */
+        .await
+}
 
-    Ok(())
+pub async fn toggle_shopping_list_item(
+    db_pool: &Pool<Postgres>,
+    user_id: &i64,
+    shopping_list_id: &i64,
+    product_id: &str,
+    amount: i64,
+) -> Result<ToggleShoppingListItemOp, Error> {
+    sqlx::query_as::<_, ToggleShoppingListItemOp>(include_str!("./toggle_shopping_list_item.sql"))
+        .bind(user_id)
+        .bind(product_id)
+        .bind(shopping_list_id)
+        .bind(amount)
+        .fetch_one(db_pool)
+        .await
 }

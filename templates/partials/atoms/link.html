@@ -6,14 +6,14 @@
         class="text-sm font-medium transition text-zinc-400 {% if !disabled %}hover:text-white cursor-pointer{% endif %} {{ class_name }}"
         {% if stop_propagation.len() > 0 %} xui-stop-propagation="{{stop_propagation}}" {% endif %}
         {% if disabled %} xui-hx-disabled="1" {% endif %}
-        {% if is_entering_detail_view %} xui-detail-view="1" {% endif %}
+        {% if is_entering_detail_view.len() > 0 %} xui-detail-view="{{is_entering_detail_view}}" {% endif %}
         {% if is_ajax_action %} xui-el="Navigation" {% endif %}
         {% if title.len() > 0 %} title="{{title}}" {% endif %}
     >
 {% endmacro %}
 
 {% macro start_with_defaults(href, method, class_name, title) %}
-    {% call start(href, method, "#swap-content", "innerHTML transition:true", "", false, class_name, true, false, title) %}
+    {% call start(href, method, "#swap-content", "innerHTML transition:true", "", false, class_name, true, "", title) %}
 {% endmacro %}
 
 {% macro start_highlighted(href, method, target, swap, stop_propagation, disabled, class_name, is_ajax_action, is_entering_detail_view) %}
@@ -24,7 +24,7 @@
         class="text-sm font-medium transition text-emerald-400 {% if !disabled %}hover:emerald-500 cursor-pointer{% endif %} {{ class_name }}"
         {% if stop_propagation.len() > 0 %} xui-stop-propagation="{{stop_propagation}}" {% endif %}
         {% if disabled %} xui-hx-disabled="1" {% endif %}
-        {% if is_entering_detail_view %} xui-detail-view="1" {% endif %}
+        {% if is_entering_detail_view.len() > 0 %} xui-detail-view="{{is_entering_detail_view}}" {% endif %}
         {% if is_ajax_action %} xui-el="Navigation" {% endif %}
     >
 {% endmacro %}

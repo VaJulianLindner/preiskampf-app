@@ -1,0 +1,1 @@
+SELECT toggle_shopping_list_item($2, $3);

@@ -29,7 +29,7 @@ if (window.location.search.includes("htmx-debug")) {
     htmx.logAll();
 }
 
-const WHITELIST_STATUSCODES_FOR_RENDER = [204, 401, 403, 404, 422];
+const WHITELIST_STATUSCODES_FOR_RENDER = [204, 400, 401, 403, 404, 422];
 
 document.onreadystatechange = function (e, state) {
     if (document.readyState !== "complete") {

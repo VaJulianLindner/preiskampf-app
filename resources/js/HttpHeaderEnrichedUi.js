@@ -45,24 +45,12 @@ function onEvent(name, e) {
         if (verb === "get" && isNavigationElement) {    
             console.debug(`'${verb}': '${path}' got prevented because is regarded as routing action handled by lib/router`);
             e.preventDefault();
+            e.stopPropagation();
         }
 
-        const isDisabled = e.detail.elt.getAttribute("xui-hx-disabled") === "1";
-        if (isDisabled) {
-            console.warn(`'${verb}': '${path}' got prevented!`);
+        if (isEventDisabled(verb, path, e.detail.elt, e.detail.triggeringEvent?.target)) {
             e.preventDefault();
-        }
-
-        const propagationStop = e.detail.triggeringEvent?.target?.getAttribute?.("xui-stop-propagation");
-        if (propagationStop === "1") {
-            console.warn(`'${verb}': '${path}' got prevented because there is a blocking element!`);
-            e.preventDefault();
-        } else if (propagationStop === verb) {
-            console.warn(`'${verb}': '${path}' got prevented because there is a blocking element for verb '${verb}'!`);
-            e.preventDefault();
-        } else if (propagationStop === path) {
-            console.warn(`'${verb}': '${path}' got prevented because there is a blocking element for path '${path}'!`);
-            e.preventDefault();
+            e.stopPropagation();
         }
     } else if (name === "htmx:beforeSwap") {
         const isRedirect = String(e.detail.xhr.status).startsWith("3");
@@ -108,4 +96,24 @@ function onEvent(name, e) {
     }
 }
 
-export { onEvent };
+function isEventDisabled(verb, path, target, currentTarget) {
+    const isDisabled = target?.getAttribute?.("xui-hx-disabled") === "1";
+    if (isDisabled) {
+        console.warn(`'${verb}': '${path}' got prevented!`);
+        return true;
+    }
+
+    const propagationStop = currentTarget?.getAttribute?.("xui-stop-propagation");
+    if (propagationStop === "1") {
+        console.warn(`'${verb}': '${path}' got prevented because there is a blocking element!`);
+        return true;
+    } else if (propagationStop === verb) {
+        console.warn(`'${verb}': '${path}' got prevented because there is a blocking element for verb '${verb}'!`);
+        return true;
+    } else if (propagationStop === path) {
+        console.warn(`'${verb}': '${path}' got prevented because there is a blocking element for path '${path}'!`);
+        return true;
+    }
+}
+
+export { onEvent, isEventDisabled };

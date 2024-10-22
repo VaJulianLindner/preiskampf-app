@@ -1,0 +1,16 @@
+{% import "partials/atoms/button.html" as button %}
+{% import "partials/icons.html" as icons %}
+
+{% macro product_toggle(product_id, is_liked) %}
+    {% call button::as_span_start(
+        href="/shopping_list/toggle-like", 
+        button_type="secondary", 
+        method="post", 
+        target="", 
+        swap="outerHTML", 
+        is_ajax_action=false,
+        attributes=format!("hx-vals='{{\"product_id\": \"{}\"}}'", product_id),
+    ) %}
+        {% call icons::like(6, 6, "text-emerald-400 hover:text-emerald-300", is_liked) %}
+    {% call button::as_span_end() %}
+{% endmacro %}

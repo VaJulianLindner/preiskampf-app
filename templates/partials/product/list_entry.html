@@ -1,24 +1,27 @@
 {% import "partials/atoms/link.html" as link %}
-{% import "partials/icons.html" as icons %}
+{% import "partials/product/actions.html" as product_actions %}
 
 {% macro default(product) %}
 
 {% let current_price = product.current_price.as_ref() %}
-{% call link::start(
-    href=format!("/produkt/{}", product.id),
-    method="get",
-    target="",
-    swap="",
-    stop_propagation="post",
-    disabled=false,
-    class_name="",
-    is_ajax_action=true,
-    is_entering_detail_view=true,
-    title="",
-) %}
-    <li class="flex justify-between gap-x-6 py-5 {% if !loop.first %}border-t border-zinc-400/10{% endif %}" id="{{ product.id }}">
-        <div class="flex min-w-0 gap-x-4">
-            <div class="h-12 w-12">
+<li 
+    class="flex justify-between gap-x-6 py-5 {% if !loop.first %}border-t border-zinc-400/10{% endif %}"
+    id="{{ product.id }}" 
+>
+    <div class="flex min-w-0 gap-x-4">
+        <div class="h-12 w-12">
+            {% call link::start(
+                href=format!("/produkt/{}", product.id),
+                method="get",
+                target="",
+                swap="",
+                stop_propagation="post",
+                disabled=false,
+                class_name="",
+                is_ajax_action=true,
+                is_entering_detail_view="1",
+                title="",
+            ) %}
                 {% if product.images.get(0).is_some() %}
                     <img 
                         class="flex-none rounded-full"
@@ -26,46 +29,65 @@
                         alt="Produktbild für {{ product.name }}"
                     >
                 {% endif %}
-            </div>
-            <div class="min-w-0 flex-auto">
+            {% call link::end() %}
+        </div>
+        <div class="min-w-0 flex-auto">
+            {% call link::start(
+                href=format!("/produkt/{}", product.id),
+                method="get",
+                target="",
+                swap="",
+                stop_propagation="post",
+                disabled=false,
+                class_name="",
+                is_ajax_action=true,
+                is_entering_detail_view=format!("[id='{}'] img", product.id),
+                title="",
+            ) %}
                 <p class="text-sm font-semibold leading-6 max-h-6 truncate text-white">
                     {{ product.name|safe }}
                 </p>
+            {% call link::end() %}
+            {% call link::start(
+                href=format!("/produkt/{}", product.id),
+                method="get",
+                target="",
+                swap="",
+                stop_propagation="post",
+                disabled=false,
+                class_name="",
+                is_ajax_action=true,
+                is_entering_detail_view=format!("[id='{}'] img", product.id),
+                title="",
+            ) %}
                 <p class="mt-1 truncate text-xs leading-5 text-gray-400 hidden sm:block">
                     {{ product.format_price() }}
                 </p>
-                <ul class="sm:hidden">
-                    <li>
-                        {{ product.format_price() }}
-                    </li>
-                    <li>
-                        <time datetime="{{ product.created_at }}">{{ product.created_at.format("%d.%m.%Y") }}</time>
-                    </li>
-                    <li>
-                        <div class="mt-1 flex items-center gap-x-1.5">
-                            <div class="flex-none rounded-full bg-emerald-500/20 p-1">
-                                <div class="h-1.5 w-1.5 rounded-full bg-emerald-500"></div>
-                            </div>
-                            <p class="text-xs leading-5 text-gray-400">Verfügbar</p>
-                        </div>
-                    </li>
-                </ul>
-            </div>
+            {% call link::end() %}
+            <ul class="sm:hidden">
+                <li>
+                    {{ product.format_price() }}
+                </li>
+                <li>
+                    <time datetime="{{ product.created_at }}">{{ product.created_at.format("%d.%m.%Y") }}</time>
+                </li>
+                <li>
+                    <div class="mt-1 flex items-center gap-x-1.5">
+                        {# TODO check if product is in users selected_shopping_list to display the boolean flag correctly and add-item vs remove-item #}
+                        {% call product_actions::product_toggle(product_id=product.id.as_str(), is_liked=false) %}
+                    </div>
+                </li>
+            </ul>
         </div>
-        <div class="hidden shrink-0 sm:flex sm:flex-col sm:items-end">
-            {# TODO hier kann auch LIDL etc rauskommen nachdem ich das über INNER JOIN mitziehe #}
-            <p class="text-sm leading-6 text-white">
-                <time datetime="{{ product.created_at }}">{{ product.created_at.format("%d.%m.%Y") }}</time>
-            </p>
-            {# TODO halt in echt abchecken #}
-            <div class="mt-1 flex items-center gap-x-1.5">
-                <div class="flex-none rounded-full bg-emerald-500/20 p-1">
-                    <div class="h-1.5 w-1.5 rounded-full bg-emerald-500"></div>
-                </div>
-                <p class="text-xs leading-5 text-gray-400">Verfügbar</p>
-            </div>
+    </div>
+    <div class="hidden shrink-0 sm:flex sm:flex-col sm:items-end">
+        <p class="text-sm leading-6 text-white">
+            <time datetime="{{ product.created_at }}">{{ product.created_at.format("%d.%m.%Y") }}</time>
+        </p>
+        <div class="mt-1 flex items-center gap-x-1.5">
+            {# TODO check if product is in users selected_shopping_list to display the boolean flag correctly and add-item vs remove-item #}
+            {% call product_actions::product_toggle(product_id=product.id.as_str(), is_liked=false) %}
         </div>
-    </li>
-{% call link::end() %}
-
+    </div>
+</li>
 {% endmacro %}

@@ -27,6 +27,7 @@
                         target=format!("#contact_{}", contact.inner.id), 
                         swap="outerHTML", 
                         is_ajax_action=false,
+                        attributes="",
                     ) %}
                         {% call icons::checkmark(5, 5, "text-green-400") %}
                     {% call button::as_link_end() %}
@@ -51,6 +52,7 @@
                         target=format!("#contact_{}", contact.inner.id), 
                         swap="outerHTML", 
                         is_ajax_action=false,
+                        attributes="",
                     ) %}
                         {% call icons::close(5, 5, "firebrick") %}
                     {% call button::as_link_end() %}

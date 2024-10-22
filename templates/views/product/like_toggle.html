@@ -1,0 +1,7 @@
+{% import "partials/product/actions.html" as product_actions %}
+
+{% call product_actions::product_toggle(product_id=action_product_id, is_liked=action_is_liked) %}
+
+{% if notification.is_some() %}
+    {{ notification.as_ref().unwrap().render().unwrap_or_default()|safe }}
+{% endif %}

@@ -1,4 +1,5 @@
 import { HtmxEventListener } from "../lib/HtmxEventListener";
+import { isEventDisabled } from "../HttpHeaderEnrichedUi";
 
 const NAVIGATION_TOGGLE_ATTRIBUTE = "xui-navigation-toggle";
 const NAVIGATION_TOGGLE_ICON = "x-navigation-icon";
@@ -33,14 +34,20 @@ class Navigation extends HtmxEventListener {
 
         const url = this.el.getAttribute("hx-get");
         const isDisabled = this.el.getAttribute("xui-hx-disabled") === "1";
+        const isBlocked = isEventDisabled("get", url, null, e.target);
 
-        if (isDisabled) {
+        if (isDisabled || isBlocked) {
             return;
         }
 
-        const isEnteringDetailView = this.el.getAttribute("xui-detail-view") == "1";
+        const isEnteringDetailView = this.el.getAttribute("xui-detail-view");
         if (isEnteringDetailView) {
-            const img = this.el.querySelector("img");
+            let img;
+            if (isEnteringDetailView == "1") {
+                img = this.el.querySelector("img");
+            } else {
+                img = document.querySelector(isEnteringDetailView);
+            }
             if (img) {
                 img.style.viewTransitionName = "thumbnail-detail-transition";
             }

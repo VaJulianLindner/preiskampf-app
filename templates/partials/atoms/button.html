@@ -7,15 +7,28 @@
     </a>
 {% endmacro %}
 
-{% macro as_link_start(button_type, method, href, target, swap, is_ajax_action) %}
+{% macro as_link_start(button_type, method, href, target, swap, is_ajax_action, attributes) %}
     <a
         class="{% call class_for_button_type(button_type) %}"
         {% call attributes_for_button(method, href, target, swap, is_ajax_action) %}
+        {{ attributes|safe }}
     >
 {% endmacro %}
 
 {% macro as_link_end() %}
     </a>
+{% endmacro %}
+
+{% macro as_span_start(button_type, method, href, target, swap, is_ajax_action, attributes) %}
+    <span
+        class="cursor-pointer"
+        {% call attributes_for_button(method, href, target, swap, is_ajax_action) %}
+        {{ attributes|safe }}
+    >
+{% endmacro %}
+
+{% macro as_span_end() %}
+    </span>
 {% endmacro %}
 
 {% macro as_button(label, button_type, method, href, target, swap, is_ajax_action) %}

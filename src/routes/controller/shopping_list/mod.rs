@@ -3,23 +3,25 @@ use std::sync::Arc;
 use askama::Template;
 use axum::{
     extract::{FromRequest, Path, Query, Request, State},
-    http::{HeaderMap, StatusCode}, 
-    response::IntoResponse,
-    routing::{delete, get, post, put},
-    Extension,
-    Form,
-    Router,
-    RequestExt,
+    http::{HeaderMap, StatusCode},
+    response::IntoResponse, routing::{delete, get, post, put},
+    Extension, Form, RequestExt, Router
 };
 
 use crate::{
     core::{context::Context, pagination::Pagination, query_params::StateParams, request_extension::HttpExt},
     model::{
-        shopping_list::{ShoppingList, ShoppingListUpdateForm}, user::User
+        shopping_list::{
+            AddShoppingListItemForm,
+            ShoppingList,
+            ShoppingListUpdateForm,
+            ToggleShoppingListItemOp::Added,
+        },
+        user::User,
     },
-    routes::{get_value_from_path, minify_html_response, render_error_notification, render_success_notification},
+    routes::{create_success_notification, get_value_from_path, minify_html_response, render_error_notification, render_success_notification},
     services::shopping_list::{self},
-    view::shopping_list::{ShoppingListDetailTemplate, ShoppingListsTemplate},
+    view::{product::AddProductToggle, shopping_list::{ShoppingListDetailTemplate, ShoppingListsTemplate}},
     AppState
 };
 
@@ -235,45 +237,83 @@ pub async fn delete_shopping_list(
 }
 
 pub async fn save_shopping_list_item(
-    _state: State<AppState>,
+    state: State<AppState>,
     Extension(authenticated_user): Extension<Arc<Option<User>>>,
-    path: Path<HashMap<String, String>>,
+    request: Request,
 ) -> impl IntoResponse {
-    let headers = HeaderMap::new();
+    let mut headers = HeaderMap::new();
 
-    let resource_id = get_value_from_path(&path, "id");
-    /* TODO can i get this somehow nicer abstracted? */
-    let _parsed_resource_id = match resource_id.parse::<i64>() {
-        Ok(id) => id,
-        Err(_) => {
-            let notification = render_error_notification(Some("Ungültiger Einkaufszettel"));
-            return (StatusCode::UNPROCESSABLE_ENTITY, headers, minify_html_response(notification));
-        },
-    };
-    let product_id = get_value_from_path(&path, "product_id");
-    let _parsed_product_id = match product_id.parse::<i64>() {
-        Ok(id) => id,
-        Err(_) => {
-            let notification = render_error_notification(Some("Ungültiges Produkt"));
-            return (StatusCode::UNPROCESSABLE_ENTITY, headers, minify_html_response(notification));
-        },
+    if authenticated_user.is_none() {
+        let notification = render_error_notification(None);
+        return (StatusCode::UNAUTHORIZED, headers, minify_html_response(notification));
     };
 
-    let _authenticated_user_id = match *authenticated_user {
-        Some(ref u) => match u.get_id() {
-            Some(id) => id.to_owned(),
-            None => {
-                let notification = render_error_notification(None);
-                return (StatusCode::UNAUTHORIZED, headers, minify_html_response(notification));
-            }
-        },
-        None => {
+    let user = authenticated_user.as_ref().as_ref().unwrap();
+    let authenticated_user_id = user.get_id().expect("authenticated_user must have an id");
+
+    let form_data = match Form::<AddShoppingListItemForm>::from_request(request, &state).await {
+        Ok(form_data) => form_data,
+        Err(e) => {
+            eprintln!("error in save_shopping_list_item {e:?}");
             let notification = render_error_notification(None);
-            return (StatusCode::UNAUTHORIZED, headers, minify_html_response(notification));
+            headers.insert("hx-reswap", "none".parse().unwrap());
+            return (StatusCode::BAD_REQUEST, headers, minify_html_response(notification));
         }
     };
 
-    (StatusCode::OK, headers, minify_html_response(String::from("")))
+    let shopping_list_id = if form_data.shopping_list_id.is_some() {
+        form_data.shopping_list_id.unwrap()
+    } else {
+        match user.selected_shopping_list_id {
+            Some(id) => id,
+            None => {
+                let notification = render_error_notification(Some("Kein Einkaufszettel ausgewählt"));
+                headers.insert("hx-reswap", "none".parse().unwrap());
+                return (StatusCode::BAD_REQUEST, headers, minify_html_response(notification));
+            }
+        }
+    };
+
+    // TODO ON CONFLICT remove as toggle functionality (product_id, shopping_list_id) is a unique index
+    match shopping_list::toggle_shopping_list_item(
+        &state.db_pool,
+        &authenticated_user_id,
+        &shopping_list_id,
+        form_data.product_id.as_str(),
+        1,
+    ).await {
+        Ok(executed_op) => {
+            let is_liked = match executed_op {
+                Added => true,
+                _ => false,
+            };
+            let msg = match is_liked {
+                true => "Produkt hinzugefügt",
+                false => "Produkt entfernt",
+            };
+            let rendered_content = AddProductToggle {
+                action_product_id: &form_data.product_id,
+                action_is_liked: is_liked,
+                notification: Some(create_success_notification(Some(msg))),
+            };
+            (StatusCode::OK, headers, minify_html_response(rendered_content.render().unwrap_or_default()))
+        },
+        Err(sqlx::Error::Database(e)) => {
+            let rendered_content = if e.is_unique_violation() {
+                render_error_notification(Some("Produkt ist bereits vorhanden"))
+            } else {
+                render_error_notification(Some("Ein unerwarteter Fehler ist aufgetreten"))
+            };
+            headers.insert("hx-reswap", "none".parse().unwrap());
+            (StatusCode::UNPROCESSABLE_ENTITY, headers, minify_html_response(rendered_content))
+        },
+        Err(e) => {
+            eprintln!("undefined error in controller::shopping_list::save_shopping_list_item {e:?}");
+            let rendered_content = render_error_notification(Some("Ein unerwarteter Fehler ist aufgetreten"));
+            headers.insert("hx-reswap", "none".parse().unwrap());
+            (StatusCode::UNPROCESSABLE_ENTITY, headers, minify_html_response(rendered_content))
+        },
+    }
 }
 
 pub fn routes() -> Router<AppState> {
@@ -284,5 +324,5 @@ pub fn routes() -> Router<AppState> {
         .route("/shopping_list/delete/:id", delete(delete_shopping_list))
         // TODO move from PUT to PATCH and enable partial updates
         .route("/shopping_list/save", put(save_shopping_list))
-        .route("/shopping_list/save/:id/:product_id", post(save_shopping_list_item))
+        .route("/shopping_list/toggle-like", post(save_shopping_list_item))
 }
