@@ -22,15 +22,16 @@ pub mod auth;
 pub mod controller;
 pub mod api;
 
-pub async fn print_timestamp_middleware( 
+pub async fn default_middleware( 
     method: Method,
     uri: Uri,
     request: Request,
     next: Next,
 ) -> impl IntoResponse {
     let before = Instant::now();
-    let response = next.run(request).await;
+    let mut response = next.run(request).await;
     println!("processed request took {:.2?} for \"{}: {}\"", before.elapsed(), method, uri);
+    response.headers_mut().append(header::VARY, "Hx-Request, Hx-Boosted".parse().expect("HeaderValue is supposed to be parseable"));
     response
 }
 
@@ -131,10 +132,6 @@ pub fn get_value_from_path(path: &Path<HashMap<String, String>>, name: &str) -> 
 }
 
 pub fn minify_html_response(unprocessed_html: String) -> Html<String> {
-    // TODO need to add [(header::VARY, "Hx-Request, Hx-Boosted")] in all of the responses!
-    // make this function also accept statuscode and headers and return the Response|impl IntoResponse directly,
-    // so all the default setters can easily be set
-
     match minify(unprocessed_html) {
         Ok(html) => Html(html),
         Err(e) => {

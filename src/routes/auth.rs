@@ -110,10 +110,7 @@ pub async fn authorize(
             Ok(existing_user) => {
                 let session_user = SessionUser::new(existing_user);
                 headers.insert(SET_COOKIE, create_auth_cookie_for_user(&session_user));
-                // TODO whats the benefit of using HeaderName?
-                // headers.insert(HeaderName::from_bytes("hx-redirect".as_bytes()).unwrap(), "/".parse().unwrap());
                 headers.insert("hx-redirect", "/".parse().unwrap());
-                // TODO success notification: after redirect to home
                 return (StatusCode::FOUND, headers).into_response();
             },
             Err(e) => {

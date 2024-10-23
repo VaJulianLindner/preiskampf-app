@@ -6,11 +6,12 @@ use crate::model::product::{Price, Product};
 pub async fn find_products(
     db_pool: &Pool<Postgres>,
     search_query: Option<String>,
+    shopping_list_id: Option<i64>,
     sort_by: String,
     sort_order: String,
     limit: usize,
     offset: usize,
-) -> (Vec<Product>, u64) {
+) -> Result<(Vec<Product>, u64), Error> {
     // https://www.reddit.com/r/rust/comments/17hoxzl/performance_on_multiple_statements_sqlx_sql/
 
     let query_sort_order = SortOrder::from_str(sort_order.as_str()).to_string();
@@ -46,11 +47,11 @@ pub async fn find_products(
                     Some(row) => row.try_get::<i64, &str>("total").unwrap_or_default() as u64,
                     None => 0
                 };
-                (products, total)
+                Result::Ok((products, total))
             },
             Err(e) => {
                 eprintln!("error in services::product::find_products: {:?}", e);
-                (vec![], 0)
+                Result::Ok((vec![], 0))
             }
         }      
 }

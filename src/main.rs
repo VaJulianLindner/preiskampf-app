@@ -15,7 +15,7 @@ mod view;
 mod routes;
 mod core;
 use routes::{
-    print_timestamp_middleware,
+    default_middleware,
     handle_not_found,
     auth,
     controller,
@@ -60,7 +60,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .merge(auth::routes())
         .fallback(handle_not_found)
         .layer(middleware::from_fn(auth::validate))
-        .layer(middleware::from_fn(print_timestamp_middleware))
+        .layer(middleware::from_fn(default_middleware))
         .nest_service("/assets", ServeDir::new("assets"))
         .with_state(app_state);
 

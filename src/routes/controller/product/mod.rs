@@ -10,10 +10,16 @@ use axum::{
 use askama::Template;
 use futures::try_join;
 
-use crate::{core::{context::Context, pagination::Pagination, query_params::StateParams}, services::product::{find_product, find_products, find_product_prices}};
+use crate::{
+    core::{context::Context, pagination::Pagination, query_params::StateParams},
+    services::{
+        product::{find_product, find_products, find_product_prices},
+        shopping_list::find_shopping_list_items,
+    },
+};
 use crate::routes::{minify_html_response, get_value_from_path};
 use crate::AppState;
-use crate::model::user::User;
+use crate::model::{user::User, product::ListProduct};
 use crate::view::product::{ProductDetailTemplate, ProductListTemplate};
 
 pub async fn get_product_detail_page(
@@ -67,30 +73,61 @@ pub async fn get_product_list_page(
     let limit: usize = query_params.get_limit().unwrap_or(10);
     let page: usize = query_params.get_page().unwrap_or(0);
     let offset = page * limit;
-    // TODO pass request or uri reference reference to find_products, so that query-params and the db_pool can be parsed inside the service
-    let (products, total) = find_products(
-        &state.db_pool,
-        search_query,
-        sort_by,
-        sort_order,
-        limit,
-        offset
-    ).await;
 
-    let pagination = Pagination::from_query_params(&query_params)
-        .with_total(total)
-        .with_uri(request.uri().clone());
+    let user = authenticated_user.as_ref().as_ref().unwrap();
+    let shopping_list_id = user.selected_shopping_list_id;
+    let authenticated_user_id = user.get_id().expect("authenticated user must have an id");
 
-    let template = ProductListTemplate {
-        products: products,
-        authenticated_user: &authenticated_user,
-        pagination: &pagination,
-        notification: None,
-        errors: &None,
-        context: Context::from_request(&request),
-    };
+    // TODO find which products are on the users current shopping_list
+    // TODO probably some session cache for the liked items and then just join the fetched products list
+    match try_join!(
+        find_products(
+            &state.db_pool,
+            search_query,
+            shopping_list_id,
+            sort_by,
+            sort_order,
+            limit,
+            offset
+        ),
+        find_shopping_list_items(
+            &state.db_pool,
+            &shopping_list_id.as_ref().unwrap_or(&0i64),
+            &authenticated_user_id,
+        ),
+    ) {
+        Ok(val) => {
+            let (products, total) = val.0;
+            let shopping_list_items = val.1;
+            let list_products = products.iter().map(|p| {
+                // let is_liked = shopping_list_items.contains(p.id);
+                // println!("is_liked {is_liked}");
+                ListProduct {
+                    product: p,
+                    is_liked: true,
+                }
+            });
 
-    (StatusCode::OK, minify_html_response(template.render().unwrap_or_default())).into_response()
+            let pagination = Pagination::from_query_params(&query_params)
+                .with_total(total)
+                .with_uri(request.uri().clone());
+
+            let template = ProductListTemplate {
+                products: products,
+                authenticated_user: &authenticated_user,
+                pagination: &pagination,
+                notification: None,
+                errors: &None,
+                context: Context::from_request(&request),
+            };
+
+            (StatusCode::OK, minify_html_response(template.render().unwrap_or_default())).into_response()
+        },
+        Err(e) => {
+            eprintln!("unexpected error in controller::products::get_product_list_page {e:?}");
+            (StatusCode::INTERNAL_SERVER_ERROR, minify_html_response("".to_string())).into_response()
+        }
+    }
 }
 
 pub fn routes() -> Router<AppState> {

@@ -13,6 +13,11 @@ pub struct Product {
     pub current_price: Option<Price>,
 }
 
+pub struct ListProduct<'a> {
+    pub product: &'a Product,
+    pub is_liked: bool,
+}
+
 impl<'r> FromRow<'r, PgRow> for Product {
     fn from_row(row: &'r PgRow) -> Result<Self, sqlx::Error> {
         let id = row.try_get("id")?;

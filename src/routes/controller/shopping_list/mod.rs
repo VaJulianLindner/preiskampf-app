@@ -84,6 +84,13 @@ pub async fn get_shopping_list_detail_page(
     request: Request,
 ) -> impl IntoResponse {
     let id = get_value_from_path(&path, "id");
+    let shopping_list_id = match id.parse::<i64>() {
+        Ok(val) => val,
+        Err(_) => {
+            return (StatusCode::BAD_REQUEST, minify_html_response(String::from(""))).into_response();
+        }
+    };
+    let authenticated_user_id = authenticated_user.as_ref().as_ref().unwrap().get_id().as_ref().expect("the authenticated user must have an id");
     let context = Context::new(request.uri(), request.headers());
 
     // TODO check if this user owns the shopping_list! => or move it to service/db
@@ -93,7 +100,8 @@ pub async fn get_shopping_list_detail_page(
     } else {
         match shopping_list::find_shopping_list(
             &state.db_pool,
-            id.parse::<i64>().ok(),
+            &shopping_list_id,
+            &authenticated_user_id,
         ).await {
             Ok(shopping_list) => shopping_list,
             Err(sqlx::Error::RowNotFound) => {
@@ -137,7 +145,7 @@ pub async fn save_shopping_list(
     let uri = request.uri().clone();
     let req_headers = request.headers().clone();
     let context = Context::new(&uri, &req_headers);
-    let authenticated_user_id = authenticated_user.as_ref().as_ref().unwrap().get_id().as_ref().unwrap();
+    let authenticated_user_id = authenticated_user.as_ref().as_ref().unwrap().get_id().as_ref().expect("the authenticated user must have an id");
     let form_data = Form::<ShoppingListUpdateForm>::from_request(request, &state).await.unwrap();
 
     let updated_shopping_list = match shopping_list::upsert_shopping_list(&state.db_pool, authenticated_user_id, &form_data).await {

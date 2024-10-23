@@ -1,8 +1,6 @@
 use sqlx::{postgres::PgQueryResult, Error, FromRow, Pool, Postgres, Row};
 use crate::model::shopping_list::{
-    ShoppingList,
-    ShoppingListUpdateForm,
-    ToggleShoppingListItemOp,
+    ShoppingList, ShoppingListItem, ShoppingListUpdateForm, ToggleShoppingListItemOp
 };
 
 
@@ -35,11 +33,25 @@ pub async fn upsert_shopping_list(
 
 pub async fn find_shopping_list(
     db_pool: &Pool<Postgres>, 
-    id: Option<i64>,
+    id: &i64,
+    user_id: &i64,
 ) -> Result<ShoppingList, Error> {
     sqlx::query_as::<_, ShoppingList>(include_str!("./find_shopping_list.sql"))
-        .bind(id.unwrap_or(0))
+        .bind(id)
+        .bind(user_id)
         .fetch_one(db_pool)
+        .await
+}
+
+pub async fn find_shopping_list_items(
+    db_pool: &Pool<Postgres>, 
+    id: &i64,
+    user_id: &i64,
+) -> Result<Vec<ShoppingListItem>, Error> {
+    sqlx::query_as::<_, ShoppingListItem>(include_str!("./find_shopping_list_items.sql"))
+        .bind(id)
+        .bind(user_id)
+        .fetch_all(db_pool)
         .await
 }
 

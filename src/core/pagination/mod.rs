@@ -61,25 +61,6 @@ impl Pagination {
         self
     }
 
-    pub fn as_json(&self, opt_total: Option<u64>) -> Value {
-        if let Some(total) = opt_total {
-            let total = total as usize;
-            let last_page = if total == 0 {
-                0
-            } else {
-                (total - 1) / self.limit
-            };
-            json!({
-                "page": self.page,
-                "limit": self.limit,
-                "total": total,
-                "last_page": last_page
-            })
-        } else {
-            json!({})
-        }
-    }
-
     pub fn render(&self, context: &Context) -> Result<String, askama::Error> {
         // TODO this should be rendered from context/partials?
         PaginationTemplate { pagination: self, context }.render()

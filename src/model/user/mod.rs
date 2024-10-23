@@ -41,20 +41,6 @@ pub struct User {
 }
 
 impl User {
-    pub(crate) fn new(email: String, password: String) -> Self {
-        let hashed_password = Self::hash_password(password);
-        Self {
-            email,
-            password: Some(hashed_password),
-            id: None,
-            username: None,
-            selected_shopping_list_id: None,
-            address: None,
-            address_lng: None,
-            address_lat: None
-        }
-    }
-
     pub(crate) fn get_id(&self) -> &Option<i64> {
         &self.id
     }
@@ -63,29 +49,22 @@ impl User {
         &self.email
     }
 
-    pub(crate) fn get_username(&self) -> String {
+    pub(crate) fn get_username(&self) -> &str {
         match self.username.as_ref() {
-            Some(username) => username.to_owned(),
-            None => "".to_owned()
+            Some(username) => username,
+            None => ""
         }
     }
 
-    pub(crate) fn get_address(&self) -> String {
+    pub(crate) fn get_address(&self) -> &str {
         match self.address.as_ref() {
-            Some(address) => address.to_owned(),
-            None => "".to_owned()
+            Some(address) => address,
+            None => ""
         }
     }
 
     pub(crate) fn hash_password(password: String) -> String {
         sha512_crypt::hash_with(PW_HASH, password).unwrap_or("default".to_string())
-    }
-
-    pub(crate) fn verify_password(self, password: &str) -> bool {
-        if self.password.is_none() {
-            return false;
-        }
-        sha512_crypt::verify(password, self.password.unwrap().as_str())
     }
 }
 

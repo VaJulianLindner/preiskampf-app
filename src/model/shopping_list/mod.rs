@@ -71,3 +71,12 @@ impl<'r> FromRow<'r, PgRow> for ToggleShoppingListItemOp {
         Result::Ok(ToggleShoppingListItemOp::from_number(row.try_get(0)?))
     }
 }
+
+#[derive(Debug)]
+pub struct ShoppingListItem (String);
+
+impl<'r> FromRow<'r, PgRow> for ShoppingListItem {
+    fn from_row(row: &'r PgRow) -> Result<Self, sqlx::Error> {
+        Ok(ShoppingListItem(row.try_get("product_id")?))
+    }
+}
