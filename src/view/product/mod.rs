@@ -3,7 +3,7 @@ use crate::core::pagination::Pagination;
 use crate::core::request_extension::HttpExt;
 use crate::core::context::Context;
 use crate::view::misc::NotificationTemplate;
-use crate::model::product::{Price, Product};
+use crate::model::product::{ListProduct, Price, Product};
 use crate::model::user::User;
 
 #[derive(Template)]
@@ -19,7 +19,7 @@ pub struct ProductDetailTemplate<'a> {
 #[derive(Template)]
 #[template(path = "views/product/list.html")]
 pub struct ProductListTemplate<'a> {
-    pub products: Vec<Product>,
+    pub products: Vec<ListProduct<'a>>,
     pub authenticated_user: &'a Option<User>,
     pub pagination: &'a Pagination,
     pub notification: Option<NotificationTemplate<'a>>,

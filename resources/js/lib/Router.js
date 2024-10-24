@@ -32,6 +32,8 @@ class Router {
     constructor() {
         window.addEventListener("popstate", this.on.bind(this));
         window.navigation?.addEventListener("navigate", this.onNavigate.bind(this));
+
+        // window.DEBUG_CACHE = {};
     }
 
     on(event) {
@@ -116,6 +118,7 @@ class Router {
      * @param {boolean} resetScroll
      */
     execute(historyState, replace, isHistoryEvent, isEnteringDetailView, clientScroll, resetScroll) {
+        console.log("window.DEBUG_CACHE", window.DEBUG_CACHE);
         if (!historyState.toUrl) {
             return window.location.reload();
         }
@@ -130,13 +133,20 @@ class Router {
                 historyState.args[2].target = "#swap-content";
             }
 
+            // if (isHistoryEvent && window.DEBUG_CACHE[historyState.toUrl]) {
+            //     const cachedVal = window.DEBUG_CACHE[historyState.toUrl];
+            //     document.querySelector(historyState.args[2].target)[historyState.args[2].swap] = cachedVal;
+            // } else {
             await window.htmx.ajax.apply(this, historyState.args);
+            // }
 
-            if (isHistoryEvent) {   
+            if (isHistoryEvent) {
                 this.restoreClientScroll(historyState.clientScroll);
                 this.restoreFormState(historyState.toUrl);
                 return;
             }
+
+            // window.DEBUG_CACHE[historyState.toUrl] = document.querySelector(historyState.args[2].target)[historyState.args[2].swap];
 
             if (!replace) {
                 this.saveClientScroll(clientScroll);

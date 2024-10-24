@@ -99,21 +99,24 @@ pub async fn get_product_list_page(
         Ok(val) => {
             let (products, total) = val.0;
             let shopping_list_items = val.1;
+            let mut selected_product_ids: Vec<&str> = Vec::with_capacity(shopping_list_items.len());
+            for item in &shopping_list_items {
+                selected_product_ids.push(item.product_id.as_str());
+            }
             let list_products = products.iter().map(|p| {
-                // let is_liked = shopping_list_items.contains(p.id);
-                // println!("is_liked {is_liked}");
+                let is_liked = selected_product_ids.contains(&p.id.as_str());
                 ListProduct {
                     product: p,
-                    is_liked: true,
+                    is_liked: is_liked,
                 }
-            });
+            }).collect::<Vec<ListProduct>>();
 
             let pagination = Pagination::from_query_params(&query_params)
                 .with_total(total)
                 .with_uri(request.uri().clone());
 
             let template = ProductListTemplate {
-                products: products,
+                products: list_products,
                 authenticated_user: &authenticated_user,
                 pagination: &pagination,
                 notification: None,

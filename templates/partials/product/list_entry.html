@@ -1,7 +1,7 @@
 {% import "partials/atoms/link.html" as link %}
 {% import "partials/product/actions.html" as product_actions %}
 
-{% macro default(product) %}
+{% macro default(product, is_liked) %}
 
 {% let current_price = product.current_price.as_ref() %}
 <li 
@@ -73,8 +73,7 @@
                 </li>
                 <li>
                     <div class="mt-1 flex items-center gap-x-1.5">
-                        {# TODO check if product is in users selected_shopping_list to display the boolean flag correctly and add-item vs remove-item #}
-                        {% call product_actions::product_toggle(product_id=product.id.as_str(), is_liked=false) %}
+                        {% call product_actions::product_toggle(product_id=product.id.as_str(), is_liked=is_liked) %}
                     </div>
                 </li>
             </ul>
@@ -85,8 +84,7 @@
             <time datetime="{{ product.created_at }}">{{ product.created_at.format("%d.%m.%Y") }}</time>
         </p>
         <div class="mt-1 flex items-center gap-x-1.5">
-            {# TODO check if product is in users selected_shopping_list to display the boolean flag correctly and add-item vs remove-item #}
-            {% call product_actions::product_toggle(product_id=product.id.as_str(), is_liked=false) %}
+            {% call product_actions::product_toggle(product_id=product.id.as_str(), is_liked=is_liked) %}
         </div>
     </div>
 </li>

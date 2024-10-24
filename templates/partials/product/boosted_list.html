@@ -2,8 +2,8 @@
 
 <div id="product_list">
     <ul role="list">
-        {% for product in products %}
-            {% call list_entry::default(product) %}
+        {% for list_product in products %}
+            {% call list_entry::default(product=list_product.product, is_liked=list_product.is_liked) %}
         {% endfor %}
     </ul>
     {{ pagination.render(context).unwrap_or_default()|safe }}

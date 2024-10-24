@@ -13,6 +13,7 @@ pub struct Product {
     pub current_price: Option<Price>,
 }
 
+#[derive(Debug)]
 pub struct ListProduct<'a> {
     pub product: &'a Product,
     pub is_liked: bool,
