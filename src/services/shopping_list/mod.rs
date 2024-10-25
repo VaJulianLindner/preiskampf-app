@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use sqlx::{postgres::PgQueryResult, Error, FromRow, Pool, Postgres, Row};
 use crate::model::shopping_list::{
     ShoppingList, ShoppingListItem, ShoppingListUpdateForm, ToggleShoppingListItemOp
@@ -47,12 +49,24 @@ pub async fn find_shopping_list_items(
     db_pool: &Pool<Postgres>, 
     id: &i64,
     user_id: &i64,
-) -> Result<Vec<ShoppingListItem>, Error> {
-    sqlx::query_as::<_, ShoppingListItem>(include_str!("./find_shopping_list_items.sql"))
+) -> Result<HashSet<String>, Error> {
+    match sqlx::query::<_>(include_str!("./find_shopping_list_items.sql"))
         .bind(id)
         .bind(user_id)
         .fetch_all(db_pool)
-        .await
+        .await {
+            Ok(rows) => {
+                let mut set = HashSet::with_capacity(rows.len());
+                rows.iter().for_each(|row| {
+                    let pid = row.try_get::<String, &str>("product_id");
+                    if pid.is_ok() {
+                        set.insert(pid.unwrap());
+                    }
+                });
+                Ok(set)
+            },
+            Err(e) => Err(e),
+        }
 }
 
 pub async fn find_shopping_lists(

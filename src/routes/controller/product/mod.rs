@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
 use axum::{
     extract::{Extension, Path, Query, Request, State}, 
@@ -19,7 +19,7 @@ use crate::{
 };
 use crate::routes::{minify_html_response, get_value_from_path};
 use crate::AppState;
-use crate::model::{user::User, product::ListProduct};
+use crate::model::{user::User, product::ListProduct, shopping_list::{ShoppingListItem, VecExt}};
 use crate::view::product::{ProductDetailTemplate, ProductListTemplate};
 
 pub async fn get_product_detail_page(
@@ -78,8 +78,6 @@ pub async fn get_product_list_page(
     let shopping_list_id = user.selected_shopping_list_id;
     let authenticated_user_id = user.get_id().expect("authenticated user must have an id");
 
-    // TODO find which products are on the users current shopping_list
-    // TODO probably some session cache for the liked items and then just join the fetched products list
     match try_join!(
         find_products(
             &state.db_pool,
@@ -99,15 +97,11 @@ pub async fn get_product_list_page(
         Ok(val) => {
             let (products, total) = val.0;
             let shopping_list_items = val.1;
-            let mut selected_product_ids: Vec<&str> = Vec::with_capacity(shopping_list_items.len());
-            for item in &shopping_list_items {
-                selected_product_ids.push(item.product_id.as_str());
-            }
+
             let list_products = products.iter().map(|p| {
-                let is_liked = selected_product_ids.contains(&p.id.as_str());
                 ListProduct {
                     product: p,
-                    is_liked: is_liked,
+                    is_liked: shopping_list_items.contains(&p.id),
                 }
             }).collect::<Vec<ListProduct>>();
 
