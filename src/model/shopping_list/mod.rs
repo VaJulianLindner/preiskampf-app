@@ -84,15 +84,3 @@ impl<'r> FromRow<'r, PgRow> for ShoppingListItem {
         })
     }
 }
-
-pub trait VecExt {
-    fn to_hashset(&self) {
-
-    }
-}
-
-impl VecExt for Vec<ShoppingListItem> {
-    fn to_hashset(&self) {
-
-    }
-}
