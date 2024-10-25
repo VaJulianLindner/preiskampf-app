@@ -19,7 +19,7 @@ use crate::{
 };
 use crate::routes::{minify_html_response, get_value_from_path};
 use crate::AppState;
-use crate::model::{user::User, product::ListProduct, shopping_list::{ShoppingListItem, VecExt}};
+use crate::model::{user::User, product::ListProduct};
 use crate::view::product::{ProductDetailTemplate, ProductListTemplate};
 
 pub async fn get_product_detail_page(
