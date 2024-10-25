@@ -21,7 +21,6 @@
 
 {% macro as_span_start(button_type, method, href, target, swap, is_ajax_action, attributes) %}
     <span
-        class="cursor-pointer"
         {% call attributes_for_button(method, href, target, swap, is_ajax_action) %}
         {{ attributes|safe }}
     >

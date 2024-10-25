@@ -39,6 +39,13 @@
         outline: none;
     }
 
+    .icon-st0 {
+        stroke-width:2;
+        stroke-linecap:round;
+        stroke-linejoin:round;
+        stroke-miterlimit:10;
+    }
+
     /* all pulsing animation stuff */
     .pulsing, .selected {
         @apply relative;
