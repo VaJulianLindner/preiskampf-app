@@ -3,6 +3,7 @@ use crate::core::{
     context::Context, pagination::Pagination
 };
 use crate::core::request_extension::HttpExt;
+use crate::model::product::Product;
 use crate::model::shopping_list::ShoppingList;
 use crate::model::user::User;
 
@@ -20,6 +21,8 @@ const EMOJI_LIST: [u32; 35] = [
 #[template(path = "views/shopping_list/detail.html")]
 pub struct ShoppingListDetailTemplate<'a> {
     pub shopping_list: &'a ShoppingList,
+    pub selected_products: Option<&'a Vec<Product>>,
+    pub pagination: Option<&'a Pagination>,
     pub authenticated_user: &'a Option<User>,
     pub notification: Option<NotificationTemplate<'a>>,
     pub errors: &'a Option<Vec<String>>,

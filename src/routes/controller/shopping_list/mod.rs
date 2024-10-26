@@ -7,9 +7,10 @@ use axum::{
     response::IntoResponse, routing::{delete, get, post, put},
     Extension, Form, RequestExt, Router
 };
+use futures::try_join;
 
 use crate::{
-    core::{context::Context, pagination::Pagination, query_params::StateParams, request_extension::HttpExt},
+    core::{context::Context, pagination::{self, Pagination}, query_params::StateParams, request_extension::HttpExt},
     model::{
         shopping_list::{
             AddShoppingListItemForm,
@@ -78,6 +79,7 @@ pub async fn get_shopping_lists(
 }
 
 pub async fn get_shopping_list_detail_page(
+    Query(query_params): Query<StateParams>,
     state: State<AppState>,
     Extension(authenticated_user): Extension<Arc<Option<User>>>,
     path: Path<HashMap<String, String>>,
@@ -92,37 +94,47 @@ pub async fn get_shopping_list_detail_page(
     };
     let authenticated_user_id = authenticated_user.as_ref().as_ref().unwrap().get_id().as_ref().expect("the authenticated user must have an id");
     let context = Context::new(request.uri(), request.headers());
-
+    let pagination = Pagination::from_query_params(&query_params).with_uri(request.uri().clone());
     // TODO check if this user owns the shopping_list! => or move it to service/db
-    
-    let shopping_list = if context.is_create_operation() {
-        ShoppingList::default()
+
+    let (shopping_list, (selected_products, total)) = if context.is_create_operation() {
+        (ShoppingList::default(), (vec![], 0))
     } else {
-        match shopping_list::find_shopping_list(
-            &state.db_pool,
-            &shopping_list_id,
-            &authenticated_user_id,
-        ).await {
-            Ok(shopping_list) => shopping_list,
+        match try_join!(
+            shopping_list::find_shopping_list(
+                &state.db_pool,
+                &shopping_list_id,
+                &authenticated_user_id,
+            ),
+            shopping_list::find_shopping_list_products(
+                &state.db_pool,
+                &shopping_list_id,
+                &pagination,
+            )
+        ) {
+            Ok(val) => val,
             Err(sqlx::Error::RowNotFound) => {
-                return (StatusCode::TEMPORARY_REDIRECT, [("Location", format!("/einkaufszettel-{}/", id))]).into_response();
+                return (StatusCode::TEMPORARY_REDIRECT, [("Location", "/einkaufszettel")]).into_response();
             },
             Err(sqlx::Error::PoolTimedOut) => {
                 return (StatusCode::TOO_MANY_REQUESTS).into_response();
             }
             Err(e) => {
-                eprintln!("undefined error in find_shopping_list: {:?}", e);
+                eprintln!("undefined error in get_shopping_list_detail_page: {:?}", e);
                 return (StatusCode::TEMPORARY_REDIRECT, [("Location", "/einkaufszettel")]).into_response();
             }
         }
     };
 
+    let pagination = pagination.with_total(total);
+
     let template = ShoppingListDetailTemplate {
         shopping_list: &shopping_list,
+        selected_products: Some(&selected_products),
+        pagination: Some(&pagination),
         authenticated_user: &authenticated_user,
         notification: None,
         errors: &None,
-        // navigation: &state.navigation,
         context: context,
     };
 
@@ -161,6 +173,8 @@ pub async fn save_shopping_list(
     if form_data.id.is_some() {
         let template = ShoppingListDetailTemplate {
             shopping_list: &updated_shopping_list,
+            selected_products: None,
+            pagination: None,
             authenticated_user: &authenticated_user,
             notification: None,
             errors: &None,

@@ -1,4 +1,5 @@
 {% extends "layouts/default.html" %}
+{% import "partials/product/list_entry.html" as list_entry %}
 {% import "partials/form/form_left_aligned.html" as form %}
 {% import "partials/form/input_wrapper/left_aligned.html" as input_wrapper %}
 {% import "partials/form/input/input.html" as input %}
@@ -66,6 +67,7 @@
         ) %}
     {% call input_wrapper::end() %}
 
+{# TODO need a different target with the product list, because in shopping_list_update only the form is re-rendered, not the product-list #}
 {% call form::end(
     hide_control_buttons=false,
     errors=errors,
@@ -74,5 +76,24 @@
     target="#swap-content",
     submit_label="",
 ) %}
+
+{% if selected_products.is_some() %}
+    {% let selected_products = selected_products.as_ref().unwrap() %}
+    {# TODO needs to share markup with boosted_list in a smart way #}
+
+    {% if selected_products.len() > 0 %}
+        <div id="product_list" class="not-prose mt-8">
+            <ul role="list">
+                {% for list_product in selected_products %}
+                    {% call list_entry::default(product=list_product, is_liked=true) %}
+                {% endfor %}
+            </ul>
+
+            {% if pagination.is_some() %}
+                {{ pagination.as_ref().unwrap().render_with_context(context).unwrap_or_default()|safe }}
+            {% endif %}
+        </div>
+    {% endif %}
+{% endif %}
 
 {% endblock %}

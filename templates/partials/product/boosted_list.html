@@ -6,5 +6,5 @@
             {% call list_entry::default(product=list_product.product, is_liked=list_product.is_liked) %}
         {% endfor %}
     </ul>
-    {{ pagination.render(context).unwrap_or_default()|safe }}
+    {{ pagination.render_with_context(context).unwrap_or_default()|safe }}
 </div>

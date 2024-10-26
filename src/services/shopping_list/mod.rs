@@ -1,8 +1,12 @@
 use std::collections::HashSet;
 
 use sqlx::{postgres::PgQueryResult, Error, FromRow, Pool, Postgres, Row};
-use crate::model::shopping_list::{
-    ShoppingList, ShoppingListItem, ShoppingListUpdateForm, ToggleShoppingListItemOp
+use crate::{
+    core::pagination::Pagination,
+    model::{
+        product::Product,
+        shopping_list::{ShoppingList, ShoppingListUpdateForm, ToggleShoppingListItemOp},
+    },
 };
 
 
@@ -67,6 +71,37 @@ pub async fn find_shopping_list_items(
             },
             Err(e) => Err(e),
         }
+}
+
+pub async fn find_shopping_list_products(
+    db_pool: &Pool<Postgres>, 
+    id: &i64,
+    pagination: &Pagination,
+) -> Result<(Vec<Product>, u64), Error> {
+    let limit = pagination.limit;
+    let page = pagination.page;
+    let offset = page * limit;
+    match sqlx::query::<_>(include_str!("./find_shopping_list_products.sql"))
+        .bind(id)
+        .bind(limit as i64)
+        .bind(offset as i64)
+        .fetch_all(db_pool)
+        .await {
+            Ok(rows) => {
+                let products = rows.iter()
+                    .filter_map(|row| Product::from_row(row).ok())
+                    .collect::<Vec<Product>>();
+                let total: u64 = match rows.get(0) {
+                    Some(row) => row.try_get::<i64, &str>("total").unwrap_or_default() as u64,
+                    None => 0
+                };
+                Result::Ok((products, total))
+            },
+            Err(e) => {
+                eprintln!("error in services::shopping_list::find_shopping_list_products: {:?}", e);
+                Result::Ok((vec![], 0))
+            }
+        }  
 }
 
 pub async fn find_shopping_lists(

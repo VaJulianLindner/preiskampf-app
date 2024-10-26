@@ -118,7 +118,6 @@ class Router {
      * @param {boolean} resetScroll
      */
     execute(historyState, replace, isHistoryEvent, isEnteringDetailView, clientScroll, resetScroll) {
-        console.log("window.DEBUG_CACHE", window.DEBUG_CACHE);
         if (!historyState.toUrl) {
             return window.location.reload();
         }
@@ -151,7 +150,6 @@ class Router {
             if (!replace) {
                 this.saveClientScroll(clientScroll);
             }
-            console.log("DEBUG, Router::execute update, resetScroll =", resetScroll);
             if (resetScroll) {
                 window.scrollTo(0, 0);
             }

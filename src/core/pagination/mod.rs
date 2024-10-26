@@ -1,7 +1,6 @@
 use std::fmt::Debug;
 use askama::Template;
 use axum::http::{Request, Uri};
-use serde_json::{json, Value};
 
 use crate::{core::{query_params::StateParams, context::Context}, view::misc::PaginationTemplate};
 
@@ -61,7 +60,7 @@ impl Pagination {
         self
     }
 
-    pub fn render(&self, context: &Context) -> Result<String, askama::Error> {
+    pub fn render_with_context(&self, context: &Context) -> Result<String, askama::Error> {
         // TODO this should be rendered from context/partials?
         PaginationTemplate { pagination: self, context }.render()
     }
