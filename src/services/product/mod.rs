@@ -70,20 +70,8 @@ pub async fn find_product_prices(
     db_pool: &Pool<Postgres>,
     product_id: &str,
 ) -> Result<Vec<Price>, Error> {
-    match sqlx::query::<_>(include_str!("./find_product_prices.sql"))
+    sqlx::query_as::<_, Price>(include_str!("./find_product_prices.sql"))
         .bind(product_id)
         .fetch_all(db_pool)
-        .await {
-            Ok(rows) => {
-                Ok(
-                    rows.iter()
-                        .map(|row| Price::from_row(row).unwrap())
-                        .collect::<Vec<Price>>()
-                )
-            },
-            Err(e) => {
-                eprintln!("error in product::services::find_product_prices {:?}", e);
-                Ok(Vec::with_capacity(0))
-            },
-        }
+        .await
 }

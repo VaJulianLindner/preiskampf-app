@@ -282,7 +282,6 @@ pub async fn save_shopping_list_item(
         }
     };
 
-    // TODO ON CONFLICT remove as toggle functionality (product_id, shopping_list_id) is a unique index
     match shopping_list::toggle_shopping_list_item(
         &state.db_pool,
         &authenticated_user_id,
@@ -295,14 +294,10 @@ pub async fn save_shopping_list_item(
                 Added => true,
                 _ => false,
             };
-            let msg = match is_liked {
-                true => "Produkt hinzugefügt",
-                false => "Produkt entfernt",
-            };
             let rendered_content = AddProductToggle {
                 action_product_id: &form_data.product_id,
                 action_is_liked: is_liked,
-                notification: Some(create_success_notification(Some(msg))),
+                notification: None,
             };
             (StatusCode::OK, headers, minify_html_response(rendered_content.render().unwrap_or_default()))
         },
