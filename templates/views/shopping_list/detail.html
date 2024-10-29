@@ -1,5 +1,5 @@
 {% extends "layouts/default.html" %}
-{% import "partials/product/list_entry.html" as list_entry %}
+{% import "partials/product/list_entry.html" as product_list_entry %}
 {% import "partials/form/form_left_aligned.html" as form %}
 {% import "partials/form/input_wrapper/left_aligned.html" as input_wrapper %}
 {% import "partials/form/input/input.html" as input %}
@@ -19,8 +19,8 @@
 {% call form::start(
     method="put", 
     action="/shopping_list/save",
-    swap="none",
-    target="#swap-content",
+    swap="",
+    target="form[xui-element-name='form_left_aligned']",
     boost=false,
     push_url=false,
     headers="",
@@ -79,13 +79,12 @@
 
 {% if selected_products.is_some() %}
     {% let selected_products = selected_products.as_ref().unwrap() %}
-    {# TODO needs to share markup with boosted_list in a smart way #}
 
     {% if selected_products.len() > 0 %}
         <div id="product_list" class="not-prose mt-8">
             <ul role="list">
                 {% for list_product in selected_products %}
-                    {% call list_entry::default(product=list_product, is_liked=true) %}
+                    {% call product_list_entry::shopping_list(product=list_product, shopping_list_id=shopping_list.id, is_liked=true) %}
                 {% endfor %}
             </ul>
 

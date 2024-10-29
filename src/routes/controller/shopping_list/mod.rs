@@ -186,7 +186,7 @@ pub async fn save_shopping_list(
         let notification = render_success_notification(Some("Einkaufszettel erfolgreich gespeichert"));
         rendered_content.push_str(notification.as_str());
 
-        headers.insert("hx-reswap", "innerHTML transition:true".parse().unwrap());
+        headers.insert("hx-reswap", "outerHTML transition:true".parse().unwrap());
         (StatusCode::OK, headers, minify_html_response(rendered_content))
     } else {
         headers.insert("xui-redirect", format!("/einkaufszettel/{}", updated_shopping_list.get_id()).parse().unwrap());
@@ -304,6 +304,12 @@ pub async fn save_shopping_list_item(
         1,
     ).await {
         Ok(executed_op) => {
+            if form_data.shopping_list_id.is_some() {
+                // TODO list-item disappears, need to render whole list
+                let content = render_success_notification(Some("Produkt vom Einkaufszettel entfernt"));
+                return (StatusCode::OK, headers, minify_html_response(content));
+            }
+
             let is_liked = match executed_op {
                 Added => true,
                 _ => false,

@@ -2,7 +2,6 @@
 {% import "partials/product/actions.html" as product_actions %}
 
 {% macro default(product, is_liked) %}
-
 {% let current_price = product.current_price.as_ref() %}
 <li 
     class="flex justify-between gap-x-6 py-5 {% if !loop.first %}border-t border-zinc-400/10{% endif %}"
@@ -85,6 +84,95 @@
         </p>
         <div class="mt-1 flex items-center gap-x-1.5">
             {% call product_actions::product_toggle(product_id=product.id.as_str(), is_liked=is_liked) %}
+        </div>
+    </div>
+</li>
+{% endmacro %}
+
+
+{% macro shopping_list(product, shopping_list_id, is_liked) %}
+{% let current_price = product.current_price.as_ref() %}
+<li 
+    class="flex justify-between gap-x-6 py-5 {% if !loop.first %}border-t border-zinc-400/10{% endif %}"
+    id="{{ product.id }}" 
+>
+    <div class="flex min-w-0 gap-x-4">
+        <div class="h-12 w-12">
+            {% call link::start(
+                href=format!("/produkt/{}", product.id),
+                method="get",
+                target="",
+                swap="",
+                stop_propagation="post",
+                disabled=false,
+                class_name="",
+                is_ajax_action=true,
+                is_entering_detail_view="1",
+                title="",
+            ) %}
+                {% if product.images.get(0).is_some() %}
+                    <img 
+                        class="flex-none rounded-full"
+                        src="{{ product.images.get(0).unwrap() }}"
+                        alt="Produktbild für {{ product.name }}"
+                    >
+                {% endif %}
+            {% call link::end() %}
+        </div>
+        <div class="min-w-0 flex-auto">
+            {% call link::start(
+                href=format!("/produkt/{}", product.id),
+                method="get",
+                target="",
+                swap="",
+                stop_propagation="post",
+                disabled=false,
+                class_name="",
+                is_ajax_action=true,
+                is_entering_detail_view=format!("[id='{}'] img", product.id),
+                title="",
+            ) %}
+                <p class="text-sm font-semibold leading-6 max-h-6 truncate text-white">
+                    {{ product.name|safe }}
+                </p>
+            {% call link::end() %}
+            {% call link::start(
+                href=format!("/produkt/{}", product.id),
+                method="get",
+                target="",
+                swap="",
+                stop_propagation="post",
+                disabled=false,
+                class_name="",
+                is_ajax_action=true,
+                is_entering_detail_view=format!("[id='{}'] img", product.id),
+                title="",
+            ) %}
+                <p class="mt-1 truncate text-xs leading-5 text-gray-400 hidden sm:block">
+                    {{ product.format_price() }}
+                </p>
+            {% call link::end() %}
+            <ul class="sm:hidden">
+                <li>
+                    {{ product.format_price() }}
+                </li>
+                <li>
+                    <time datetime="{{ product.created_at }}">{{ product.created_at.format("%d.%m.%Y") }}</time>
+                </li>
+                <li>
+                    <div class="mt-1 flex items-center gap-x-1.5">
+                        {% call product_actions::product_toggle_for_list(product_id=product.id.as_str(), shopping_list_id=shopping_list_id, is_liked=is_liked) %}
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="hidden shrink-0 sm:flex sm:flex-col sm:items-end">
+        <p class="text-sm leading-6 text-white">
+            <time datetime="{{ product.created_at }}">{{ product.created_at.format("%d.%m.%Y") }}</time>
+        </p>
+        <div class="mt-1 flex items-center gap-x-1.5">
+            {% call product_actions::product_toggle_for_list(product_id=product.id.as_str(), shopping_list_id=shopping_list_id, is_liked=is_liked) %}
         </div>
     </div>
 </li>
