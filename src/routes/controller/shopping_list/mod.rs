@@ -193,7 +193,7 @@ pub async fn save_shopping_list(
         headers.insert("hx-reswap", "none".parse().unwrap());
         headers.insert("xui-redirect", format!("/einkaufszettel/{}", updated_shopping_list.get_id()).parse().unwrap());
         let notification = render_success_notification(
-            Some(format!("Einkaufszettel '{}' erfolgreich gespeichert", updated_shopping_list.get_name(),
+            Some(format!("Einkaufszettel \"{}\" erfolgreich gespeichert", updated_shopping_list.get_name(),
         ).as_str()));
         (StatusCode::TEMPORARY_REDIRECT, headers, minify_html_response(notification))
     }

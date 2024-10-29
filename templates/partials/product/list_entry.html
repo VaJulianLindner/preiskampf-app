@@ -1,5 +1,6 @@
 {% import "partials/atoms/link.html" as link %}
 {% import "partials/product/actions.html" as product_actions %}
+{% import "partials/icons.html" as icons %}
 
 {% macro default(product, is_liked) %}
 {% let current_price = product.current_price.as_ref() %}
@@ -44,7 +45,7 @@
                 title="",
             ) %}
                 <p class="text-sm font-semibold leading-6 max-h-6 truncate text-white">
-                    {{ product.name|safe }}
+                    {% call icons::market(format!("{}", product.market_id)) %} {{ product.name|safe }}
                 </p>
             {% call link::end() %}
             {% call link::start(
@@ -68,9 +69,6 @@
                     {{ product.format_price() }}
                 </li>
                 <li>
-                    <time datetime="{{ product.created_at }}">{{ product.created_at.format("%d.%m.%Y") }}</time>
-                </li>
-                <li>
                     <div class="mt-1 flex items-center gap-x-1.5">
                         {% call product_actions::product_toggle(product_id=product.id.as_str(), is_liked=is_liked) %}
                     </div>
@@ -79,9 +77,6 @@
         </div>
     </div>
     <div class="hidden shrink-0 sm:flex sm:flex-col sm:items-end">
-        <p class="text-sm leading-6 text-white">
-            <time datetime="{{ product.created_at }}">{{ product.created_at.format("%d.%m.%Y") }}</time>
-        </p>
         <div class="mt-1 flex items-center gap-x-1.5">
             {% call product_actions::product_toggle(product_id=product.id.as_str(), is_liked=is_liked) %}
         </div>
@@ -133,7 +128,7 @@
                 title="",
             ) %}
                 <p class="text-sm font-semibold leading-6 max-h-6 truncate text-white">
-                    {{ product.name|safe }}
+                    {% call icons::market(format!("{}", product.market_id)) %} {{ product.name|safe }}
                 </p>
             {% call link::end() %}
             {% call link::start(
