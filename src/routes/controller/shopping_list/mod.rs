@@ -10,7 +10,7 @@ use axum::{
 use futures::try_join;
 
 use crate::{
-    core::{context::Context, pagination::{self, Pagination}, query_params::StateParams, request_extension::HttpExt},
+    core::{context::Context, pagination::Pagination, query_params::StateParams, request_extension::HttpExt},
     model::{
         shopping_list::{
             AddShoppingListItemForm,
@@ -20,7 +20,7 @@ use crate::{
         },
         user::User,
     },
-    routes::{create_success_notification, get_value_from_path, minify_html_response, render_error_notification, render_success_notification},
+    routes::{get_value_from_path, minify_html_response, render_error_notification, render_success_notification},
     services::shopping_list::{self},
     view::{product::AddProductToggle, shopping_list::{ShoppingListDetailTemplate, ShoppingListsTemplate}},
     AppState
@@ -86,12 +86,6 @@ pub async fn get_shopping_list_detail_page(
     request: Request,
 ) -> impl IntoResponse {
     let id = get_value_from_path(&path, "id");
-    let shopping_list_id = match id.parse::<i64>() {
-        Ok(val) => val,
-        Err(_) => {
-            return (StatusCode::BAD_REQUEST, minify_html_response(String::from(""))).into_response();
-        }
-    };
     let authenticated_user_id = authenticated_user.as_ref().as_ref().unwrap().get_id().as_ref().expect("the authenticated user must have an id");
     let context = Context::new(request.uri(), request.headers());
     let pagination = Pagination::from_query_params(&query_params).with_uri(request.uri().clone());
@@ -100,6 +94,13 @@ pub async fn get_shopping_list_detail_page(
     let (shopping_list, (selected_products, total)) = if context.is_create_operation() {
         (ShoppingList::default(), (vec![], 0))
     } else {
+        let shopping_list_id = match id.parse::<i64>() {
+            Ok(val) => val,
+            Err(_) => {
+                return (StatusCode::BAD_REQUEST, minify_html_response(String::from(""))).into_response();
+            }
+        };
+
         match try_join!(
             shopping_list::find_shopping_list(
                 &state.db_pool,
@@ -189,11 +190,12 @@ pub async fn save_shopping_list(
         headers.insert("hx-reswap", "outerHTML transition:true".parse().unwrap());
         (StatusCode::OK, headers, minify_html_response(rendered_content))
     } else {
+        headers.insert("hx-reswap", "none".parse().unwrap());
         headers.insert("xui-redirect", format!("/einkaufszettel/{}", updated_shopping_list.get_id()).parse().unwrap());
         let notification = render_success_notification(
             Some(format!("Einkaufszettel '{}' erfolgreich gespeichert", updated_shopping_list.get_name(),
         ).as_str()));
-        (StatusCode::SEE_OTHER, headers, minify_html_response(notification))
+        (StatusCode::TEMPORARY_REDIRECT, headers, minify_html_response(notification))
     }
 }
 
