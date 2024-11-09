@@ -69,6 +69,7 @@ pub async fn validate(
             "/about" => false,
             "/login" => false,
             "/registrieren" => false,
+            "/activate" => false,
             "/authorize" => false,
             "/register" => false,
             _ => true,
@@ -260,7 +261,14 @@ pub async fn activate_user(
     _state: State<AppState>,
     _request: Request,
 ) -> impl IntoResponse {
-    (StatusCode::OK, minify_html_response(format!("query_params {:?}", query_params.token))).into_response()
+    println!("query_params.token {:?}", query_params.token);
+    match query_params.token {
+        Some(token) => {
+            // TODO now confirm and login
+            (StatusCode::TEMPORARY_REDIRECT, [("Location", "/mein-profil"), ("Set-Cookie", "mucki")]).into_response()
+        },
+        None => (StatusCode::TEMPORARY_REDIRECT, [("Location", "/")]).into_response()
+    }
 }
 
 pub fn create_auth_cookie_for_user(user: &SessionUser) -> HeaderValue {
