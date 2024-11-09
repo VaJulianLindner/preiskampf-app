@@ -1,7 +1,7 @@
 pub mod contacts;
-
+use std::hash::{DefaultHasher, Hash, Hasher};
 use sqlx::{Pool, Postgres, Error};
-use crate::model::user::{User, UserUpdateForm, UserSignUpForm};
+use crate::model::user::{ConfirmRegistrationUser, User, UserSignUpForm, UserUpdateForm};
 
 pub async fn check_if_user_exists(db_pool: &Pool<Postgres>, email: &str) -> bool {
     match sqlx::query::<_>(include_str!("./select_user_by_email.sql"))
@@ -17,19 +17,28 @@ pub async fn check_if_user_exists(db_pool: &Pool<Postgres>, email: &str) -> bool
         }
 }
 
-pub async fn find_user(db_pool: &Pool<Postgres>, email: String, password: String) -> Result<User, Error> {
-    let hashed_password = User::hash_password(password);
-    sqlx::query_as::<_, User>(include_str!("./select_user.sql"))
+pub async fn find_login_user(
+    db_pool: &Pool<Postgres>,
+    email: String,
+    password: String,
+) -> Result<User, Error> {
+    let hashed_password = User::hash_password(password.as_str());
+    sqlx::query_as::<_, User>(include_str!("./select_login_user.sql"))
         .bind(email)
         .bind(hashed_password)
         .fetch_one(db_pool)
         .await
 }
 
-pub async fn create_user(db_pool: &Pool<Postgres>, form_data: &UserSignUpForm) -> Result<User, Error> {
-    sqlx::query_as::<_, User>(include_str!("./create_user.sql"))
-        .bind(form_data.email.to_string())
-        .bind(User::hash_password(form_data.password.to_string()))
+pub async fn create_user(db_pool: &Pool<Postgres>, form_data: &UserSignUpForm) -> Result<ConfirmRegistrationUser, Error> {
+    let mut hasher = DefaultHasher::new();
+    form_data.email.hash(&mut hasher);
+    let confirmation_token = hasher.finish().to_string();
+    
+    sqlx::query_as::<_, ConfirmRegistrationUser>(include_str!("./create_user.sql"))
+        .bind(form_data.email.as_str())
+        .bind(User::hash_password(form_data.password.as_str()).as_str())
+        .bind(confirmation_token)
         .fetch_one(db_pool)
         .await
 }

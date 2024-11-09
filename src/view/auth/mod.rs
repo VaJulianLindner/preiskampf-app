@@ -18,6 +18,7 @@ pub struct LoginPageTemplate<'a> {
 pub struct RegisterPageTemplate<'a> {
     pub authenticated_user: &'a Option<User>,
     pub notification: Option<NotificationTemplate<'a>>,
+    pub success: bool,
     pub errors: &'a Option<Vec<String>>,
     pub context: Context<'a>,
 }

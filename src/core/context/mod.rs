@@ -2,17 +2,18 @@ use axum::http::Request;
 use crate::core::path::DetailOperations;
 use crate::core::query_params::StateParams;
 
-// TODO context should also hold possible form errors
-// TODO context could also hold/create pagination, if it has the uri anyways and with custom extractor would be omega convenient
+// TODO context holds form-errors
+// TODO context holds pagination
+// TODO Box context in templates to prevent copy when transferring data ownership
 pub struct Context<'a> {
     pub uri: &'a axum::http::Uri,
     pub headers: &'a axum::http::HeaderMap,
     pub query_params: StateParams,
 }
 
+// TODO for more convenience
+// impl axum::extract::FromRequestParts<AppState> for Context {}
 impl<'a> Context<'a> {
-    // TODO for more convenience
-    // impl axum::extract::FromRequestParts<AppState> for Context {}
     pub fn new(uri: &'a axum::http::Uri, headers: &'a axum::http::HeaderMap) -> Self {
         Self {
             uri: uri,

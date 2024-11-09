@@ -1,11 +1,10 @@
 use std::path::PathBuf;
-use std::str::FromStr;
 use std::sync::Arc;
 use askama::Template;
 use config::{Config, File};
 use axum::{Extension, Form, Router};
-use axum::extract::{FromRequest, Request, State};
-use axum::http::{StatusCode, HeaderMap, HeaderValue, HeaderName, header::SET_COOKIE};
+use axum::extract::{FromRequest, Query, Request, State};
+use axum::http::{StatusCode, HeaderMap, HeaderValue, header::SET_COOKIE};
 use axum::middleware::Next;
 use axum::response::{IntoResponse, Response, Html};
 use axum::routing::{post, get};
@@ -16,11 +15,12 @@ use sqlx::Error;
 use crate::core::context::Context;
 use crate::routes::minify_html_response;
 use crate::model::user::{SessionUser, UserSignUpForm, User};
-use crate::services::user::{check_if_user_exists, create_user, find_user};
+use crate::services::{
+    user::{check_if_user_exists, create_user, find_login_user},
+    mail::send_registration_confirmation_mail,
+};
 use crate::view::auth::{LoginPageTemplate, RegisterPageTemplate};
 use crate::AppState;
-
-use super::render_success_notification;
 
 pub const COOKIE_NAME: &str = "preiskampf_auth_cookie";
 
@@ -105,13 +105,20 @@ pub async fn authorize(
     }
 
     if errors.len() == 0 {
-        let existing_user_result = find_user(&state.db_pool, form_data.email.to_string(), form_data.password.to_string()).await;
-        match existing_user_result {
+        match find_login_user(
+            &state.db_pool,
+            form_data.email.to_string(),
+            form_data.password.to_string()
+        ).await {
             Ok(existing_user) => {
-                let session_user = SessionUser::new(existing_user);
-                headers.insert(SET_COOKIE, create_auth_cookie_for_user(&session_user));
-                headers.insert("hx-redirect", "/".parse().unwrap());
-                return (StatusCode::FOUND, headers).into_response();
+                if existing_user.confirmation_token.is_none() {
+                    let session_user = SessionUser::new(existing_user);
+                    headers.insert(SET_COOKIE, create_auth_cookie_for_user(&session_user));
+                    headers.insert("hx-redirect", "/".parse().unwrap());
+                    return (StatusCode::FOUND, headers).into_response();
+                }
+
+                errors.push(format!("Der Benutzer wurde noch nicht aktiviert."));
             },
             Err(e) => {
                 match e {
@@ -124,7 +131,7 @@ pub async fn authorize(
                 }
                 eprintln!("authorize, error: {e:?}");
             }
-        }
+        };
     }
 
     let template = LoginPageTemplate {
@@ -146,7 +153,7 @@ pub async fn register(
     let context = Context::new(&uri, &req_headers);
     let form_data = Form::<UserSignUpForm>::from_request(request, &state).await.unwrap();
 
-    let mut headers = HeaderMap::new();
+    let mut is_success = false;
     let mut errors: Vec<String> = vec![];
 
     if form_data.password == "" {
@@ -161,29 +168,31 @@ pub async fn register(
         if does_user_exist {
             errors.push(format!("Ein Benutzer mit der Email \"{}\" existiert bereits.", form_data.email.as_str()));
         } else {
-            let created_user_result = create_user(
+            match create_user(
                 &state.db_pool,
                 &form_data,
-            ).await;
-            match created_user_result {
+            ).await {
                 Ok(created_user) => {
-                    let session_user = SessionUser::new(created_user);
-                    let token = encode(&Header::default(), &session_user, &KEYS.encoding).unwrap_or("".to_string());
-                    headers.insert(SET_COOKIE, format!("{COOKIE_NAME}={}", token).parse().unwrap());
-                    headers.insert("hx-redirect", "/".parse().unwrap());
-                    // TODO success notification: after redirect to home
-                    return (StatusCode::TEMPORARY_REDIRECT, headers).into_response();
-                },
-                Err(e) => {
-                    match e {
-                        Error::RowNotFound => {
-                            errors.push(format!("Der Benutzer konnte nicht erstellt werden."));
-                        }
-                        _ => {
+                    match send_registration_confirmation_mail(
+                        &form_data.email,
+                        &created_user.confirmation_token,
+                    ).await {
+                        Ok(_) => {
+                            is_success = true;
+                            // TODO und die ganze /activate/?token sache noch
+                        },
+                        Err(e) => {
+                            eprintln!("register, send_registration_confirmation_mail error: {e:?}");
                             errors.push(format!("Ein unerwarteter Fehler ist aufgetreten"));
                         }
                     }
+                },
+                Err(Error::RowNotFound) => {
+                    errors.push(format!("Der Benutzer konnte nicht erstellt werden."));
+                },
+                Err(e) => {
                     eprintln!("register, error: {e:?}");
+                    errors.push(format!("Ein unerwarteter Fehler ist aufgetreten"));
                 }
             }
         }
@@ -192,7 +201,8 @@ pub async fn register(
     let template = RegisterPageTemplate {
         authenticated_user: &None,
         notification: None,
-        errors: &None,
+        success: is_success,
+        errors: &Some(errors),
         context: context,
     };
 
@@ -237,11 +247,20 @@ pub async fn get_register_page(
     let template = RegisterPageTemplate {
         authenticated_user: &None,
         notification: None,
+        success: false,
         errors: &None,
         context: context,
     };
 
     (StatusCode::OK, minify_html_response(template.render().unwrap_or_default())).into_response()
+}
+
+pub async fn activate_user(
+    Query(query_params): Query<u64>,
+    state: State<AppState>,
+    request: Request,
+) -> impl IntoResponse {
+    (StatusCode::OK, minify_html_response(format!("query_params {query_params}"))).into_response()
 }
 
 pub fn create_auth_cookie_for_user(user: &SessionUser) -> HeaderValue {
@@ -269,5 +288,6 @@ pub fn routes() -> Router<AppState> {
         .route("/register", post(register))
         .route("/logout", post(logout))
         .route("/registrieren", get(get_register_page))
+        .route("/activate", get(activate_user))
         .route("/login", get(get_login_page))
 }

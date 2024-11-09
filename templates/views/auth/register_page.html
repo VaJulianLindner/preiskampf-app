@@ -3,18 +3,27 @@
 {% block content %}
 
 <title>Preiskampf | Registrieren</title>
-<h1>Registrierung</h1>
-{% include "partials/auth/register_form.html" %}
-<p class="mt-10 text-sm text-center">
-    Account bereits vorhanden?
-    <a
-        class="font-semibold leading-6 text-zinc-300 hover:text-zinc-600 no-underline cursor-pointer"
-        hx-get="/login"
-        hx-target="#swap-content"
-        hx-swap="innerHTML transition:true"
-        xui-el="Navigation"
-        xui-is-nav
-    >Hier einloggen</a>
-</p>
+
+{% if success %}
+    <h1>Erfolgreich registriert</h1>
+    <p class="text-sm font-medium text-emerald-400">
+        Du erhältst in Kürze eine Bestätigungsmail
+    </p>
+    <hr class="my-8">
+{% else %}
+    <h1>Registrierung</h1>
+    {% include "partials/auth/register_form.html" %}
+    <p class="mt-10 text-sm text-center">
+        Account bereits vorhanden?
+        <a
+            class="font-semibold leading-6 text-zinc-300 hover:text-zinc-600 no-underline cursor-pointer"
+            hx-get="/login"
+            hx-target="#swap-content"
+            hx-swap="innerHTML transition:true"
+            xui-el="Navigation"
+            xui-is-nav
+        >Hier einloggen</a>
+    </p>
+{% endif %}
 
 {% endblock %}

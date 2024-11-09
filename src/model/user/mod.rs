@@ -23,13 +23,13 @@ impl SessionUser {
     }
 }
 
-// TODO https://stackoverflow.com/questions/75431759/how-to-use-sqlx-query-as-to-fetch-some-of-the-model-fields#answer-76399876
 #[derive(Debug, Serialize, Deserialize, FromRow, Clone)]
 pub struct User {
     pub id: Option<i64>,
     pub email: String,
     pub password: Option<String>,
     pub username: Option<String>,
+    pub confirmation_token: Option<String>,
     #[sqlx(default)]
     pub selected_shopping_list_id: Option<i64>,
     #[sqlx(default)]
@@ -38,6 +38,11 @@ pub struct User {
     pub address_lng: Option<f64>,
     #[sqlx(default)]
     pub address_lat: Option<f64>,
+}
+
+#[derive(FromRow)]
+pub struct ConfirmRegistrationUser {
+    pub confirmation_token: String,
 }
 
 impl User {
@@ -63,7 +68,7 @@ impl User {
         }
     }
 
-    pub(crate) fn hash_password(password: String) -> String {
+    pub(crate) fn hash_password(password: &str) -> String {
         sha512_crypt::hash_with(PW_HASH, password).unwrap_or("default".to_string())
     }
 }

@@ -1,6 +1,6 @@
 INSERT INTO 
-    users (email, password)
+    users (email, password, confirmation_token)
 VALUES
-    ($1, $2)
+    ($1, $2, $3)
 RETURNING
-    email, password, id, username
+    email, id, confirmation_token
