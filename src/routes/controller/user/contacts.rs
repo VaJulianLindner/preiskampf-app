@@ -2,7 +2,7 @@ use std::{collections::HashMap, sync::Arc};
 use futures::try_join;
 use askama::Template;
 use axum::{
-    extract::{FromRequest, Path, Request, State}, http::{HeaderMap, StatusCode}, response::{Html, IntoResponse}, Extension, Form
+    extract::{FromRequest, Path, Request, State}, http::{StatusCode}, response::{IntoResponse}, Extension, Form
 };
 
 use crate::{core::context::Context, routes::{create_notification, get_value_from_path, minify_html_response, render_error_notification, render_success_notification}, AppState};
@@ -18,7 +18,6 @@ use crate::services::user::contacts::{
 };
 use crate::view::user::contacts::{
     ContactPageTemplate,
-    AddContactFormTemplate,
     ContactListEntryTemplate,
 };
 

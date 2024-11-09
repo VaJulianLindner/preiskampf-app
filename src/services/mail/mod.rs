@@ -2,7 +2,6 @@ use axum::http::header;
 use dotenv;
 use once_cell::sync::Lazy;
 use serde_json::json;
-use std::{error::Error, future::Future};
 use reqwest::Client;
 
 static MAIL_API_KEY: Lazy<Option<String>> = Lazy::new(|| {

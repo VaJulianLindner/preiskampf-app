@@ -144,3 +144,8 @@ impl StateParams {
         self.page
     }
 }
+
+#[derive(Deserialize)]
+pub struct ActivationParams {
+    pub token: Option<String>,
+}

@@ -12,7 +12,7 @@ use jsonwebtoken::{decode, encode, Header, Algorithm, Validation, EncodingKey, D
 use once_cell::sync::Lazy;
 use sqlx::Error;
 
-use crate::core::context::Context;
+use crate::core::{context::Context, query_params::ActivationParams};
 use crate::routes::minify_html_response;
 use crate::model::user::{SessionUser, UserSignUpForm, User};
 use crate::services::{
@@ -256,11 +256,11 @@ pub async fn get_register_page(
 }
 
 pub async fn activate_user(
-    Query(query_params): Query<u64>,
-    state: State<AppState>,
-    request: Request,
+    Query(query_params): Query<ActivationParams>,
+    _state: State<AppState>,
+    _request: Request,
 ) -> impl IntoResponse {
-    (StatusCode::OK, minify_html_response(format!("query_params {query_params}"))).into_response()
+    (StatusCode::OK, minify_html_response(format!("query_params {:?}", query_params.token))).into_response()
 }
 
 pub fn create_auth_cookie_for_user(user: &SessionUser) -> HeaderValue {

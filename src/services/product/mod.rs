@@ -6,7 +6,7 @@ use crate::model::product::{Price, Product};
 pub async fn find_products(
     db_pool: &Pool<Postgres>,
     search_query: Option<String>,
-    shopping_list_id: Option<i64>,
+    _shopping_list_id: Option<i64>,
     sort_by: String,
     sort_order: String,
     limit: usize,
