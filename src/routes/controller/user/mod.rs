@@ -4,8 +4,8 @@ use std::{collections::HashMap, sync::Arc};
 use askama::Template;
 use axum::{
     extract::{FromRequest, Path, Request, State},
-    http::{HeaderMap, StatusCode, header::SET_COOKIE},
-    response::IntoResponse,
+    http::{header::SET_COOKIE, HeaderMap, StatusCode},
+    response::{Html, IntoResponse},
     routing::{delete, get, post, put},
     Extension,
     Form,
@@ -54,7 +54,7 @@ pub async fn save_user(
         eprintln!("error in save_user: {:?}", user_update_result.unwrap_err());
         let notification = render_error_notification(None);
         headers.insert("hx-reswap", "none".parse().unwrap());
-        return (StatusCode::UNPROCESSABLE_ENTITY, headers, minify_html_response(notification)).into_response();
+        return (StatusCode::UNPROCESSABLE_ENTITY, headers, minify_html_response(&notification)).into_response();
     }
 
     let updated_user = user_update_result.unwrap();
@@ -67,7 +67,7 @@ pub async fn save_user(
         errors: &None,
         context: context,
     };
-    (StatusCode::OK, headers, minify_html_response(template.render().unwrap_or_default())).into_response()
+    (StatusCode::OK, headers, minify_html_response(&template.render().unwrap_or_default())).into_response()
 }
 
 
@@ -82,7 +82,7 @@ pub async fn get_user_page(
         errors: &None,
         context: context,
     };
-    (StatusCode::OK, minify_html_response(template.render().unwrap_or_default())).into_response()
+    (StatusCode::OK, minify_html_response(&template.render().unwrap_or_default())).into_response()
 }
 
 pub async fn save_selected_shopping_list(
@@ -91,7 +91,7 @@ pub async fn save_selected_shopping_list(
     path: Path<HashMap<String, String>>,
 ) -> impl IntoResponse {
     if authenticated_user.is_none() {
-        return (StatusCode::FORBIDDEN, minify_html_response(String::from(""))).into_response();
+        return (StatusCode::FORBIDDEN, Html(String::from(""))).into_response();
     }
 
     let authenticated_user_id = match *authenticated_user {
@@ -99,7 +99,7 @@ pub async fn save_selected_shopping_list(
             u.get_id().expect("authenticated user must have an id")
         },
         None => {
-            return (StatusCode::FORBIDDEN, minify_html_response(String::from(""))).into_response();
+            return (StatusCode::FORBIDDEN, Html(String::from(""))).into_response();
         }
     };
     let shopping_list_id = get_value_from_path(&path, "shopping_list_id").parse::<i64>().unwrap_or_default();
@@ -137,12 +137,12 @@ pub async fn save_selected_shopping_list(
                 },
                 None => (),
             };
-            (StatusCode::OK, headers, minify_html_response(unprocessed_html)).into_response()
+            (StatusCode::OK, headers, minify_html_response(&unprocessed_html)).into_response()
         },
         Err(e) => {
             eprintln!("error in save_selected_shopping_list route: {:?}", e);
             let notification = render_error_notification(None);
-            (StatusCode::UNPROCESSABLE_ENTITY, minify_html_response(notification)).into_response()
+            (StatusCode::UNPROCESSABLE_ENTITY, minify_html_response(&notification)).into_response()
         }
     }
 }

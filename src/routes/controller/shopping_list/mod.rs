@@ -4,7 +4,7 @@ use askama::Template;
 use axum::{
     extract::{FromRequest, Path, Query, Request, State},
     http::{HeaderMap, StatusCode},
-    response::IntoResponse, routing::{delete, get, post, put},
+    response::{IntoResponse, Html}, routing::{delete, get, post, put},
     Extension, Form, RequestExt, Router
 };
 use futures::try_join;
@@ -35,7 +35,7 @@ pub async fn get_shopping_lists(
     let authenticated_user_id = match *authenticated_user {
         Some(ref u) => u.get_id().expect("authenticated user must have an id"),
         None => {
-            return (StatusCode::FORBIDDEN, minify_html_response(String::from(""))).into_response();
+            return (StatusCode::FORBIDDEN, Html("")).into_response();
         }
     };
 
@@ -75,7 +75,7 @@ pub async fn get_shopping_lists(
         context: context,
     };
 
-    (StatusCode::OK, minify_html_response(template.render().unwrap_or_default())).into_response()
+    (StatusCode::OK, minify_html_response(&template.render().unwrap_or_default())).into_response()
 }
 
 pub async fn get_shopping_list_detail_page(
@@ -97,7 +97,7 @@ pub async fn get_shopping_list_detail_page(
         let shopping_list_id = match id.parse::<i64>() {
             Ok(val) => val,
             Err(_) => {
-                return (StatusCode::BAD_REQUEST, minify_html_response(String::from(""))).into_response();
+                return (StatusCode::BAD_REQUEST, Html("")).into_response();
             }
         };
 
@@ -139,7 +139,7 @@ pub async fn get_shopping_list_detail_page(
         context: context,
     };
 
-    (StatusCode::OK, minify_html_response(template.render().unwrap_or_default())).into_response()
+    (StatusCode::OK, minify_html_response(&template.render().unwrap_or_default())).into_response()
 }
 
 pub async fn save_shopping_list(
@@ -150,7 +150,7 @@ pub async fn save_shopping_list(
     let mut headers = HeaderMap::new();
 
     if authenticated_user.is_none() {
-        return (StatusCode::FORBIDDEN, headers, minify_html_response(String::from("")));
+        return (StatusCode::FORBIDDEN, headers, Html("".to_string()));
     }
 
     // TODO check if this user owns the shopping_list! => or move it to service/db
@@ -167,7 +167,7 @@ pub async fn save_shopping_list(
             eprintln!("error while upserting shopping list: {:?}", e);
             let notification = render_error_notification(None);
             headers.insert("hx-reswap", "none".parse().unwrap());
-            return (StatusCode::UNPROCESSABLE_ENTITY, headers, minify_html_response(notification));
+            return (StatusCode::UNPROCESSABLE_ENTITY, headers, minify_html_response(&notification));
         },
     };
 
@@ -188,14 +188,14 @@ pub async fn save_shopping_list(
         rendered_content.push_str(notification.as_str());
 
         headers.insert("hx-reswap", "outerHTML transition:true".parse().unwrap());
-        (StatusCode::OK, headers, minify_html_response(rendered_content))
+        (StatusCode::OK, headers, minify_html_response(&rendered_content))
     } else {
         headers.insert("hx-reswap", "none".parse().unwrap());
         headers.insert("xui-redirect", format!("/einkaufszettel/{}", updated_shopping_list.get_id()).parse().unwrap());
         let notification = render_success_notification(
             Some(format!("Einkaufszettel \"{}\" erfolgreich gespeichert", updated_shopping_list.get_name(),
         ).as_str()));
-        (StatusCode::TEMPORARY_REDIRECT, headers, minify_html_response(notification))
+        (StatusCode::TEMPORARY_REDIRECT, headers, minify_html_response(&notification))
     }
 }
 
@@ -212,11 +212,11 @@ pub async fn delete_shopping_list(
         Some(ref u) => match u.get_id() {
             Some(id) => id,
             None => {
-                return (StatusCode::UNAUTHORIZED, headers, minify_html_response(String::from(""))).into_response();
+                return (StatusCode::UNAUTHORIZED, headers, Html("")).into_response();
             }
         },
         None => {
-            return (StatusCode::UNAUTHORIZED, headers, minify_html_response(String::from(""))).into_response();
+            return (StatusCode::UNAUTHORIZED, headers, Html("")).into_response();
         }
     };
 
@@ -224,7 +224,7 @@ pub async fn delete_shopping_list(
     let parsed_resource_id = match id.parse::<i64>() {
         Ok(id) => id,
         Err(_) => {
-            return (StatusCode::UNPROCESSABLE_ENTITY, headers, minify_html_response(String::from(""))).into_response();
+            return (StatusCode::UNPROCESSABLE_ENTITY, headers, Html("")).into_response();
         },
     };
     let context = Context::new(request.uri(), request.headers());
@@ -241,21 +241,18 @@ pub async fn delete_shopping_list(
                 "/einkaufszettel?{}",
                 context.preserve_query_state(&query_params.get_page().unwrap_or(0), false)
             );
-            (StatusCode::TEMPORARY_REDIRECT, [("xui-redirect", redirect_to)], minify_html_response(notification)).into_response()
+            (StatusCode::TEMPORARY_REDIRECT, [("xui-redirect", redirect_to)], minify_html_response(&notification)).into_response()
         },
-        Err(e) => {
+        Err(sqlx::Error::RowNotFound) => {
             headers.insert("hx-reswap", "none".parse().unwrap());
-            match e {
-                sqlx::Error::RowNotFound => {
-                    let notification = render_error_notification(Some("Unerlaubter Zugriff"));
-                    (StatusCode::UNAUTHORIZED, headers, minify_html_response(notification)).into_response()
-                },
-                _ => {
-                    eprintln!("Error deleting shopping list: {:?}", e);
-                    let notification = render_error_notification(Some("Einkaufszettel konnte nicht gelöscht werden"));
-                    (StatusCode::UNPROCESSABLE_ENTITY, headers, minify_html_response(notification)).into_response()
-                },
-            }
+            let notification = render_error_notification(Some("Unerlaubter Zugriff"));
+            (StatusCode::UNAUTHORIZED, headers, minify_html_response(&notification)).into_response()
+        }
+        Err(e) => {
+            eprintln!("unexcepted error in delete_shopping_list list: {:?}", e);
+            headers.insert("hx-reswap", "none".parse().unwrap());
+            let notification = render_error_notification(Some("Einkaufszettel konnte nicht gelöscht werden"));
+            (StatusCode::UNPROCESSABLE_ENTITY, headers, minify_html_response(&notification)).into_response()
         }
     }
 }
@@ -269,7 +266,7 @@ pub async fn save_shopping_list_item(
 
     if authenticated_user.is_none() {
         let notification = render_error_notification(None);
-        return (StatusCode::UNAUTHORIZED, headers, minify_html_response(notification));
+        return (StatusCode::UNAUTHORIZED, headers, minify_html_response(&notification));
     };
 
     let user = authenticated_user.as_ref().as_ref().unwrap();
@@ -281,7 +278,7 @@ pub async fn save_shopping_list_item(
             eprintln!("error in save_shopping_list_item {e:?}");
             let notification = render_error_notification(None);
             headers.insert("hx-reswap", "none".parse().unwrap());
-            return (StatusCode::BAD_REQUEST, headers, minify_html_response(notification));
+            return (StatusCode::BAD_REQUEST, headers, minify_html_response(&notification));
         }
     };
 
@@ -293,7 +290,7 @@ pub async fn save_shopping_list_item(
             None => {
                 let notification = render_error_notification(Some("Kein Einkaufszettel ausgewählt"));
                 headers.insert("hx-reswap", "none".parse().unwrap());
-                return (StatusCode::BAD_REQUEST, headers, minify_html_response(notification));
+                return (StatusCode::BAD_REQUEST, headers, minify_html_response(&notification));
             }
         }
     };
@@ -309,7 +306,7 @@ pub async fn save_shopping_list_item(
             if form_data.shopping_list_id.is_some() {
                 // TODO list-item disappears, need to render whole list
                 let content = render_success_notification(Some("Produkt vom Einkaufszettel entfernt"));
-                return (StatusCode::OK, headers, minify_html_response(content));
+                return (StatusCode::OK, headers, minify_html_response(&content));
             }
 
             let is_liked = match executed_op {
@@ -321,7 +318,7 @@ pub async fn save_shopping_list_item(
                 action_is_liked: is_liked,
                 notification: None,
             };
-            (StatusCode::OK, headers, minify_html_response(rendered_content.render().unwrap_or_default()))
+            (StatusCode::OK, headers, minify_html_response(&rendered_content.render().unwrap_or_default()))
         },
         Err(sqlx::Error::Database(e)) => {
             let rendered_content = if e.is_unique_violation() {
@@ -330,13 +327,13 @@ pub async fn save_shopping_list_item(
                 render_error_notification(Some("Ein unerwarteter Fehler ist aufgetreten"))
             };
             headers.insert("hx-reswap", "none".parse().unwrap());
-            (StatusCode::UNPROCESSABLE_ENTITY, headers, minify_html_response(rendered_content))
+            (StatusCode::UNPROCESSABLE_ENTITY, headers, minify_html_response(&rendered_content))
         },
         Err(e) => {
             eprintln!("undefined error in controller::shopping_list::save_shopping_list_item {e:?}");
             let rendered_content = render_error_notification(Some("Ein unerwarteter Fehler ist aufgetreten"));
             headers.insert("hx-reswap", "none".parse().unwrap());
-            (StatusCode::UNPROCESSABLE_ENTITY, headers, minify_html_response(rendered_content))
+            (StatusCode::UNPROCESSABLE_ENTITY, headers, minify_html_response(&rendered_content))
         },
     }
 }

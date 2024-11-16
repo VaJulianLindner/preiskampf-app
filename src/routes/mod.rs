@@ -57,7 +57,7 @@ pub async fn handle_not_found(
     (
         StatusCode::NOT_FOUND,
         [(header::VARY, "Hx-Request, Hx-Boosted")],
-        minify_html_response(rendered_content),
+        minify_html_response(&rendered_content),
     ).into_response()
 }
 
@@ -131,7 +131,7 @@ pub fn get_value_from_path(path: &Path<HashMap<String, String>>, name: &str) -> 
     }
 }
 
-pub fn minify_html_response(unprocessed_html: String) -> Html<String> {
+pub fn minify_html_response(unprocessed_html: &str) -> Html<String> {
     match minify(unprocessed_html) {
         Ok(html) => Html(html),
         Err(e) => {

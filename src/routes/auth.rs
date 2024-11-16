@@ -142,7 +142,7 @@ pub async fn authorize(
         context: context,
     };
 
-    (StatusCode::OK, minify_html_response(template.render().unwrap_or_default())).into_response()
+    (StatusCode::OK, minify_html_response(&template.render().unwrap_or_default())).into_response()
 }
 
 pub async fn register(
@@ -207,7 +207,7 @@ pub async fn register(
         context: context,
     };
 
-    (StatusCode::OK, minify_html_response(template.render().unwrap_or_default())).into_response()
+    (StatusCode::OK, minify_html_response(&template.render().unwrap_or_default())).into_response()
 }
 
 pub async fn logout() -> Result<Html<String>, (StatusCode, HeaderMap)> {
@@ -233,7 +233,7 @@ pub async fn get_login_page(
         context: context,
     };
 
-    (StatusCode::OK, minify_html_response(template.render().unwrap_or_default())).into_response()
+    (StatusCode::OK, minify_html_response(&template.render().unwrap_or_default())).into_response()
 }
 
 pub async fn get_register_page(
@@ -253,7 +253,7 @@ pub async fn get_register_page(
         context: context,
     };
 
-    (StatusCode::OK, minify_html_response(template.render().unwrap_or_default())).into_response()
+    (StatusCode::OK, minify_html_response(&template.render().unwrap_or_default())).into_response()
 }
 
 pub async fn activate_user(

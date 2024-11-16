@@ -1,9 +1,9 @@
-use std::collections::{HashMap};
+use std::collections::HashMap;
 use std::sync::Arc;
 use axum::{
     extract::{Extension, Path, Query, Request, State}, 
     http::StatusCode,
-    response::IntoResponse, 
+    response::{IntoResponse, Html}, 
     routing::get, 
     Router,
 };
@@ -43,7 +43,7 @@ pub async fn get_product_detail_page(
                 context: Context::new(request.uri(), request.headers()),
             };
         
-            (StatusCode::OK, minify_html_response(template.render().unwrap_or_default())).into_response()
+            (StatusCode::OK, minify_html_response(&template.render().unwrap_or_default())).into_response()
         },
         Err(sqlx::Error::RowNotFound) => {
             eprintln!("couldnt find product {:?}", product_id);
@@ -118,11 +118,11 @@ pub async fn get_product_list_page(
                 context: Context::from_request(&request),
             };
 
-            (StatusCode::OK, minify_html_response(template.render().unwrap_or_default())).into_response()
+            (StatusCode::OK, minify_html_response(&template.render().unwrap_or_default())).into_response()
         },
         Err(e) => {
             eprintln!("unexpected error in controller::products::get_product_list_page {e:?}");
-            (StatusCode::INTERNAL_SERVER_ERROR, minify_html_response("".to_string())).into_response()
+            (StatusCode::INTERNAL_SERVER_ERROR, Html("".to_string())).into_response()
         }
     }
 }

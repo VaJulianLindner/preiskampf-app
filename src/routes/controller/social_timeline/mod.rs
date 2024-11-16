@@ -35,7 +35,7 @@ pub async fn get_post_list(
         notification: None,
         context: context,
     };
-    (StatusCode::OK, minify_html_response(template.render().unwrap_or_default())).into_response()
+    (StatusCode::OK, minify_html_response(&template.render().unwrap_or_default())).into_response()
 }
 
 pub async fn get_post_detail(
@@ -52,7 +52,7 @@ pub async fn get_post_detail(
         notification: None,
         context: context,
     };
-    (StatusCode::OK, minify_html_response(template.render().unwrap_or_default())).into_response()
+    (StatusCode::OK, minify_html_response(&template.render().unwrap_or_default())).into_response()
 }
 
 pub fn routes() -> Router<AppState> {

@@ -2,7 +2,7 @@ use std::{collections::HashMap, sync::Arc};
 use futures::try_join;
 use askama::Template;
 use axum::{
-    extract::{FromRequest, Path, Request, State}, http::{StatusCode}, response::{IntoResponse}, Extension, Form
+    extract::{FromRequest, Path, Request, State}, http::StatusCode, response::{IntoResponse, Html}, Extension, Form
 };
 
 use crate::{core::context::Context, routes::{create_notification, get_value_from_path, minify_html_response, render_error_notification, render_success_notification}, AppState};
@@ -32,7 +32,7 @@ pub async fn get_friends_page(
             u.get_id().expect("authenticated user must have an id")
         },
         None => {
-            return (StatusCode::FORBIDDEN, [("Hx-Reswap", "none")], minify_html_response(String::from(""))).into_response();
+            return (StatusCode::FORBIDDEN, [("Hx-Reswap", "none")], Html(String::from(""))).into_response();
         }
     };
 
@@ -65,7 +65,7 @@ pub async fn get_friends_page(
         context: context,
     };
 
-    (StatusCode::OK, minify_html_response(template.render().unwrap_or_default())).into_response()
+    (StatusCode::OK, minify_html_response(&template.render().unwrap_or_default())).into_response()
 }
 
 pub async fn save_contact_request(
@@ -84,13 +84,13 @@ pub async fn save_contact_request(
                 return (
                     StatusCode::FORBIDDEN,
                     [("Hx-Reswap", "none")],
-                    minify_html_response(render_success_notification(Some("Jeder ist sich selbst am nächsten")))
+                    minify_html_response(&render_success_notification(Some("Jeder ist sich selbst am nächsten")))
                 ).into_response();
             }
             u.get_id().expect("authenticated user must have an id")
         },
         None => {
-            return (StatusCode::FORBIDDEN, [("Hx-Reswap", "none")], minify_html_response(String::from(""))).into_response();
+            return (StatusCode::FORBIDDEN, [("Hx-Reswap", "none")], Html(String::from(""))).into_response();
         }
     };
 
@@ -113,14 +113,14 @@ pub async fn save_contact_request(
             (
                 StatusCode::OK,
                 [("Hx-Reswap", "none")],
-                minify_html_response(template.render().unwrap_or_default()),
+                minify_html_response(&template.render().unwrap_or_default()),
             ).into_response()
         },
         Err(sqlx::Error::PoolTimedOut) => {
             (
                 StatusCode::TOO_MANY_REQUESTS,
                 [("Hx-Reswap", "none")],
-                minify_html_response(render_error_notification(Some("Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.")))
+                minify_html_response(&render_error_notification(Some("Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.")))
             ).into_response()
         },
         Err(sqlx::Error::Database(e)) => {
@@ -133,7 +133,7 @@ pub async fn save_contact_request(
             (
                 StatusCode::UNPROCESSABLE_ENTITY,
                 [("Hx-Reswap", "none")],
-                minify_html_response(rendered_content)
+                minify_html_response(&rendered_content)
             ).into_response()
         },
         Err(e) => {
@@ -141,7 +141,7 @@ pub async fn save_contact_request(
             (
                 StatusCode::UNPROCESSABLE_ENTITY,
                 [("Hx-Reswap", "none")],
-                minify_html_response(render_error_notification(Some("Ein unerwarteter Fehler ist aufgetreten")))
+                minify_html_response(&render_error_notification(Some("Ein unerwarteter Fehler ist aufgetreten")))
             ).into_response()
         }
     }
@@ -160,7 +160,7 @@ pub async fn remove_contact(
             u.get_id().expect("authenticated user must have an id")
         },
         None => {
-            return (StatusCode::FORBIDDEN, [("Hx-Reswap", "none")], minify_html_response(String::from(""))).into_response();
+            return (StatusCode::FORBIDDEN, [("Hx-Reswap", "none")], Html(String::from(""))).into_response();
         }
     };
 
@@ -168,14 +168,14 @@ pub async fn remove_contact(
         Ok(_) => (
             StatusCode::NO_CONTENT,
             [("Xui-Deleted", "yes")],
-            minify_html_response(render_success_notification(Some("Der Kontakt wurde entfernt")))
+            minify_html_response(&render_success_notification(Some("Der Kontakt wurde entfernt")))
         ).into_response(),
         Err(e) => {
             eprintln!("unexpected error in controller::contacts::remove_contact {:?}", e);
             (
                 StatusCode::UNPROCESSABLE_ENTITY,
                 [("Hx-Reswap", "none")],
-                minify_html_response(render_error_notification(Some("Ein unerwarteter Fehler ist aufgetreten")))
+                minify_html_response(&render_error_notification(Some("Ein unerwarteter Fehler ist aufgetreten")))
             ).into_response()
         }
     }
@@ -193,7 +193,7 @@ pub async fn confirm_contact(
             u.get_id().expect("authenticated user must have an id")
         },
         None => {
-            return (StatusCode::FORBIDDEN, [("Hx-Reswap", "none")], minify_html_response(String::from(""))).into_response();
+            return (StatusCode::FORBIDDEN, [("Hx-Reswap", "none")], Html(String::from(""))).into_response();
         }
     };
 
@@ -210,7 +210,7 @@ pub async fn confirm_contact(
             return (
                 StatusCode::UNPROCESSABLE_ENTITY,
                 [("Hx-Reswap", "none")],
-                minify_html_response(render_error_notification(Some("Ein unerwarteter Fehler ist aufgetreten")))
+                minify_html_response(&render_error_notification(Some("Ein unerwarteter Fehler ist aufgetreten")))
             ).into_response();
         }
     };
@@ -226,6 +226,6 @@ pub async fn confirm_contact(
     (
         StatusCode::UNPROCESSABLE_ENTITY,
         [("Xui-Confirmed", "yes")],
-        minify_html_response(template.render().unwrap_or_default())
+        minify_html_response(&template.render().unwrap_or_default())
     ).into_response()
 }

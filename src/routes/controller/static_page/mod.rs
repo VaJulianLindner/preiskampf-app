@@ -54,7 +54,7 @@ pub async fn get_static_page(
         }
     };
 
-    (status_code, minify_html_response(rendered_template.unwrap_or_default())).into_response()
+    (status_code, minify_html_response(&rendered_template.unwrap_or_default())).into_response()
 }
 
 pub fn routes() -> Router<AppState> {
