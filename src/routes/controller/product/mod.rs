@@ -30,14 +30,28 @@ pub async fn get_product_detail_page(
 ) -> impl IntoResponse {
     let product_id = get_value_from_path(&path, "product_id");
 
+    let user = authenticated_user.as_ref().as_ref().expect("get_product_list_page is an auth protected route");
+    let shopping_list_id = user.selected_shopping_list_id;
+    let authenticated_user_id = user.get_id().expect("authenticated user must have an id");
+
     match try_join!(
         find_product(&state.db_pool, product_id.as_str()),
         find_product_prices(&state.db_pool, product_id.as_str()),
+        find_shopping_list_items(
+            &state.db_pool,
+            &shopping_list_id.as_ref().unwrap_or(&0i64),
+            &authenticated_user_id,
+        ),
     ) {
         Ok(val) => {
+            let product = val.0;
+            let prices = val.1;
+            let shopping_list_items = val.2;
+
             let template = ProductDetailTemplate {
-                product: &val.0,
-                prices: &val.1,
+                product: &product,
+                prices: &prices,
+                is_liked: shopping_list_items.contains(&product.id),
                 authenticated_user: &authenticated_user,
                 notification: None,
                 context: Context::new(request.uri(), request.headers()),

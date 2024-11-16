@@ -1,4 +1,5 @@
 {% extends "layouts/default.html" %}
+{% import "partials/product/actions.html" as product_actions %}
 
 {% block content %}
 <title>Preiskampf | {{ product.name }}</title>
@@ -22,6 +23,7 @@
     </div>
     <div class="sm:col-span-1 hidden sm:block">
         <p class="truncate leading-5 text-gray-400">
+            {% call product_actions::product_toggle(product_id=product.id.as_str(), is_liked=is_liked) %}
             {{ product.format_price() }}
         </p>
         <p class="mt-10 truncate leading-5 text-gray-400">
@@ -32,6 +34,7 @@
 </div>
 
 <p class="mt-10 truncate leading-5 text-gray-400 sm:hidden">
+    {% call product_actions::product_toggle(product_id=product.id.as_str(), is_liked=is_liked) %}
     {{ product.format_price() }}
 </p>
 <p class="mt-10 truncate leading-5 text-gray-400 sm:hidden">

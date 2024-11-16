@@ -11,6 +11,7 @@ use crate::model::user::User;
 pub struct ProductDetailTemplate<'a> {
     pub product: &'a Product,
     pub prices: &'a Vec<Price>,
+    pub is_liked: bool,
     pub authenticated_user: &'a Option<User>,
     pub notification: Option<NotificationTemplate<'a>>,
     pub context: Context<'a>,
