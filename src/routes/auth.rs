@@ -4,7 +4,7 @@ use askama::Template;
 use config::{Config, File};
 use axum::{Extension, Form, Router};
 use axum::extract::{FromRequest, Query, Request, State};
-use axum::http::{StatusCode, HeaderMap, HeaderValue, header::SET_COOKIE};
+use axum::http::{StatusCode, HeaderMap, HeaderValue, header::{SET_COOKIE, LOCATION}};
 use axum::middleware::Next;
 use axum::response::{IntoResponse, Response, Html};
 use axum::routing::{post, get};
@@ -16,7 +16,7 @@ use crate::core::{context::Context, query_params::ActivationParams};
 use crate::routes::minify_html_response;
 use crate::model::user::{SessionUser, UserSignUpForm, User};
 use crate::services::{
-    user::{check_if_user_exists, create_user, find_login_user},
+    user::{check_if_user_exists, create_user, find_login_user, activate_registered_user},
     mail::send_registration_confirmation_mail,
 };
 use crate::view::auth::{LoginPageTemplate, RegisterPageTemplate};
@@ -108,8 +108,8 @@ pub async fn authorize(
     if errors.len() == 0 {
         match find_login_user(
             &state.db_pool,
-            form_data.email.to_string(),
-            form_data.password.to_string()
+            form_data.email.as_ref(),
+            form_data.password.as_ref()
         ).await {
             Ok(existing_user) => {
                 if existing_user.confirmation_token.is_none() {
@@ -258,14 +258,27 @@ pub async fn get_register_page(
 
 pub async fn activate_user(
     Query(query_params): Query<ActivationParams>,
-    _state: State<AppState>,
-    _request: Request,
+    state: State<AppState>,
 ) -> impl IntoResponse {
-    println!("query_params.token {:?}", query_params.token);
     match query_params.token {
         Some(token) => {
-            // TODO now confirm and login
-            (StatusCode::TEMPORARY_REDIRECT, [("Location", "/mein-profil"), ("Set-Cookie", "mucki")]).into_response()
+            match activate_registered_user(
+                &state.db_pool,
+                token.as_str(),
+            ).await {
+                Ok(activated_user) => {
+                    let session_user = SessionUser::new(activated_user);
+                    let auth_cookie = create_auth_cookie_for_user(&session_user);
+                    let mut headers = HeaderMap::with_capacity(2);
+                    headers.insert(LOCATION, "/mein-profil".parse().unwrap());
+                    headers.insert(SET_COOKIE, auth_cookie);
+                    (StatusCode::TEMPORARY_REDIRECT, headers).into_response()
+                },
+                Err(e) => {
+                    eprintln!("unexpected error in routes::auth::activate_user {:?}", e);
+                    (StatusCode::TEMPORARY_REDIRECT, [("Location", "/")]).into_response()
+                }
+            }
         },
         None => (StatusCode::TEMPORARY_REDIRECT, [("Location", "/")]).into_response()
     }

@@ -19,13 +19,23 @@ pub async fn check_if_user_exists(db_pool: &Pool<Postgres>, email: &str) -> bool
 
 pub async fn find_login_user(
     db_pool: &Pool<Postgres>,
-    email: String,
-    password: String,
+    email: &str,
+    password: &str,
 ) -> Result<User, Error> {
-    let hashed_password = User::hash_password(password.as_str());
+    let hashed_password = User::hash_password(password);
     sqlx::query_as::<_, User>(include_str!("./select_login_user.sql"))
         .bind(email)
         .bind(hashed_password)
+        .fetch_one(db_pool)
+        .await
+}
+
+pub async fn activate_registered_user(
+    db_pool: &Pool<Postgres>,
+    confirmation_token: &str,
+) -> Result<User, Error> {
+    sqlx::query_as::<_, User>(include_str!("./update_inactive_user.sql"))
+        .bind(confirmation_token)
         .fetch_one(db_pool)
         .await
 }
