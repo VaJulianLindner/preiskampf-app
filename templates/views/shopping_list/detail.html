@@ -9,9 +9,9 @@
 
 {% let title %}
 {% if context.is_create_operation() %}
-    {% let title = "Neuen Einkaufszettel anlegen".to_string() %}
+    {% let title = "Neuen Einkaufszettel anlegen" %}
 {% else %}
-    {% let title = shopping_list.name.to_owned() %}
+    {% let title = shopping_list.name.as_ref() %}
 {% endif %}
 <title>Preiskampf | {{ title }}</title>
 <h1>{{ title }}</h1>

@@ -18,12 +18,14 @@
 ) %}
 <hr class="my-8">
 
-<div class="not-prose">
-    <ul role="list" class="not-prose grid grid-cols-1 gap-x-6 gap-y-8 lg:grid-cols-3 xl:gap-x-8">
-        {% for shopping_list in shopping_lists %}
-            {% call list_entry::default(shopping_list) %}
-        {% endfor %}
-    </ul>
-    {{ pagination.render_with_context(context).unwrap_or_default()|safe }}
-</div>
+{% if shopping_lists.len() > 0 %}
+    <div class="not-prose">
+        <ul role="list" class="not-prose grid grid-cols-1 gap-x-6 gap-y-8 lg:grid-cols-3 xl:gap-x-8">
+            {% for shopping_list in shopping_lists %}
+                {% call list_entry::default(shopping_list) %}
+            {% endfor %}
+        </ul>
+        {{ pagination.render_with_context(context).unwrap_or_default()|safe }}
+    </div>
+{% endif %}
 {% endblock %}

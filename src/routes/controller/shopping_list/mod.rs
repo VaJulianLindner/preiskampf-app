@@ -210,7 +210,7 @@ pub async fn delete_shopping_list(
 
     let authenticated_user_id = match *authenticated_user {
         Some(ref u) => match u.get_id() {
-            Some(id) => id.to_owned(),
+            Some(id) => id,
             None => {
                 return (StatusCode::UNAUTHORIZED, headers, minify_html_response(String::from(""))).into_response();
             }
@@ -232,7 +232,7 @@ pub async fn delete_shopping_list(
     match shopping_list::delete_shopping_list(
         &state.db_pool,
         authenticated_user_id,
-        parsed_resource_id,
+        &parsed_resource_id,
     ).await {
         Ok(deleted_shopping_list) => {
             let message = format!("Einkaufszettel \"{}\" wurde gelöscht", deleted_shopping_list.get_name());

@@ -74,7 +74,7 @@ pub async fn get_product_list_page(
     let page: usize = query_params.get_page().unwrap_or(0);
     let offset = page * limit;
 
-    let user = authenticated_user.as_ref().as_ref().unwrap();
+    let user = authenticated_user.as_ref().as_ref().expect("get_product_list_page is an auth protected route");
     let shopping_list_id = user.selected_shopping_list_id;
     let authenticated_user_id = user.get_id().expect("authenticated user must have an id");
 

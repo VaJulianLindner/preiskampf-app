@@ -135,8 +135,8 @@ pub async fn find_shopping_lists(
 
 pub async fn delete_shopping_list(
     db_pool: &Pool<Postgres>, 
-    user_id: i64,
-    id: i64,
+    user_id: &i64,
+    id: &i64,
 ) -> Result<ShoppingList, Error> {
     sqlx::query_as::<_, ShoppingList>(include_str!("./delete_shopping_list.sql"))
         .bind(user_id)
