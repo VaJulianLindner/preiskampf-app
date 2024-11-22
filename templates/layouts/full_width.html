@@ -20,7 +20,6 @@
                         <div class="hidden lg:flex">
                             {% include "partials/atoms/logo.html" %}
                         </div>
-                        {# mobile still seems off #}
                         <div class="lg:hidden">
                             {% include "partials/header/main.html" %}
                         </nav>
@@ -28,8 +27,7 @@
                 </header>
                 <div class="relative flex h-full flex-col px-4 pt-14 sm:px-6 lg:px-8">
                     <main class="flex-auto mx-auto">
-                        <article class="flex h-full flex-col pb-10 lg:pt-16">
-                            {% include "partials/atoms/background_gradient.html" %}
+                        <article class="flex h-full flex-col pb-10 pt-16">
                             <div 
                                 class="flex-auto prose [html_:where(&>*)]:mx-auto [html_:where(&>*)]:max-w-2xl [html_:where(&>*)]:lg:mx-[calc(50%-min(50%,theme(maxWidth.lg)))] [html_:where(&>*)]:lg:max-w-full"
                                 id="swap-content"

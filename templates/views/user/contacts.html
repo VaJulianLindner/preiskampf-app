@@ -8,12 +8,16 @@
 <title>Preiskampf | Meine Kontakte</title>
 <h1>Kontaktliste</h1>
 
+{# TODO make friends look more like this? https://mongodb.vercel.app #}
 {% call contacts::contact_add_form() %}
 <br>
+<h3>Freunde</h3>
 {% call list::default("confirmed-contacts-list", contacts) %}
 <br>
+<h3>Versendete Anfragen</h3>
 {% call list::default("sent-requests-list", requested_contacts) %}
 <br>
+<h3>Erhaltene Anfragen</h3>
 {% call list::default("pending-requests-list", pending_contacts) %}
 
 {% endblock %}
