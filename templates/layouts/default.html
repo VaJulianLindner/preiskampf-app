@@ -15,20 +15,20 @@
     <body class="flex min-h-full antialiased bg-zinc-900" xui-layout="default" hx-ext="http-header-enriched-ui">
         <div class="w-full">
             <div class="h-full lg:ml-72 xl:ml-80">
-                <header class="contents lg:pointer-events-none lg:fixed lg:inset-0 lg:z-40 lg:flex">
-                    <div class="contents lg:pointer-events-auto lg:block lg:w-72 lg:overflow-y-auto lg:border-r lg:px-6 lg:pb-8 lg:pt-4 lg:border-white/10 xl:w-80">
+                <aside class="contents lg:pointer-events-none lg:fixed lg:inset-0 lg:z-40 lg:flex">
+                    <div class="flex flex-col lg:pointer-events-auto lg:w-72 lg:overflow-y-auto lg:border-r lg:px-6 lg:pb-8 lg:pt-4 lg:border-white/10 xl:w-80">
                         <div class="hidden lg:flex">
                             {% include "partials/atoms/logo.html" %}
                         </div>
-                        {% include "partials/header/main.html" %}
-                        <nav class="hidden lg:mt-10 lg:block">
+                        <nav class="hidden lg:block lg:mt-10 grow">
                             {% include "partials/navigation/main.html" %}
                         </nav>
+                        {% include "partials/navigation/aside_footer.html" %}
                     </div>
-                </header>
+                </aside>
                 <div class="relative flex h-full flex-col px-4 pt-14 sm:px-6 lg:px-8">
                     <main class="flex-auto">
-                        <article class="flex h-full flex-col pb-10 pt-16">
+                        <article class="flex h-full flex-col pb-10">
                             {% include "partials/atoms/background_gradient.html" %}
                             <div 
                                 class="flex-auto prose [html_:where(&>*)]:mx-auto [html_:where(&>*)]:max-w-2xl [html_:where(&>*)]:lg:mx-[calc(50%-min(50%,theme(maxWidth.lg)))] [html_:where(&>*)]:lg:max-w-full"
@@ -38,7 +38,6 @@
                             </div>
                         </article>
                     </main>
-                    {% include "partials/footer.html" %}
                 </div>
             </div>
         </div>

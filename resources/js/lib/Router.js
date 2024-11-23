@@ -211,18 +211,18 @@ class Router {
         const callbacks = isEnteringDetailView ? {
             init: () => {
                 document.body.classList.add("xui-entering-detail");
-                navigationContent.classList.add("hidden");
+                navigationContent?.classList.add("hidden");
             },
             updateCallbackDone: () => {
                 document.body.classList.remove("xui-entering-detail");
-                navigationContent.classList.remove("hidden");
+                navigationContent?.classList.remove("hidden");
             },
         } : {
             init: () => {
-                navigationContent.classList.add("hidden");
+                navigationContent?.classList.add("hidden");
             },
             updateCallbackDone: () => {
-                navigationContent.classList.remove("hidden");
+                navigationContent?.classList.remove("hidden");
             }
         };
         return callbacks;

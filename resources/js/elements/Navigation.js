@@ -63,6 +63,12 @@ class Navigation extends HtmxEventListener {
 
 Navigation.toggle = (forcedCurrentState) => {
     const navigationToggle = document.querySelector(`[${NAVIGATION_TOGGLE_ATTRIBUTE}]`);
+
+    if (!navigationToggle) {
+        console.warn("Navigation::toggle is disabled, no el found for", `[${NAVIGATION_TOGGLE_ATTRIBUTE}]`);
+        return;
+    }
+
     const navigationContent = document.querySelector(`[${NAVIGATION_CONTENT}]`);
     const navigationList = document.querySelector(`[${NAVIGATION_LIST}]`);
     const mainHeader = document.querySelector(`[${HEADER_MAIN_ATTRIBUTE}]`);
