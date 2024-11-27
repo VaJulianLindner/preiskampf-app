@@ -1,13 +1,28 @@
 {% import "partials/navigation/item.html" as navigation %}
-{# TODO #}
-{# @import url(https://pro.fontawesome.com/releases/v5.10.0/css/all.css); #}
+{% import "partials/icons.html" as icons %}
+
 {# TODO wie auf die home?! #}
 
 <div class="min-[416px]:hidden min-w-screen flex items-center justify-center pt-5 fixed bottom-0 z-10 w-full" id="mobile-navigation">
     <div class="bg-zinc-900 shadow-lg border-t border-white/10 w-full flex">
-        {% call navigation::button("Einkaufstour", "/einkaufstour", false) %}
-        {% call navigation::button("Einkaufszettel", "/einkaufszettel?limit=6", false) %}
-        {% call navigation::button("Profil", "/mein-profil", false) %}
-        {% call navigation::button("Freunde", "/contacts", false) %}
+        {% call navigation::button(href="/einkaufstour", reload_page=false, is_last=false) %}
+            {% call icons::shopping_cart(24, 24) %}
+            {# <span class="block text-xs pb-2">Einkaufstour</span> #}
+        {% call navigation::button_end("/einkaufstour") %}
+
+        {% call navigation::button(href="/einkaufszettel?limit=6", reload_page=false, is_last=false) %}
+            {% call icons::shopping_list(24, 24) %}
+            {# <span class="block text-xs pb-2">Einkaufszettel</span> #}
+        {% call navigation::button_end("/einkaufszettel?limit=6") %}
+
+        {% call navigation::button(href="/mein-profil", reload_page=false, is_last=false) %}
+            {% call icons::profile(24, 24) %}
+            {# <span class="block text-xs pb-2">Profil</span> #}
+        {% call navigation::button_end("/mein-profil") %}
+
+        {% call navigation::button(href="/contacts", reload_page=false, is_last=true) %}
+            {% call icons::friends(24, 24) %}
+            {# <span class="block text-xs pb-2">Freunde</span> #}
+        {% call navigation::button_end("/contacts") %}
     </div>
 </div>

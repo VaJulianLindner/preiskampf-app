@@ -42,24 +42,21 @@ class Navigation extends HtmxEventListener {
             return;
         }
 
-        const isEnteringDetailView = this.el.getAttribute("xui-detail-view");
-        if (isEnteringDetailView) {
-            let img;
-            if (isEnteringDetailView == "1") {
-                img = this.el.querySelector("img");
-            } else {
-                img = document.querySelector(isEnteringDetailView);
-            }
+        const detailViewSelector = this.el.getAttribute("xui-detail-view");
+        if (detailViewSelector) {
+            const img = document.querySelector(detailViewSelector);
             if (img) {
                 img.style.viewTransitionName = "thumbnail-detail-transition";
             }
         }
 
+        const resetScroll = this.el.hasAttribute("xui-is-nav") || this.el.hasAttribute("xui-is-nav-mobile");
+        
         Router.push(url, {
             withTransition: this.el.getAttribute("hx-swap")?.indexOf("transition:true") > -1,
             openInNewTab: openInNewTab,
-            isEnteringDetailView: isEnteringDetailView,
-        }, false, this.el.hasAttribute("xui-is-nav"));
+            isEnteringDetailView: detailViewSelector?.length > 0,
+        }, false, resetScroll);
     }
 }
 

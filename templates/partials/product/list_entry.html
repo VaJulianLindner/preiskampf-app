@@ -4,6 +4,7 @@
 
 {% macro default(product, is_liked) %}
 {% let current_price = product.current_price.as_ref() %}
+{% let detail_view_selector = format!("[id='{}'] img", product.id) %}
 <li 
     class="flex justify-between gap-x-6 py-5 {% if !loop.first %}border-t border-zinc-400/10{% endif %}"
     id="{{ product.id }}" 
@@ -19,7 +20,7 @@
                 disabled=false,
                 class_name="",
                 is_ajax_action=true,
-                is_entering_detail_view="1",
+                is_entering_detail_view=format!("[id='{}'] img", product.id),
                 title="",
             ) %}
                 {% if product.images.get(0).is_some() %}
@@ -102,7 +103,7 @@
                 disabled=false,
                 class_name="",
                 is_ajax_action=true,
-                is_entering_detail_view="1",
+                is_entering_detail_view=format!("[id='{}'] img", product.id),
                 title="",
             ) %}
                 {% if product.images.get(0).is_some() %}
