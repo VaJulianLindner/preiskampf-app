@@ -56,6 +56,7 @@ pub async fn get_post_detail(
 }
 
 pub fn routes() -> Router<AppState> {
+    // TODO sollte inhalt der home werden
     Router::new()
         .route("/posts/:id", get(get_post_detail))
         .route("/posts", get(get_post_list))

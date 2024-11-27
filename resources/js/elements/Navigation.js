@@ -10,6 +10,8 @@ const MAIN_HEADER_ACTIVE_CLASSES = ["bg-zinc-900"];
 const MAIN_HEADER_PASSIVE_CLASSES = ["backdrop-blur", "bg-zinc-900/[var(--bg-opacity-dark)]"];
 const NAVIGATION_ACTIVE_CLASSES = ["font-bold", "text-white"];
 const NAVIGATION_PASSIVE_CLASS = "text-zinc-400";
+const NAVIGATION_ACTIVE_CLASSES_MOBILE = ["text-white"];
+const NAVIGATION_PASSIVE_CLASS_MOBILE = "text-zinc-400";
 
 class Navigation extends HtmxEventListener {
     constructor(el, options) {
@@ -131,6 +133,19 @@ Navigation.markActive = (content, urlPath) => {
         } else {
             el.classList.remove(...NAVIGATION_ACTIVE_CLASSES);
             el.classList.add(NAVIGATION_PASSIVE_CLASS);
+        }
+    });
+    
+    const navigationLinksMobile = content.querySelectorAll("[xui-el='Navigation'][xui-is-nav-mobile]");
+    navigationLinksMobile.forEach(el => {
+        const href = el.getAttribute("hx-get");
+        if (href.startsWith(urlPath)) {
+            el.classList.add(...NAVIGATION_ACTIVE_CLASSES_MOBILE);
+            el.classList.remove(NAVIGATION_PASSIVE_CLASS_MOBILE);
+        } else {
+            el.classList.remove(...NAVIGATION_ACTIVE_CLASSES_MOBILE);
+            el.classList.add(NAVIGATION_PASSIVE_CLASS_MOBILE);
+            el.querySelector(".bg-emerald-400")?.classList.remove("bg-emerald-400");
         }
     });
 };

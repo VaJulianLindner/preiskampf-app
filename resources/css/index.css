@@ -44,10 +44,10 @@
     }
 
     .icon-st0 {
-        stroke-width:2;
-        stroke-linecap:round;
-        stroke-linejoin:round;
-        stroke-miterlimit:10;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-miterlimit: 10;
     }
 
     /* all pulsing animation stuff */
@@ -227,6 +227,12 @@
         view-transition-name: heading-backdrop-transition-2;
     }
     ::view-transition-group(heading-backdrop-transition-2) {
+        backdrop-filter: blur(8px);
+    }
+    #mobile-navigation {
+        view-transition-name: heading-backdrop-transition-3;
+    }
+    ::view-transition-group(heading-backdrop-transition-3) {
         backdrop-filter: blur(8px);
     }
     /* View-Transition-API end */

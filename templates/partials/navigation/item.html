@@ -17,3 +17,30 @@
     </a>
 </li>
 {% endmacro %}
+
+{% macro button(label, href, reload_page) %}
+{% let is_active = crate::core::request_extension::strip_query_from_uri(href) == context.uri.path() %}
+<div class="flex-1 group">
+    <a
+        href="{{ href }}"
+        {% if !reload_page %}
+        hx-get="{{ href }}"
+        hx-target="#swap-content"
+        hx-swap="innerHTML transition:true"
+        xui-el="Navigation"
+        xui-is-nav-mobile
+        {% endif %}
+        class="flex items-end justify-center text-center mx-auto px-1 pt-2 w-full group-hover:text-white
+            {% if is_active %} text-white {% else %} text-zinc-400 {% endif %}
+        "
+    >
+        <span class="px-1 py-1">
+            <i class="far fa-home text-2xl pt-1 mb-1 block"></i>
+            <span class="block text-xs pb-2">{{ label }}</span>
+            <span class="block w-5 mx-auto h-1 group-hover:bg-emerald-400 rounded-full
+                {% if is_active %} bg-emerald-400 {% endif %}"
+            ></span>
+        </span>
+    </a>
+</div>
+{% endmacro %}
