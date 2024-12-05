@@ -1,0 +1,7 @@
+{% macro with_border(border_alignment, class_addition) %}
+<div class="mt-10 space-y-8 border-{{ border_alignment }} border-zinc-400/10 pb-12 sm:space-y-0 sm:divide-y sm:divide-zinc-400/10 sm:border-t sm:pb-0 {{ class_addition }}">
+{% endmacro %}
+
+{% macro end() %}
+</div>
+{% endmacro %}

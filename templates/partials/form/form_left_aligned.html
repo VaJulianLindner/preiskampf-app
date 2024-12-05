@@ -1,4 +1,5 @@
 {% import "partials/atoms/button.html" as button %}
+{% import "partials/atoms/spacer.html" as spacer %}
 
 {% macro start(method, action, swap, target, boost, push_url, headers) %}
 <form
@@ -11,7 +12,7 @@
     {% if headers.len() > 0 %}hx-headers="{{headers}}"{% endif %}
 >
     <div class="space-y-12 sm:space-y-16">
-        <div class="mt-10 space-y-8 border-b border-zinc-400/10 pb-12 sm:space-y-0 sm:divide-y sm:divide-zinc-400/10 sm:border-t sm:pb-0">
+        {% call spacer::with_border(border_alignment="b", class_addition="") %}
 {% endmacro %}
 
 {# TODO give some thoughts to defaultly swapping with transition:true #}
@@ -28,7 +29,7 @@
 {% endmacro %}
 
 {% macro end(hide_control_buttons, errors, reset_url, target, swap, submit_label) %}
-        </div>
+        {% call spacer::end() %}
     </div>
 
     {% if !hide_control_buttons %}

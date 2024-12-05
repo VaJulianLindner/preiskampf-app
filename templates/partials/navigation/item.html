@@ -41,7 +41,7 @@
 {% macro button_end(href) %}
 {% let is_active = crate::core::request_extension::strip_query_from_uri(href) == context.uri.path() %}
             <span class="block w-5 mx-auto h-1 mt-1 group-hover:bg-emerald-400 rounded-full
-                {% if is_active %} bg-emerald-400 {% endif %}"></span>
+                {% if is_active %} bg-emerald-400 {% endif %}" xui-nav-bg-mark></span>
         </span>
     </a>
 </div>

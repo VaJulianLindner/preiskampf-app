@@ -139,6 +139,7 @@ Navigation.markActive = (content, urlPath) => {
         if (href.startsWith(urlPath)) {
             el.classList.add(...NAVIGATION_ACTIVE_CLASSES_MOBILE);
             el.classList.remove(NAVIGATION_PASSIVE_CLASS_MOBILE);
+            el.querySelector("[xui-nav-bg-mark]").classList.add("bg-emerald-400");
         } else {
             el.classList.remove(...NAVIGATION_ACTIVE_CLASSES_MOBILE);
             el.classList.add(NAVIGATION_PASSIVE_CLASS_MOBILE);

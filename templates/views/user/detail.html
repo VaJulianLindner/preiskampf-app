@@ -3,6 +3,8 @@
 {% import "partials/form/input_wrapper/left_aligned.html" as input_wrapper %}
 {% import "partials/form/input/input.html" as input %}
 {% import "partials/form/input/input_address.html" as address_input %}
+{% import "partials/atoms/button.html" as button %}
+{% import "partials/atoms/spacer.html" as spacer %}
 
 {% block content %}
 
@@ -95,5 +97,19 @@
     target="#swap-content",
     submit_label="",
 ) %}
+
+{% call spacer::with_border(border_alignment="t", class_addition="pt-6") %}
+    {% call button::as_span_start(
+        href="/logout",
+        button_type="primary",
+        method="post",
+        target="",
+        swap="",
+        is_ajax_action=false,
+        attributes="class=\"flex no-underline gap-0.5 justify-center overflow-hidden text-sm font-medium transition rounded-full py-1 px-3 bg-emerald-500 hover:bg-emerald-400 cursor-pointer rounded-full bg-zinc-900 py-1 px-3 bg-emerald-400/10 text-emerald-400 ring-1 ring-inset ring-emerald-400/20 hover:bg-emerald-400/10 hover:text-emerald-300 hover:ring-emerald-300\""
+    ) %}
+        Logout
+    {% call button::as_span_end() %}
+{% call spacer::end() %}
 
 {% endblock %}

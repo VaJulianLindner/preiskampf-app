@@ -29,6 +29,7 @@ pub struct User {
     pub email: String,
     pub password: Option<String>,
     pub username: Option<String>,
+    #[sqlx(default)]
     pub confirmation_token: Option<String>,
     #[sqlx(default)]
     pub selected_shopping_list_id: Option<i64>,

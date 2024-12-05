@@ -3,7 +3,7 @@
 
 {# TODO wie auf die home?! #}
 
-<div class="min-[416px]:hidden min-w-screen flex items-center justify-center pt-5 fixed bottom-0 z-10 w-full" id="mobile-navigation">
+<div class="lg:hidden min-w-screen flex items-center justify-center pt-5 fixed bottom-0 z-10 w-full" id="mobile-navigation">
     <div class="bg-zinc-900 shadow-lg border-t border-white/10 w-full flex">
         {% call navigation::button(href="/einkaufstour", reload_page=false, is_last=false) %}
             {% call icons::shopping_cart(24, 24) %}
