@@ -24,7 +24,9 @@
                             {% include "partials/navigation/main.html" %}
                         </nav>
                         {% include "partials/navigation/aside_footer.html" %}
-                        {% include "partials/navigation_mobile/bottom.html" %}
+                        {% if authenticated_user.is_some() %}
+                            {% include "partials/navigation_mobile/bottom.html" %}
+                        {% endif %}
                     </div>
                 </aside>
                 <div class="relative flex h-full flex-col px-4 pt-4 min-[416px]:pt-14 sm:px-6 lg:px-8">
