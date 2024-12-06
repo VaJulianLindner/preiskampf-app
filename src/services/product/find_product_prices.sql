@@ -7,5 +7,5 @@ FROM
 WHERE
   prices_table.product_id = $1
 ORDER BY
-  prices_table.created_at DESC
+  prices_table.created_at ASC
 LIMIT 10

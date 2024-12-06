@@ -88,3 +88,44 @@ impl Price {
         format!("{}.{} {}", euros, cents, self.currency)
     }
 }
+
+pub fn get_prices_stats(prices: &Vec<Price>) -> (u32, u32, i64) {
+    if prices.len() == 0 {
+        return (0, 0, 0);
+    }
+
+    let mut max = 0;
+    let mut min = u32::MAX;
+    let mut min_timestamp = i64::MAX;
+    let mut max_timestamp = 0;
+
+    prices.iter().for_each(|v| {
+        // v.created_at.unwrap().timestamp()
+        match v.price {
+            Some(price) => {
+                let price: u32 = price.try_into().unwrap_or(0);
+                if price > max {
+                    max = price;
+                }
+                if price < min {
+                    min = price;
+                }
+            },
+            None => ()
+        };
+        match v.created_at {
+            Some(date) => {
+                let timestamp = date.timestamp();
+                if timestamp > max_timestamp {
+                    max_timestamp = timestamp;
+                }
+                if timestamp < min_timestamp {
+                    min_timestamp = timestamp;
+                }
+            },
+            None => ()
+        }
+    });
+
+    (min, max, max_timestamp - min_timestamp)
+}
