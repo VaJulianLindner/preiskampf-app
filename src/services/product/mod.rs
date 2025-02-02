@@ -11,7 +11,7 @@ pub async fn find_products(
     sort_order: String,
     limit: usize,
     offset: usize,
-) -> Result<(Vec<Product>, u64), Error> {
+) -> Result<Vec<Product>, Error> {
     // https://www.reddit.com/r/rust/comments/17hoxzl/performance_on_multiple_statements_sqlx_sql/
 
     let query_sort_order = SortOrder::from_str(sort_order.as_str()).to_string();
@@ -22,7 +22,7 @@ pub async fn find_products(
             include_str!("./find_products_by_similarity.sql"),
             search_query.as_ref().unwrap(),
             search_query.as_ref().unwrap(),
-            limit as i64,
+            (limit + 1) as i64,
             offset as i64,
         )
     } else {
@@ -30,30 +30,15 @@ pub async fn find_products(
             include_str!("./find_products.sql"),
             sort_by,
             query_sort_order,
-            limit as i64,
+            (limit + 1) as i64,
             offset as i64,
         )
     };
-    let query = sqlx::query::<_>(statement.as_str());
+    let query = sqlx::query_as::<_, Product>(statement.as_str());
 
-    match query
+    query
         .fetch_all(db_pool)
-        .await {
-            Ok(rows) => {
-                let products = rows.iter()
-                    .filter_map(|row| Product::from_row(row).ok())
-                    .collect::<Vec<Product>>();
-                let total: u64 = match rows.get(0) {
-                    Some(row) => row.try_get::<i64, &str>("total").unwrap_or_default() as u64,
-                    None => 0
-                };
-                Result::Ok((products, total))
-            },
-            Err(e) => {
-                eprintln!("error in services::product::find_products: {:?}", e);
-                Result::Ok((vec![], 0))
-            }
-        }      
+        .await      
 }
 
 pub async fn find_product(

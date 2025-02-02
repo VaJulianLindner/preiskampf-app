@@ -109,7 +109,7 @@ pub async fn get_product_list_page(
         ),
     ) {
         Ok(val) => {
-            let (products, total) = val.0;
+            let products = val.0;
             let shopping_list_items = val.1;
 
             let list_products = products.iter().map(|p| {
@@ -120,8 +120,10 @@ pub async fn get_product_list_page(
             }).collect::<Vec<ListProduct>>();
 
             let pagination = Pagination::from_query_params(&query_params)
-                .with_total(total)
+                .with_count(products.len())
                 .with_uri(request.uri().clone());
+
+            println!("DEBUG pagination {:?}", pagination);
 
             let template = ProductListTemplate {
                 products: list_products,

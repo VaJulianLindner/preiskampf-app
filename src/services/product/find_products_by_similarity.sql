@@ -6,8 +6,7 @@ SELECT
     products_table.url,
     products_table.market_id,
     products_table.price,
-    products_table.currency,
-    COUNT(*) OVER() AS total
+    products_table.currency
 FROM
   products products_table
 WHERE

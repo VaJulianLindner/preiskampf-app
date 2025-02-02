@@ -100,7 +100,6 @@ pub fn get_prices_stats(prices: &Vec<Price>) -> (u32, u32, i64) {
     let mut max_timestamp = 0;
 
     prices.iter().for_each(|v| {
-        // v.created_at.unwrap().timestamp()
         match v.price {
             Some(price) => {
                 let price: u32 = price.try_into().unwrap_or(0);

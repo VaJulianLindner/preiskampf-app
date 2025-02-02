@@ -18,6 +18,8 @@ pub struct Pagination {
     pub sort_order: Option<String>,
     pub last_page: Option<usize>,
     pub uri: Option<Uri>,
+    pub has_previous_page: bool,
+    pub has_next_page: bool,
 }
 
 impl Pagination {
@@ -34,14 +36,17 @@ impl Pagination {
     }
 
     pub fn from_query_params(query_params: &StateParams) -> Self {
+        let page = query_params.get_page().unwrap_or(0);
         Self { 
             q: query_params.get_q(),
-            page: query_params.get_page().unwrap_or(0),
+            page: page,
             limit: query_params.get_limit().unwrap_or(10),
             sort_by: query_params.get_sort_by(),
             sort_order: query_params.get_sort_order(),
             last_page: None,
             uri: None,
+            has_previous_page: page != 0,
+            has_next_page: false,
         }
     }
 
@@ -52,6 +57,11 @@ impl Pagination {
         } else {
             Some((total - 1) / self.limit)
         };
+        self
+    }
+
+    pub fn with_count(mut self, count: usize) -> Self {
+        self.has_next_page = count > self.limit;
         self
     }
 
