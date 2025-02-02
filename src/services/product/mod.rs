@@ -22,7 +22,7 @@ pub async fn find_products(
             include_str!("./find_products_by_similarity.sql"),
             search_query.as_ref().unwrap(),
             search_query.as_ref().unwrap(),
-            (limit + 1) as i64,
+            limit as i64,
             offset as i64,
         )
     } else {
@@ -30,7 +30,7 @@ pub async fn find_products(
             include_str!("./find_products.sql"),
             sort_by,
             query_sort_order,
-            (limit + 1) as i64,
+            limit as i64,
             offset as i64,
         )
     };

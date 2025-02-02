@@ -2,9 +2,10 @@
 
 <div id="product_list">
     <ul role="list">
-    {# TODO check das nicht das zusätzliche item gerendert wird! #}
         {% for list_product in products %}
-            {% call list_entry::default(product=list_product.product, is_liked=list_product.is_liked) %}
+            {% if loop.index0 != pagination.limit %}
+                {% call list_entry::default(product=list_product.product, is_liked=list_product.is_liked) %}
+            {% endif %}
         {% endfor %}
     </ul>
     {{ pagination.render_with_context(context).unwrap_or_default()|safe }}

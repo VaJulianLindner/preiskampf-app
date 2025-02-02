@@ -99,7 +99,7 @@ pub async fn get_product_list_page(
             shopping_list_id,
             sort_by,
             sort_order,
-            limit,
+            limit + 1,
             offset
         ),
         find_shopping_list_items(
@@ -122,8 +122,6 @@ pub async fn get_product_list_page(
             let pagination = Pagination::from_query_params(&query_params)
                 .with_count(products.len())
                 .with_uri(request.uri().clone());
-
-            println!("DEBUG pagination {:?}", pagination);
 
             let template = ProductListTemplate {
                 products: list_products,
