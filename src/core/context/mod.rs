@@ -5,6 +5,7 @@ use crate::core::query_params::StateParams;
 // TODO context holds form-errors
 // TODO context holds pagination
 // TODO Box context in templates to prevent copy when transferring data ownership
+// TODO clever use of Boxes, Rc/Arc and RefCell/Mutex
 pub struct Context<'a> {
     pub uri: &'a axum::http::Uri,
     pub headers: &'a axum::http::HeaderMap,

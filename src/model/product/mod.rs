@@ -2,6 +2,8 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::{FromRow, Row, postgres::PgRow};
 
+pub mod price_diagram;
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Product {
     pub id: String,
@@ -64,7 +66,7 @@ impl Product {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow)]
+#[derive(Debug, Serialize, Deserialize, FromRow, Clone)]
 pub struct Price {
     pub price: Option<i32>,
     pub currency: String, // TODO it's actually an enum, "GBP", "EUR", "USD" usw.
@@ -87,44 +89,4 @@ impl Price {
 
         format!("{}.{} {}", euros, cents, self.currency)
     }
-}
-
-pub fn get_prices_stats(prices: &Vec<Price>) -> (u32, u32, i64) {
-    if prices.len() == 0 {
-        return (0, 0, 0);
-    }
-
-    let mut max = 0;
-    let mut min = u32::MAX;
-    let mut min_timestamp = i64::MAX;
-    let mut max_timestamp = 0;
-
-    prices.iter().for_each(|v| {
-        match v.price {
-            Some(price) => {
-                let price: u32 = price.try_into().unwrap_or(0);
-                if price > max {
-                    max = price;
-                }
-                if price < min {
-                    min = price;
-                }
-            },
-            None => ()
-        };
-        match v.created_at {
-            Some(date) => {
-                let timestamp = date.timestamp();
-                if timestamp > max_timestamp {
-                    max_timestamp = timestamp;
-                }
-                if timestamp < min_timestamp {
-                    min_timestamp = timestamp;
-                }
-            },
-            None => ()
-        }
-    });
-
-    (min, max, max_timestamp - min_timestamp)
 }

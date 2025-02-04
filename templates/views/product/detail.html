@@ -42,15 +42,8 @@
     <time datetime="{{ product.created_at }}">{{ product.created_at.format("%d.%m.%Y") }}</time>
 </p>
 
-{% for price in prices %}
-    <p>
-        <strong>{{ price.format() }}</strong>
-        {% if price.created_at.is_some() %}
-        {{ price.created_at.as_ref().expect("price.created_at passed the is_some check").format(" am %d.%m.%Y um %H:%M Uhr") }}
-        {% endif %}
-    </p>
-{% endfor %}
-
-{% include "partials/product/price_diagram.html" %}
+<p class="mt-10 text-emerald-400 border border-emerald-400">
+    {{ crate::model::product::price_diagram::PriceDiagram::from_prices(prices).render_with_context(context).unwrap_or_default()|safe }}
+</p>
 
 {% endblock %}

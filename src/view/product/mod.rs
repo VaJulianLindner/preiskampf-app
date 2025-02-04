@@ -6,6 +6,8 @@ use crate::view::misc::NotificationTemplate;
 use crate::model::product::{ListProduct, Price, Product};
 use crate::model::user::User;
 
+pub mod price_diagram;
+
 #[derive(Template)]
 #[template(path = "views/product/detail.html")]
 pub struct ProductDetailTemplate<'a> {

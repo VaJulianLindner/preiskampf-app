@@ -1,0 +1,17 @@
+{# TODO good use-case for streaming chunked http out of order #}
+
+{% let height = 250 %}
+{% let radius = 8.0 %}
+{% let y_offset = 20 %}
+
+<svg width="100%" height="{{ height + y_offset }}" viewBox="0 0 100% 100%" fill="currentColor">
+    {% for price in model.prices %}
+        {% if price.price.is_some() && price.created_at.is_some() %}
+            {% let position_y = model.get_price_position_y(price, height.clone()) %}
+            <circle cx="{{ loop.index0 * 10 }}%" cy="{{ position_y + radius }}" r="{{ radius }}"/>
+            <text fill="currentColor" x="{{ loop.index0 * 10 }}%" y="{{ position_y + (radius * 3.0) }}">
+                {{ price.created_at.as_ref().unwrap().format("%d.%m.%Y") }}
+            </text>
+        {% endif %}
+    {% endfor %}
+</svg>
